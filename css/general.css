@@ -406,3 +406,8 @@ dd > p {
     /* Add some space between the icon and the text. */
     margin-right: 8px;
 }
+
+.content {
+    margin-left: 320px;
+    padding: 20px;
+}
