@@ -407,12 +407,20 @@ dd > p {
     margin-right: 8px;
 }
 
-/* mobile fix */
-@media (max-width: 768px) {
+/* responsive fix */
+@media (max-width: 1000px) {
     .content {
         margin-left: 0 !important;
         padding: 16px !important;
         overflow-x: hidden;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .sidebar-visible .sidebar {
+        display: block;
     }
 
     .page-wrapper {
