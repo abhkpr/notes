@@ -407,7 +407,25 @@ dd > p {
     margin-right: 8px;
 }
 
-
-#sidebar-toggle {
-    display: block !important;
+/* narrow window fix */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 200px;
+    }
+    
+    .content {
+        margin-left: 200px !important;
+    }
 }
+
+@media (max-width: 600px) {
+    .sidebar {
+        width: 150px;
+        font-size: 0.8rem;
+    }
+    
+    .content {
+        margin-left: 150px !important;
+    }
+}
+
