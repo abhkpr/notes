@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>warbird site — documentation | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a>\n<a href="vim.html">Vim Cheatsheet — Most Used Commands</a>\n<a href="mds.html">Markdown Cheatsheet</a>\n<a href="git.html">Git NAV_PLACEHOLDER GitHub</a>\n<a href="i3.html">i3 Complete Shortcuts NAV_PLACEHOLDER Config Notes</a>\n<a href="C++.html">C++ for Competitive Programming — Complete Notes</a>\n<a href="arithmetic.html">Mathematics for Competitive Programming</a>\n<a href="warbird.html" class="active">warbird site — documentation</a>\n
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="warbird-site-documentation">warbird site — documentation</h1>
+<hr />
+<h2 id="table-of-contents">table of contents</h2>
+<ul>
+<li><a href="#project-structure">project structure</a></li>
+<li><a href="#daily-workflow">daily workflow</a></li>
+<li><a href="#writing-blog-posts">writing blog posts</a></li>
+<li><a href="#managing-projects">managing projects</a></li>
+<li><a href="#updating-about-page">updating about page</a></li>
+<li><a href="#adding-social-links">adding social links</a></li>
+<li><a href="#customizing-the-look">customizing the look</a></li>
+<li><a href="#custom-domain-setup">custom domain setup</a></li>
+<li><a href="#troubleshooting">troubleshooting</a></li>
+</ul>
+<hr />
+<h2 id="project-structure">project structure</h2>
+<pre><code>~/warbird/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml       ← github actions auto deploy
+├── content/
+│   ├── blog/                ← all blog posts go here
+│   │   └── first-flight.md
+│   ├── projects/
+│   │   └── index.md         ← projects page
+│   └── about.md             ← about page
+├── themes/
+│   └── warbird/
+│       ├── layouts/         ← html templates
+│       └── static/
+│           └── css/
+│               └── main.css ← all styles
+└── hugo.toml                ← site config</code></pre>
+<hr />
+<h2 id="daily-workflow">daily workflow</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. go to project</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/warbird</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. make your changes (write post, edit page etc)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. preview locally</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">hugo</span> server</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># open localhost:1313 in firefox</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. when happy, push to live</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;what you didCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># site goes live in ~2 minutes automatically</span></span></code></pre></div>
+<hr />
+<h2 id="writing-blog-posts">writing blog posts</h2>
+<p>every post is a markdown file inside <code>content/blog/</code></p>
+<p><strong>create a new post:</strong></p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/content/blog/your-post-name.md</span></code></pre></div>
+<p><strong>required front matter at the top:</strong></p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> CONTENT_PLACEHOLDERquot;Your Post TitleCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2026-03-04</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="an">summary:</span><span class="co"> CONTENT_PLACEHOLDERquot;one line that shows on homepage and blog listCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>your content starts here...</span></code></pre></div>
+<p><strong>example post:</strong></p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> CONTENT_PLACEHOLDERquot;Learning VimCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2026-03-04</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="an">summary:</span><span class="co"> CONTENT_PLACEHOLDERquot;why i switched to vim and never looked backCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## why vim</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>started using vim because i wanted full keyboard control...</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">## keybinds i use daily</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`dd`</span> to delete a line</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`yy`</span> to copy a line</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`p`</span> to paste</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## conclusion</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>vim is hard at first but worth it.</span></code></pre></div>
+<p><strong>push it live:</strong></p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;post: learning vimCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
+<p><strong>naming convention for post files:</strong></p>
+<pre><code>good: learning-vim.md
+good: my-cp-journey.md
+bad:  My Post.md
+bad:  post1.md</code></pre>
+<hr />
+<h2 id="managing-projects">managing projects</h2>
+<p>edit the projects page:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/content/projects/index.md</span></code></pre></div>
+<p><strong>format for each project:</strong></p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## project name</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>what it does, one or two lines</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">visit →</span><span class="co">](https://link-to-project.com)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## another project</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>description here</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">github →</span><span class="co">](https://github.com/abhkpr/repo)</span></span></code></pre></div>
+<p><strong>push:</strong></p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;projects: add new projectCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
+<hr />
+<h2 id="updating-about-page">updating about page</h2>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/content/about.md</span></code></pre></div>
+<p>front matter must stay at top:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> CONTENT_PLACEHOLDERquot;AboutCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">layout:</span><span class="co"> CONTENT_PLACEHOLDERquot;aboutCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2026-03-01</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>your about content here</span></code></pre></div>
+<p>update this whenever: - you learn something new - you start a new
+project - your stack changes - you want to add/remove social links</p>
+<hr />
+<h2 id="adding-social-links">adding social links</h2>
+<p><strong>STEP 1 — add to hugo.toml:</strong></p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/hugo.toml</span></code></pre></div>
+<p>add your links in the <code>[params]</code> section:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[params]</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;thoughts, projects and notesCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;Abhishek KumarCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">github</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://github.com/abhkprCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">notes</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://abhkpr.github.io/notesCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">twitter</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://twitter.com/yourhandleCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">linkedin</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://linkedin.com/in/yournameCONTENT_PLACEHOLDERquot;</span></span></code></pre></div>
+<p><strong>STEP 2 — add to about layout:</strong></p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/themes/warbird/layouts/page/about.html</span></code></pre></div>
+<p>add links inside <code>.social-links</code> div:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">div</span> <span class="er">class</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;social-linksCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">a</span> <span class="er">href</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;{{ .Site.Params.github }}CONTENT_PLACEHOLDERquot;</span> <span class="er">target</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;_blankCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span>github<span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">a</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">a</span> <span class="er">href</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;{{ .Site.Params.notes }}CONTENT_PLACEHOLDERquot;</span> <span class="er">target</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;_blankCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span>notes<span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">a</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">a</span> <span class="er">href</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;{{ .Site.Params.twitter }}CONTENT_PLACEHOLDERquot;</span> <span class="er">target</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;_blankCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span>twitter<span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">a</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">a</span> <span class="er">href</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;{{ .Site.Params.linkedin }}CONTENT_PLACEHOLDERquot;</span> <span class="er">target</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;_blankCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span>linkedin<span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">a</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">div</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span></code></pre></div>
+<hr />
+<h2 id="customizing-the-look">customizing the look</h2>
+<p>all styles are in one file:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/themes/warbird/static/css/main.css</span></code></pre></div>
+<p><strong>color variables at the top — change these to retheme entire
+site:</strong></p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="in">:root</span> {</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">--bg</span>:        <span class="cn">#1a1a14</span><span class="op">;</span>   <span class="co">/* main background */</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    --bg2<span class="in">:       #222218;   /* secondary</span> background <span class="op">*</span>/</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">--cream</span>:     <span class="cn">#e8dcc8</span><span class="op">;</span>   <span class="co">/* main text color */</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">--olive</span>:     <span class="cn">#6b7c3a</span><span class="op">;</span>   <span class="co">/* primary accent */</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">--olive-lt</span>:  <span class="cn">#8a9e4a</span><span class="op">;</span>   <span class="co">/* lighter accent */</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="va">--amber</span>:     <span class="cn">#c8a84b</span><span class="op">;</span>   <span class="co">/* hover color */</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="va">--muted</span>:     <span class="cn">#8a8a7a</span><span class="op">;</span>   <span class="co">/* muted text */</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="va">--border</span>:    <span class="cn">#3a3a2a</span><span class="op">;</span>   <span class="co">/* border color */</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>fonts:</strong></p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="in">:root</span> {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">--font-head</span>: <span class="st">CONTENT_PLACEHOLDER#39;Special EliteCONTENT_PLACEHOLDER#39;</span><span class="op">,</span> <span class="dv">cursive</span><span class="op">;</span>  <span class="co">/* headings */</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">--font-mono</span>: <span class="st">CONTENT_PLACEHOLDER#39;Share Tech MonoCONTENT_PLACEHOLDER#39;</span><span class="op">,</span> <span class="dv">monospace</span><span class="op">;</span> <span class="co">/* body */</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>to change fonts go to
+<code>themes/warbird/layouts/_default/baseof.html</code> and update the
+google fonts import link</p>
+<hr />
+<h2 id="custom-domain-setup">custom domain setup</h2>
+<p>when you get a domain (free .tech from github student pack etc):</p>
+<p><strong>STEP 1 — update hugo.toml:</strong></p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/hugo.toml</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">baseURL</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://yourdomain.tech/CONTENT_PLACEHOLDERquot;</span></span></code></pre></div>
+<p><strong>STEP 2 — add CNAME file:</strong></p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">CONTENT_PLACEHOLDERquot;yourdomain.techCONTENT_PLACEHOLDERquot;</span> <span class="op">CONTENT_PLACEHOLDERgt;</span> ~/warbird/static/CNAME</span></code></pre></div>
+<p><strong>STEP 3 — DNS settings on your registrar:</strong></p>
+<p>add these records:</p>
+<pre><code>Type: A     Name: @    Value: 185.199.108.153
+Type: A     Name: @    Value: 185.199.109.153
+Type: A     Name: @    Value: 185.199.110.153
+Type: A     Name: @    Value: 185.199.111.153
+Type: CNAME Name: www  Value: abhkpr.github.io</code></pre>
+<p><strong>STEP 4 — enable on github:</strong> - repo settings → pages -
+custom domain → enter your domain - enable enforce https</p>
+<p><strong>STEP 5 — push and wait:</strong></p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;add custom domainCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
+<p>DNS takes 10-30 mins to propagate</p>
+<hr />
+<h2 id="troubleshooting">troubleshooting</h2>
+<p><strong>site not updating after push:</strong> - check Actions tab on
+github — is workflow green? - if red, check the error in the failed step
+- wait 2-3 mins after green before checking live site</p>
+<p><strong>local preview broken:</strong></p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hugo</span> server <span class="at">--disableFastRender</span></span></code></pre></div>
+<p><strong>workflow permissions error:</strong> - repo → settings →
+actions → general - set read and write permissions - re-run failed
+jobs</p>
+<p><strong>post not showing up:</strong> - check date in front matter is
+not in the future - check file is inside <code>content/blog/</code> -
+check SUMMARY is correct</p>
+<p><strong>styles not loading:</strong> - check <code>baseURL</code> in
+hugo.toml matches your actual url - clear browser cache
+<code>ctrl + shift + r</code></p>
+<hr />
+<h2 id="quick-reference">quick reference</h2>
+<table>
+<thead>
+<tr class="header">
+<th>task</th>
+<th>command</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>new blog post</td>
+<td><code>nano content/blog/name.md</code></td>
+</tr>
+<tr class="even">
+<td>preview locally</td>
+<td><code>hugo server</code></td>
+</tr>
+<tr class="odd">
+<td>push live</td>
+<td><code>git add . CONTENT_PLACEHOLDERamp;CONTENT_PLACEHOLDERamp; git commit -m "" CONTENT_PLACEHOLDERamp;CONTENT_PLACEHOLDERamp; git push</code></td>
+</tr>
+<tr class="even">
+<td>edit styles</td>
+<td><code>nano themes/warbird/static/css/main.css</code></td>
+</tr>
+<tr class="odd">
+<td>edit config</td>
+<td><code>nano hugo.toml</code></td>
+</tr>
+<tr class="even">
+<td>edit about</td>
+<td><code>nano content/about.md</code></td>
+</tr>
+<tr class="odd">
+<td>edit projects</td>
+<td><code>nano content/projects/index.md</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<pre><code>✈ wheels up. keep writing, keep pushing.</code></pre>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

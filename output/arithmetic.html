@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematics for Competitive Programming | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a>\n<a href="vim.html">Vim Cheatsheet — Most Used Commands</a>\n<a href="mds.html">Markdown Cheatsheet</a>\n<a href="git.html">Git NAV_PLACEHOLDER GitHub</a>\n<a href="i3.html">i3 Complete Shortcuts NAV_PLACEHOLDER Config Notes</a>\n<a href="C++.html">C++ for Competitive Programming — Complete Notes</a>\n<a href="arithmetic.html" class="active">Mathematics for Competitive Programming</a>\n<a href="warbird.html">warbird site — documentation</a>\n
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="mathematics-for-competitive-programming">Mathematics for
+Competitive Programming</h1>
+<blockquote>
+<p>Every problem in CP is math in disguise.</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="#1-number-basics">Number Basics</a></li>
+<li><a href="#2-divisibility-rules">Divisibility Rules</a></li>
+<li><a href="#3-prime-numbers">Prime Numbers</a></li>
+<li><a href="#4-gcd-and-lcm">GCD and LCM</a></li>
+<li><a href="#5-modular-arithmetic">Modular Arithmetic</a></li>
+<li><a href="#6-fast-exponentiation">Fast Exponentiation</a></li>
+<li><a href="#7-number-theory">Number Theory</a></li>
+<li><a href="#8-digit-manipulation">Digit Manipulation</a></li>
+<li><a href="#9-series-and-sequences">Series and Sequences</a></li>
+<li><a href="#10-combinatorics">Combinatorics</a></li>
+<li><a href="#11-probability-basics">Probability Basics</a></li>
+<li><a href="#12-binary-and-bitwise">Binary and Bitwise</a></li>
+<li><a href="#13-geometry-basics">Geometry Basics</a></li>
+<li><a href="#14-matrix-basics">Matrix Basics</a></li>
+<li><a href="#15-game-theory">Game Theory</a></li>
+<li><a href="#16-important-constants">Important Constants</a></li>
+</ol>
+<hr />
+<h2 id="number-basics">1. Number Basics</h2>
+<h3 id="types-of-numbers">Types of Numbers</h3>
+<pre><code>Natural Numbers  : 1, 2, 3, 4, ...          (positive, no zero)
+Whole Numbers    : 0, 1, 2, 3, ...          (natural + zero)
+Integers         : ...-3, -2, -1, 0, 1, 2   (positive + negative)
+Rational         : p/q form  (1/2, 3/4)
+Irrational       : cannot be written as p/q  (pi, sqrt(2))</code></pre>
+<h3 id="even-and-odd">Even and Odd</h3>
+<pre><code>Even : divisible by 2 → n % 2 == 0  → 0, 2, 4, 6, 8...
+Odd  : not divisible by 2 → n % 2 != 0 → 1, 3, 5, 7, 9...
+
+Key properties:
+  even + even = even      odd + odd  = even
+  even + odd  = odd       odd * odd  = odd
+  even * even = even      even * odd = even</code></pre>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isEven<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isOdd<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span>  <span class="op">{</span> <span class="cf">return</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">!=</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Fastest way using bitwise AND</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isOdd_fast<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="dv">1</span><span class="op">;</span> <span class="op">}</span>  <span class="co">// last bit = 1 means odd</span></span></code></pre></div>
+<h3 id="absolute-value">Absolute Value</h3>
+<pre><code>|x| = x if x CONTENT_PLACEHOLDERgt;= 0, else -x
+
+|-5| = 5     |5| = 5     |0| = 0</code></pre>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> a <span class="op">=</span> abs<span class="op">(-</span><span class="dv">5</span><span class="op">);</span>       <span class="co">// 5</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> b <span class="op">=</span> fabs<span class="op">(-</span><span class="fl">3.14</span><span class="op">);</span> <span class="co">// 3.14 for doubles</span></span></code></pre></div>
+<h3 id="floor-ceiling-rounding">Floor, Ceiling, Rounding</h3>
+<pre><code>floor(3.7)  = 3    (round DOWN to nearest integer)
+ceil(3.2)   = 4    (round UP to nearest integer)
+round(3.5)  = 4    (round to nearest)
+
+Integer division already floors:
+  7 / 2 = 3  (not 3.5)
+
+Ceiling division trick (without using ceil()):
+  ceil(a/b) = (a + b - 1) / b    (integer arithmetic)</code></pre>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>cout <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> floor<span class="op">(</span><span class="fl">3.7</span><span class="op">)</span> <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> endl<span class="op">;</span>     <span class="co">// 3</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>cout <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> ceil<span class="op">(</span><span class="fl">3.2</span><span class="op">)</span> <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> endl<span class="op">;</span>      <span class="co">// 4</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Ceiling division for integers</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> a <span class="op">=</span> <span class="dv">7</span><span class="op">,</span> b <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> ceil_div <span class="op">=</span> <span class="op">(</span>a <span class="op">+</span> b <span class="op">-</span> <span class="dv">1</span><span class="op">)</span> <span class="op">/</span> b<span class="op">;</span>  <span class="co">// 4</span></span></code></pre></div>
+<hr />
+<h2 id="divisibility-rules">2. Divisibility Rules</h2>
+<h3 id="the-rules-memorize-these">The Rules (Memorize These)</h3>
+<pre><code>÷ 2   → last digit is 0, 2, 4, 6, 8
+÷ 3   → sum of digits divisible by 3        (123 → 1+2+3=6 ✓)
+÷ 4   → last TWO digits divisible by 4      (1324 → 24÷4 ✓)
+÷ 5   → last digit is 0 or 5
+÷ 6   → divisible by BOTH 2 and 3
+÷ 7   → no simple rule, just divide
+÷ 8   → last THREE digits divisible by 8
+÷ 9   → sum of digits divisible by 9        (729 → 7+2+9=18 ✓)
+÷ 10  → last digit is 0
+÷ 11  → (sum of odd-position digits) - (sum of even-position digits) = 0 or 11
+÷ 12  → divisible by BOTH 3 and 4</code></pre>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> divBy2<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span>  <span class="op">{</span> <span class="cf">return</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> divBy3<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span>  <span class="op">{</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> s <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> s <span class="op">+=</span> n <span class="op">%</span> <span class="dv">10</span><span class="op">;</span> n <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> s <span class="op">%</span> <span class="dv">3</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> divBy4<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span>  <span class="op">{</span> <span class="cf">return</span> <span class="op">(</span>n <span class="op">%</span> <span class="dv">100</span><span class="op">)</span> <span class="op">%</span> <span class="dv">4</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> divBy5<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span>  <span class="op">{</span> <span class="cf">return</span> n <span class="op">%</span> <span class="dv">5</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> divBy6<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span>  <span class="op">{</span> <span class="cf">return</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">CONTENT_PLACEHOLDERamp;CONTENT_PLACEHOLDERamp;</span> n <span class="op">%</span> <span class="dv">3</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> divBy9<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span>  <span class="op">{</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> s <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> s <span class="op">+=</span> n <span class="op">%</span> <span class="dv">10</span><span class="op">;</span> n <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> s <span class="op">%</span> <span class="dv">9</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> divBy10<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> divBy11<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> odd <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> even <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> pos <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>pos <span class="op">%</span> <span class="dv">2</span> <span class="op">!=</span> <span class="dv">0</span><span class="op">)</span> odd  <span class="op">+=</span> n <span class="op">%</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>             even <span class="op">+=</span> n <span class="op">%</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        n <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span> pos<span class="op">++;</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> diff <span class="op">=</span> abs<span class="op">(</span>odd <span class="op">-</span> even<span class="op">);</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> diff <span class="op">==</span> <span class="dv">0</span> <span class="op">||</span> diff <span class="op">==</span> <span class="dv">11</span><span class="op">;</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="prime-numbers">3. Prime Numbers</h2>
+<h3 id="what-is-a-prime">What is a Prime?</h3>
+<pre><code>Prime   : divisible by exactly 1 and itself   (2, 3, 5, 7, 11, 13...)
+Composite: has more than 2 factors            (4, 6, 8, 9, 10...)
+Special : 1 is NEITHER prime nor composite
+          2 is the ONLY even prime</code></pre>
+<h3 id="prime-check-osqrt-n">Prime Check — O(sqrt n)</h3>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Why sqrt(n)? If n = a*b, one of them must be CONTENT_PLACEHOLDERlt;= sqrt(n)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">// So we only need to check up to sqrt(n)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isPrime<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERlt;</span> <span class="dv">2</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(</span>n <span class="op">==</span> <span class="dv">2</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(</span>n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span>      <span class="co">// skip even numbers</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">3</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i <span class="op">+=</span> <span class="dv">2</span><span class="op">)</span> <span class="op">{</span>  <span class="co">// only odd divisors</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>n <span class="op">%</span> i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">// i*i CONTENT_PLACEHOLDERlt;= n  is same as  i CONTENT_PLACEHOLDERlt;= sqrt(n)</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">// but i*i avoids floating point errors — always use this</span></span></code></pre></div>
+<h3 id="sieve-of-eratosthenes-on-log-log-n">Sieve of Eratosthenes — O(n
+log log n)</h3>
+<pre><code>Best way to find ALL primes up to n.
+Algorithm:
+  Start with all numbers marked as prime.
+  For each prime p, mark all multiples of p as composite.
+  Start from p*p (everything below already marked).</code></pre>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Find all primes up to n</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">bool</span><span class="op">CONTENT_PLACEHOLDERgt;</span> sieve<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">bool</span><span class="op">CONTENT_PLACEHOLDERgt;</span> is_prime<span class="op">(</span>n <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    is_prime<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> is_prime<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">2</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>is_prime<span class="op">[</span>i<span class="op">])</span> <span class="op">{</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> j <span class="op">=</span> i <span class="op">*</span> i<span class="op">;</span> j <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> j <span class="op">+=</span> i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>                is_prime<span class="op">[</span>j<span class="op">]</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>   <span class="co">// mark multiples</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> is_prime<span class="op">;</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">// Usage</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> solve<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> primes <span class="op">=</span> sieve<span class="op">(</span><span class="dv">100</span><span class="op">);</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">2</span><span class="op">;</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> <span class="dv">100</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>primes<span class="op">[</span>i<span class="op">])</span> cout <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> i <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> <span class="st">CONTENT_PLACEHOLDERquot; CONTENT_PLACEHOLDERquot;</span><span class="op">;</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="co">// Output: 2 3 5 7 11 13 17 19 23 29 31 37 41 43 47...</span></span></code></pre></div>
+<h3 id="smallest-prime-factor-sieve-very-useful">Smallest Prime Factor
+Sieve — Very Useful</h3>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// For each number, store its smallest prime factor</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Allows instant factorization</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">int</span><span class="op">CONTENT_PLACEHOLDERgt;</span> spf<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">int</span><span class="op">CONTENT_PLACEHOLDERgt;</span> smallest<span class="op">(</span>n <span class="op">+</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    iota<span class="op">(</span>smallest<span class="op">.</span>begin<span class="op">(),</span> smallest<span class="op">.</span>end<span class="op">(),</span> <span class="dv">0</span><span class="op">);</span> <span class="co">// smallest[i] = i</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">2</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>smallest<span class="op">[</span>i<span class="op">]</span> <span class="op">==</span> i<span class="op">)</span> <span class="op">{</span>  <span class="co">// i is prime</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> j <span class="op">=</span> i <span class="op">*</span> i<span class="op">;</span> j <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> j <span class="op">+=</span> i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span><span class="op">(</span>smallest<span class="op">[</span>j<span class="op">]</span> <span class="op">==</span> j<span class="op">)</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>                    smallest<span class="op">[</span>j<span class="op">]</span> <span class="op">=</span> i<span class="op">;</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> smallest<span class="op">;</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="co">// Factorize any number in O(log n) using SPF</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">int</span><span class="op">CONTENT_PLACEHOLDERgt;</span> factorize<span class="op">(</span><span class="dt">int</span> n<span class="op">,</span> vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">int</span><span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERamp;</span> smallest<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">int</span><span class="op">CONTENT_PLACEHOLDERgt;</span> factors<span class="op">;</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>        factors<span class="op">.</span>pb<span class="op">(</span>smallest<span class="op">[</span>n<span class="op">]);</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>        n <span class="op">/=</span> smallest<span class="op">[</span>n<span class="op">];</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> factors<span class="op">;</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="prime-factorization-osqrt-n">Prime Factorization — O(sqrt
+n)</h3>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 360 = 2^3 * 3^2 * 5</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>map<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">int</span><span class="op">,</span><span class="dt">int</span><span class="op">CONTENT_PLACEHOLDERgt;</span> primeFactors<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    map<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">int</span><span class="op">,</span><span class="dt">int</span><span class="op">CONTENT_PLACEHOLDERgt;</span> factors<span class="op">;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">2</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span><span class="op">(</span>n <span class="op">%</span> i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>            factors<span class="op">[</span>i<span class="op">]++;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>            n <span class="op">/=</span> i<span class="op">;</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">1</span><span class="op">)</span> factors<span class="op">[</span>n<span class="op">]++;</span>  <span class="co">// remaining prime factor CONTENT_PLACEHOLDERgt; sqrt(n)</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> factors<span class="op">;</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Example: n = 360</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">// i=2: 360/2=180/2=90/2=45, factors[2]=3</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">// i=3: 45/3=15/3=5, factors[3]=2</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">// i=4: skip (4*4=16 CONTENT_PLACEHOLDERgt; 5)</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">// n=5 CONTENT_PLACEHOLDERgt; 1: factors[5]=1</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co">// Result: {2:3, 3:2, 5:1}</span></span></code></pre></div>
+<hr />
+<h2 id="gcd-and-lcm">4. GCD and LCM</h2>
+<h3 id="gcd-greatest-common-divisor">GCD (Greatest Common Divisor)</h3>
+<pre><code>GCD(a, b) = largest number that divides both a and b
+
+GCD(12, 8):
+  Factors of 12: 1, 2, 3, 4, 6, 12
+  Factors of 8:  1, 2, 4, 8
+  Common:        1, 2, 4
+  GCD = 4
+
+Euclidean Algorithm: GCD(a, b) = GCD(b, a % b)
+  GCD(12, 8)
+  = GCD(8, 4)    because 12 % 8 = 4
+  = GCD(4, 0)    because 8 % 4 = 0
+  = 4            base case: GCD(n, 0) = n</code></pre>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Recursive</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> gcd<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> b <span class="op">==</span> <span class="dv">0</span> <span class="op">?</span> a <span class="op">:</span> gcd<span class="op">(</span>b<span class="op">,</span> a <span class="op">%</span> b<span class="op">);</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Iterative</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> gcd_iter<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        a <span class="op">%=</span> b<span class="op">;</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>        swap<span class="op">(</span>a<span class="op">,</span> b<span class="op">);</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a<span class="op">;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="co">// Built-in (C++17)</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>__gcd<span class="op">(</span><span class="dv">12</span><span class="op">,</span> <span class="dv">8</span><span class="op">);</span>    <span class="co">// 4</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co">// Properties:</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="co">// gcd(a, 0) = a</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="co">// gcd(0, b) = b</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="co">// gcd(a, b) = gcd(b, a)</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="co">// gcd(a, b) = gcd(a-b, b)  if a CONTENT_PLACEHOLDERgt; b</span></span></code></pre></div>
+<h3 id="lcm-least-common-multiple">LCM (Least Common Multiple)</h3>
+<pre><code>LCM(a, b) = smallest number divisible by both a and b
+
+Key formula: LCM(a, b) = (a / GCD(a, b)) * b
+             Divide FIRST to prevent overflow!
+
+LCM(12, 8):
+  GCD(12, 8) = 4
+  LCM = (12 / 4) * 8 = 24</code></pre>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lcm<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>a <span class="op">/</span> __gcd<span class="op">(</span>a<span class="op">,</span> b<span class="op">))</span> <span class="op">*</span> b<span class="op">;</span>  <span class="co">// divide first!</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">// LCM of array</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lcm_array<span class="op">(</span>vi<span class="op">CONTENT_PLACEHOLDERamp;</span> arr<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> result <span class="op">=</span> arr<span class="op">[</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    rep<span class="op">(</span>i<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> arr<span class="op">.</span>size<span class="op">())</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> lcm<span class="op">(</span>result<span class="op">,</span> arr<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="extended-gcd-for-modular-inverse">Extended GCD — For Modular
+Inverse</h3>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Finds x, y such that: a*x + b*y = gcd(a, b)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> extgcd<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">,</span> <span class="dt">int</span> <span class="op">CONTENT_PLACEHOLDERamp;</span>x<span class="op">,</span> <span class="dt">int</span> <span class="op">CONTENT_PLACEHOLDERamp;</span>y<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(</span>b <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> x <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> y <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> <span class="cf">return</span> a<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> x1<span class="op">,</span> y1<span class="op">;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> g <span class="op">=</span> extgcd<span class="op">(</span>b<span class="op">,</span> a <span class="op">%</span> b<span class="op">,</span> x1<span class="op">,</span> y1<span class="op">);</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> y1<span class="op">;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> x1 <span class="op">-</span> <span class="op">(</span>a <span class="op">/</span> b<span class="op">)</span> <span class="op">*</span> y1<span class="op">;</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> g<span class="op">;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="modular-arithmetic">5. Modular Arithmetic</h2>
+<h3 id="why-modulo">Why Modulo?</h3>
+<pre><code>Answers in CP can be astronomically large.
+Problems say CONTENT_PLACEHOLDERquot;print answer % 10^9 + 7CONTENT_PLACEHOLDERquot;
+mod = 10^9 + 7 = 1000000007  (this is a prime number)
+
+Why this specific prime? Because:
+  - It fits in int (just barely)
+  - Two numbers multiplied fit in long long
+  - Being prime allows modular inverse</code></pre>
+<h3 id="basic-rules">Basic Rules</h3>
+<pre><code>(a + b) % m = ((a % m) + (b % m)) % m
+(a - b) % m = ((a % m) - (b % m) + m) % m   ← +m prevents negative
+(a * b) % m = ((a % m) * (b % m)) % m
+(a / b) % m = (a * inverse(b)) % m           ← division needs inverse</code></pre>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> <span class="dt">int</span> MOD <span class="op">=</span> <span class="fl">1e9</span> <span class="op">+</span> <span class="dv">7</span><span class="op">;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Addition</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> add<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> a<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>a <span class="op">+</span> b<span class="op">)</span> <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Subtraction (add MOD to prevent negative)</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> sub<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> a<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">((</span>a <span class="op">-</span> b<span class="op">)</span> <span class="op">%</span> MOD <span class="op">+</span> MOD<span class="op">)</span> <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Multiplication</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> mul<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> a<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>a <span class="op">%</span> MOD<span class="op">)</span> <span class="op">*</span> <span class="op">(</span>b <span class="op">%</span> MOD<span class="op">)</span> <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="co">// WRONG way (common mistake):</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> wrong <span class="op">=</span> <span class="op">(</span>a <span class="op">+</span> b<span class="op">)</span> <span class="op">%</span> MOD<span class="op">;</span>   <span class="co">// ok for addition</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> wrong2 <span class="op">=</span> a <span class="op">*</span> b <span class="op">%</span> MOD<span class="op">;</span>    <span class="co">// OVERFLOW if a,b ~ 10^9</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="co">// CORRECT: cast or reduce first</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> correct <span class="op">=</span> <span class="op">(</span><span class="dv">1</span><span class="bu">LL</span> <span class="op">*</span> a <span class="op">*</span> b<span class="op">)</span> <span class="op">%</span> MOD<span class="op">;</span></span></code></pre></div>
+<h3 id="modular-inverse">Modular Inverse</h3>
+<pre><code>Inverse of b (mod m): b * inv(b) ≡ 1 (mod m)
+Only exists when gcd(b, m) = 1
+If m is prime, inv(b) = b^(m-2) % m  (FermatCONTENT_PLACEHOLDER#39;s little theorem)</code></pre>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> power<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> base<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> exp<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> mod<span class="op">);</span>  <span class="co">// defined below</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> modinv<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> b<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> m <span class="op">=</span> MOD<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> power<span class="op">(</span>b<span class="op">,</span> m <span class="op">-</span> <span class="dv">2</span><span class="op">,</span> m<span class="op">);</span>  <span class="co">// only works when m is prime</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Division using modular inverse</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> divide<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> a<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mul<span class="op">(</span>a<span class="op">,</span> modinv<span class="op">(</span>b<span class="op">));</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="fast-exponentiation">6. Fast Exponentiation</h2>
+<h3 id="why-fast-power">Why Fast Power?</h3>
+<pre><code>2^10 the slow way: multiply 2 ten times
+2^10 the fast way: 2^10 = 2^8 * 2^2   (only 4 multiplications)
+
+Binary exponentiation: split exponent in binary
+  13 in binary = 1101
+  x^13 = x^8 * x^4 * x^1   (skip x^2 because bit 1 is 0)
+
+Time: O(log n) instead of O(n)</code></pre>
+<h3 id="fast-power-code">Fast Power Code</h3>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Compute base^exp % mod in O(log exp)</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> power<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> base<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> exp<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> mod <span class="op">=</span> MOD<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">long</span> <span class="dt">long</span> result <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    base <span class="op">%=</span> mod<span class="op">;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>exp <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>exp <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="dv">1</span><span class="op">)</span>                      <span class="co">// if last bit is 1</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>            result <span class="op">=</span> result <span class="op">*</span> base <span class="op">%</span> mod<span class="op">;</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>        base <span class="op">=</span> base <span class="op">*</span> base <span class="op">%</span> mod<span class="op">;</span>        <span class="co">// square the base</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        exp <span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;=</span> <span class="dv">1</span><span class="op">;</span>                       <span class="co">// shift right (divide by 2)</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="co">// Trace: base=2, exp=10 (binary: 1010)</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a><span class="co">// exp=10(1010): bit=0, base=4,   result=1</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a><span class="co">// exp=5 (0101): bit=1, base=16,  result=2</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a><span class="co">// exp=2 (0010): bit=0, base=256, result=2</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a><span class="co">// exp=1 (0001): bit=1, base=..., result=2*16=32... wait</span></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="co">// Actually: 2^10=1024. LetCONTENT_PLACEHOLDER#39;s trust the code.</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a><span class="co">// Without modulo (for small numbers)</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> power_simple<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> base<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> exp<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">long</span> <span class="dt">long</span> result <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>exp <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>exp <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="dv">1</span><span class="op">)</span> result <span class="op">*=</span> base<span class="op">;</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>        base <span class="op">*=</span> base<span class="op">;</span></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>        exp <span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="number-theory">7. Number Theory</h2>
+<h3 id="factors-of-a-number">Factors of a Number</h3>
+<pre><code>Factors of 12: 1, 2, 3, 4, 6, 12
+Number of factors = (e1+1)(e2+1)...  where e = exponents in prime factorization
+12 = 2^2 * 3^1 → factors = (2+1)(1+1) = 6  ✓</code></pre>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Print all factors — O(sqrt n)</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> printFactors<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    vi factors<span class="op">;</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>n <span class="op">%</span> i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>            factors<span class="op">.</span>pb<span class="op">(</span>i<span class="op">);</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span><span class="op">(</span>i <span class="op">!=</span> n<span class="op">/</span>i<span class="op">)</span> factors<span class="op">.</span>pb<span class="op">(</span>n<span class="op">/</span>i<span class="op">);</span>  <span class="co">// donCONTENT_PLACEHOLDER#39;t add sqrt twice</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    sort<span class="op">(</span>all<span class="op">(</span>factors<span class="op">));</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="kw">auto</span> x <span class="op">:</span> factors<span class="op">)</span> cout <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> x <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> <span class="st">CONTENT_PLACEHOLDERquot; CONTENT_PLACEHOLDERquot;</span><span class="op">;</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Sum of factors</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> sumFactors<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>n <span class="op">%</span> i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>            sum <span class="op">+=</span> i<span class="op">;</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span><span class="op">(</span>i <span class="op">!=</span> n<span class="op">/</span>i<span class="op">)</span> sum <span class="op">+=</span> n<span class="op">/</span>i<span class="op">;</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum<span class="op">;</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a><span class="co">// Count of factors</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> countFactors<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>n <span class="op">%</span> i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>            count<span class="op">++;</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span><span class="op">(</span>i <span class="op">!=</span> n<span class="op">/</span>i<span class="op">)</span> count<span class="op">++;</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> count<span class="op">;</span></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="special-numbers">Special Numbers</h3>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Perfect Number: sum of proper factors = number itself</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 6 = 1+2+3   28 = 1+2+4+7+14</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isPerfect<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> sum <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">2</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>n <span class="op">%</span> i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>            sum <span class="op">+=</span> i<span class="op">;</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span><span class="op">(</span>i <span class="op">!=</span> n<span class="op">/</span>i<span class="op">)</span> sum <span class="op">+=</span> n<span class="op">/</span>i<span class="op">;</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum <span class="op">==</span> n <span class="op">CONTENT_PLACEHOLDERamp;CONTENT_PLACEHOLDERamp;</span> n <span class="op">!=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Armstrong Number: sum of (each digit ^ total_digits) = number</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a><span class="co">// 153 = 1^3 + 5^3 + 3^3   (3 digits)</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="co">// 9474 = 9^4 + 4^4 + 7^4 + 4^4  (4 digits)</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isArmstrong<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> original <span class="op">=</span> n<span class="op">;</span></span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> digits <span class="op">=</span> to_string<span class="op">(</span>n<span class="op">).</span>size<span class="op">();</span>  <span class="co">// count digits</span></span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> d <span class="op">=</span> n <span class="op">%</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>        sum <span class="op">+=</span> power_simple<span class="op">(</span>d<span class="op">,</span> digits<span class="op">);</span></span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>        n <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum <span class="op">==</span> original<span class="op">;</span></span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a><span class="co">// Strong Number: sum of factorials of digits = number</span></span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a><span class="co">// 145 = 1! + 4! + 5! = 1 + 24 + 120 = 145</span></span>
+<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isStrong<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-32"><a href="#cb30-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> original <span class="op">=</span> n<span class="op">,</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb30-33"><a href="#cb30-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-34"><a href="#cb30-34" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> d <span class="op">=</span> n <span class="op">%</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb30-35"><a href="#cb30-35" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> fact <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb30-36"><a href="#cb30-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> d<span class="op">;</span> i<span class="op">++)</span> fact <span class="op">*=</span> i<span class="op">;</span></span>
+<span id="cb30-37"><a href="#cb30-37" aria-hidden="true" tabindex="-1"></a>        sum <span class="op">+=</span> fact<span class="op">;</span></span>
+<span id="cb30-38"><a href="#cb30-38" aria-hidden="true" tabindex="-1"></a>        n <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb30-39"><a href="#cb30-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb30-40"><a href="#cb30-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sum <span class="op">==</span> original<span class="op">;</span></span>
+<span id="cb30-41"><a href="#cb30-41" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb30-42"><a href="#cb30-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-43"><a href="#cb30-43" aria-hidden="true" tabindex="-1"></a><span class="co">// Palindrome Number: reads same forwards and backwards</span></span>
+<span id="cb30-44"><a href="#cb30-44" aria-hidden="true" tabindex="-1"></a><span class="co">// 121, 1221, 12321</span></span>
+<span id="cb30-45"><a href="#cb30-45" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isPalindrome<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-46"><a href="#cb30-46" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> original <span class="op">=</span> n<span class="op">,</span> rev <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb30-47"><a href="#cb30-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-48"><a href="#cb30-48" aria-hidden="true" tabindex="-1"></a>        rev <span class="op">=</span> rev <span class="op">*</span> <span class="dv">10</span> <span class="op">+</span> n <span class="op">%</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb30-49"><a href="#cb30-49" aria-hidden="true" tabindex="-1"></a>        n <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb30-50"><a href="#cb30-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb30-51"><a href="#cb30-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rev <span class="op">==</span> original<span class="op">;</span></span>
+<span id="cb30-52"><a href="#cb30-52" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="eulers-totient-function">Euler’s Totient Function</h3>
+<pre><code>φ(n) = count of numbers from 1 to n that are coprime with n
+       (gcd(i, n) = 1)
+
+φ(1)  = 1
+φ(p)  = p - 1  for prime p
+φ(p^k)= p^k - p^(k-1)
+φ(mn) = φ(m)*φ(n)  when gcd(m,n) = 1
+
+Examples:
+φ(10) = 4   (1, 3, 7, 9 are coprime with 10)
+φ(7)  = 6   (1,2,3,4,5,6 — 7 is prime)</code></pre>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> euler_totient<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> result <span class="op">=</span> n<span class="op">;</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">2</span><span class="op">;</span> i <span class="op">*</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>n <span class="op">%</span> i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">while</span><span class="op">(</span>n <span class="op">%</span> i <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> n <span class="op">/=</span> i<span class="op">;</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>            result <span class="op">-=</span> result <span class="op">/</span> i<span class="op">;</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">1</span><span class="op">)</span> result <span class="op">-=</span> result <span class="op">/</span> n<span class="op">;</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Sieve version for all values up to n</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">int</span><span class="op">CONTENT_PLACEHOLDERgt;</span> totient_sieve<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">int</span><span class="op">CONTENT_PLACEHOLDERgt;</span> phi<span class="op">(</span>n <span class="op">+</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>    iota<span class="op">(</span>phi<span class="op">.</span>begin<span class="op">(),</span> phi<span class="op">.</span>end<span class="op">(),</span> <span class="dv">0</span><span class="op">);</span>  <span class="co">// phi[i] = i</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">2</span><span class="op">;</span> i <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>phi<span class="op">[</span>i<span class="op">]</span> <span class="op">==</span> i<span class="op">)</span> <span class="op">{</span>  <span class="co">// i is prime</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> j <span class="op">=</span> i<span class="op">;</span> j <span class="op">CONTENT_PLACEHOLDERlt;=</span> n<span class="op">;</span> j <span class="op">+=</span> i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>                phi<span class="op">[</span>j<span class="op">]</span> <span class="op">-=</span> phi<span class="op">[</span>j<span class="op">]</span> <span class="op">/</span> i<span class="op">;</span></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> phi<span class="op">;</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="fermats-little-theorem">Fermat’s Little Theorem</h3>
+<pre><code>If p is prime and gcd(a, p) = 1, then:
+  a^(p-1) ≡ 1 (mod p)
+  a^p     ≡ a (mod p)
+
+Use: modular inverse when mod is prime
+  a^(-1) ≡ a^(p-2) (mod p)</code></pre>
+<h3 id="chinese-remainder-theorem-crt">Chinese Remainder Theorem
+(CRT)</h3>
+<pre><code>Given:
+  x ≡ r1 (mod m1)
+  x ≡ r2 (mod m2)
+  ...
+Find x when all m values are coprime.
+
+Used in: problems involving multiple modular constraints</code></pre>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Simple CRT for two equations</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co">// x ≡ r1 (mod m1),  x ≡ r2 (mod m2)</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> crt<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> r1<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> m1<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> r2<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> m2<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">long</span> <span class="dt">long</span> m <span class="op">=</span> m1 <span class="op">*</span> m2<span class="op">;</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">long</span> <span class="dt">long</span> ans <span class="op">=</span> <span class="op">(</span>r1 <span class="op">*</span> m2 <span class="op">%</span> m <span class="op">*</span> modinv<span class="op">(</span>m2<span class="op">,</span> m1<span class="op">)</span> <span class="op">%</span> m</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>                   <span class="op">+</span> r2 <span class="op">*</span> m1 <span class="op">%</span> m <span class="op">*</span> modinv<span class="op">(</span>m1<span class="op">,</span> m2<span class="op">)</span> <span class="op">%</span> m<span class="op">)</span> <span class="op">%</span> m<span class="op">;</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ans<span class="op">;</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="digit-manipulation">8. Digit Manipulation</h2>
+<h3 id="core-operations">Core Operations</h3>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> n <span class="op">=</span> <span class="dv">12345</span><span class="op">;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Last digit</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> last <span class="op">=</span> n <span class="op">%</span> <span class="dv">10</span><span class="op">;</span>        <span class="co">// 5</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Remove last digit</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> n <span class="op">/</span> <span class="dv">10</span><span class="op">;</span>               <span class="co">// 1234</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Number of digits</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> len <span class="op">=</span> to_string<span class="op">(</span>n<span class="op">).</span>size<span class="op">();</span>   <span class="co">// easy way</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Or:</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> temp <span class="op">=</span> n<span class="op">;</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span><span class="op">(</span>temp <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> count<span class="op">++;</span> temp <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a><span class="co">// First digit</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;=</span> <span class="dv">10</span><span class="op">)</span> n <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span>   <span class="co">// keep dividing until one digit left</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="co">// Sum of digits</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> sum <span class="op">+=</span> n<span class="op">%</span><span class="dv">10</span><span class="op">;</span> n <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a><span class="co">// Reverse a number</span></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> rev <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>    rev <span class="op">=</span> rev <span class="op">*</span> <span class="dv">10</span> <span class="op">+</span> n <span class="op">%</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>    n <span class="op">/=</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a><span class="co">// Check palindrome using reverse</span></span>
+<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isPalin <span class="op">=</span> <span class="op">(</span>rev <span class="op">==</span> original<span class="op">);</span></span></code></pre></div>
+<h3 id="digit-dp-concept">Digit DP Concept</h3>
+<pre><code>Count numbers from L to R satisfying some digit property.
+f(L, R) = f(0, R) - f(0, L-1)
+
+Used in: count numbers with digit sum = k, count numbers
+         with no repeated digits, etc.
+Core idea: build number digit by digit with constraints.</code></pre>
+<hr />
+<h2 id="series-and-sequences">9. Series and Sequences</h2>
+<h3 id="arithmetic-progression-ap">Arithmetic Progression (AP)</h3>
+<pre><code>a, a+d, a+2d, a+3d, ...
+a = first term,  d = common difference
+
+nth term    = a + (n-1)*d
+Sum of n    = n/2 * (2a + (n-1)*d)
+            = n/2 * (first + last)</code></pre>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> ap_nth<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> a<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> d<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> <span class="op">(</span>n<span class="op">-</span><span class="dv">1</span><span class="op">)</span> <span class="op">*</span> d<span class="op">;</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> ap_sum<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> a<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> d<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> n <span class="op">*</span> <span class="op">(</span><span class="dv">2</span><span class="op">*</span>a <span class="op">+</span> <span class="op">(</span>n<span class="op">-</span><span class="dv">1</span><span class="op">)*</span>d<span class="op">)</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="geometric-progression-gp">Geometric Progression (GP)</h3>
+<pre><code>a, ar, ar^2, ar^3, ...
+a = first term,  r = common ratio
+
+nth term  = a * r^(n-1)
+Sum of n  = a * (r^n - 1) / (r - 1)   when r != 1
+          = a * n                       when r == 1
+Infinite  = a / (1-r)                  when |r| CONTENT_PLACEHOLDERlt; 1</code></pre>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> gp_nth<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> a<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> r<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">*</span> power<span class="op">(</span>r<span class="op">,</span> n<span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="important-series-memorize-these">Important Series — Memorize
+These</h3>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Sum of first n natural numbers</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 1+2+3+...+n = n*(n+1)/2</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> sum_n<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n<span class="op">*(</span>n<span class="op">+</span><span class="dv">1</span><span class="op">)/</span><span class="dv">2</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Sum of first n squares</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 1^2+2^2+...+n^2 = n*(n+1)*(2n+1)/6</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> sum_sq<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n<span class="op">*(</span>n<span class="op">+</span><span class="dv">1</span><span class="op">)*(</span><span class="dv">2</span><span class="op">*</span>n<span class="op">+</span><span class="dv">1</span><span class="op">)/</span><span class="dv">6</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Sum of first n cubes</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="co">// 1^3+2^3+...+n^3 = (n*(n+1)/2)^2   = (sum_n)^2</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> sum_cb<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span> <span class="dt">long</span> <span class="dt">long</span> s<span class="op">=</span>n<span class="op">*(</span>n<span class="op">+</span><span class="dv">1</span><span class="op">)/</span><span class="dv">2</span><span class="op">;</span> <span class="cf">return</span> s<span class="op">*</span>s<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Sum of first n even numbers</span></span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a><span class="co">// 2+4+6+...+2n = n*(n+1)</span></span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> sum_even<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n<span class="op">*(</span>n<span class="op">+</span><span class="dv">1</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a><span class="co">// Sum of first n odd numbers</span></span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a><span class="co">// 1+3+5+...+(2n-1) = n^2</span></span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> sum_odd<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n<span class="op">*</span>n<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a><span class="co">// Powers of 2</span></span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a><span class="co">// 1+2+4+...+2^n = 2^(n+1) - 1</span></span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> sum_pow2<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> <span class="op">(</span><span class="dv">1</span><span class="bu">LL</span><span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;(</span>n<span class="op">+</span><span class="dv">1</span><span class="op">))</span> <span class="op">-</span> <span class="dv">1</span><span class="op">;</span> <span class="op">}</span></span></code></pre></div>
+<h3 id="fibonacci-sequence">Fibonacci Sequence</h3>
+<pre><code>0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144...
+F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)
+
+Properties:
+  F(n) is always divisible by F(m) if m divides n
+  gcd(F(m), F(n)) = F(gcd(m, n))
+  Every 3rd Fibonacci is even
+  Every 4th is divisible by 3
+  Every 5th is divisible by 5</code></pre>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">// O(n) iterative</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> fibonacci<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">long</span> <span class="dt">long</span> a <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> b <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    rep<span class="op">(</span>i<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>        cout <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> a <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> <span class="st">CONTENT_PLACEHOLDERquot; CONTENT_PLACEHOLDERquot;</span><span class="op">;</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">long</span> <span class="dt">long</span> c <span class="op">=</span> a <span class="op">+</span> b<span class="op">;</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> b<span class="op">;</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>        b <span class="op">=</span> c<span class="op">;</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a><span class="co">// O(log n) matrix exponentiation — for huge n</span></span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a><span class="co">// [F(n+1)] = [1 1]^n * [1]</span></span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a><span class="co">// [F(n)  ]   [1 0]     [0]</span></span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a><span class="co">// Pisano Period: F(n) % m is periodic</span></span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a><span class="co">// Used when n is huge and you need F(n) % m</span></span></code></pre></div>
+<hr />
+<h2 id="combinatorics">10. Combinatorics</h2>
+<h3 id="factorials">Factorials</h3>
+<pre><code>n! = 1 * 2 * 3 * ... * n
+0! = 1  (by definition)
+1! = 1
+5! = 120
+10! = 3628800
+20! = 2432902008176640000  (fits in long long, barely)
+21! overflows long long!</code></pre>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Precompute factorials mod p</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> <span class="dt">int</span> MAXN <span class="op">=</span> <span class="fl">1e6</span> <span class="op">+</span> <span class="dv">5</span><span class="op">;</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> fact<span class="op">[</span>MAXN<span class="op">];</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> precompute_factorials<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>    fact<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>    rep<span class="op">(</span>i<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> MAXN<span class="op">)</span> fact<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> fact<span class="op">[</span>i<span class="op">-</span><span class="dv">1</span><span class="op">]</span> <span class="op">*</span> i <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="permutations-and-combinations">Permutations and
+Combinations</h3>
+<pre><code>Permutation: ordered arrangement
+  P(n, r) = n! / (n-r)!
+  CONTENT_PLACEHOLDERquot;Choose r items from n, ORDER mattersCONTENT_PLACEHOLDERquot;
+  P(5, 2) = 5*4 = 20
+
+Combination: unordered selection
+  C(n, r) = n! / (r! * (n-r)!)
+  CONTENT_PLACEHOLDERquot;Choose r items from n, ORDER doesnCONTENT_PLACEHOLDER#39;t matterCONTENT_PLACEHOLDERquot;
+  C(5, 2) = 10
+
+Also written as: nCr or CONTENT_PLACEHOLDERquot;n choose rCONTENT_PLACEHOLDERquot; or C(n,r)</code></pre>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Precompute for fast C(n,r) queries</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> fact<span class="op">[</span>MAXN<span class="op">],</span> inv_fact<span class="op">[</span>MAXN<span class="op">];</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> precompute<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>    fact<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>    rep<span class="op">(</span>i<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> MAXN<span class="op">)</span> fact<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> fact<span class="op">[</span>i<span class="op">-</span><span class="dv">1</span><span class="op">]</span> <span class="op">*</span> i <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>    inv_fact<span class="op">[</span>MAXN<span class="op">-</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> power<span class="op">(</span>fact<span class="op">[</span>MAXN<span class="op">-</span><span class="dv">1</span><span class="op">],</span> MOD<span class="op">-</span><span class="dv">2</span><span class="op">);</span>  <span class="co">// FermatCONTENT_PLACEHOLDER#39;s</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> MAXN<span class="op">-</span><span class="dv">2</span><span class="op">;</span> i <span class="op">CONTENT_PLACEHOLDERgt;=</span> <span class="dv">0</span><span class="op">;</span> i<span class="op">--)</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>        inv_fact<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> inv_fact<span class="op">[</span>i<span class="op">+</span><span class="dv">1</span><span class="op">]</span> <span class="op">*</span> <span class="op">(</span>i<span class="op">+</span><span class="dv">1</span><span class="op">)</span> <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> C<span class="op">(</span><span class="dt">int</span> n<span class="op">,</span> <span class="dt">int</span> r<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(</span>r <span class="op">CONTENT_PLACEHOLDERlt;</span> <span class="dv">0</span> <span class="op">||</span> r <span class="op">CONTENT_PLACEHOLDERgt;</span> n<span class="op">)</span> <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fact<span class="op">[</span>n<span class="op">]</span> <span class="op">%</span> MOD <span class="op">*</span> inv_fact<span class="op">[</span>r<span class="op">]</span> <span class="op">%</span> MOD <span class="op">*</span> inv_fact<span class="op">[</span>n<span class="op">-</span>r<span class="op">]</span> <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> P<span class="op">(</span><span class="dt">int</span> n<span class="op">,</span> <span class="dt">int</span> r<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(</span>r <span class="op">CONTENT_PLACEHOLDERlt;</span> <span class="dv">0</span> <span class="op">||</span> r <span class="op">CONTENT_PLACEHOLDERgt;</span> n<span class="op">)</span> <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fact<span class="op">[</span>n<span class="op">]</span> <span class="op">%</span> MOD <span class="op">*</span> inv_fact<span class="op">[</span>n<span class="op">-</span>r<span class="op">]</span> <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="pascals-triangle">Pascal’s Triangle</h3>
+<pre><code>        1
+       1 1
+      1 2 1
+     1 3 3 1
+    1 4 6 4 1
+
+C(n,r) = C(n-1, r-1) + C(n-1, r)  ← PascalCONTENT_PLACEHOLDER#39;s identity
+C(n,0) = C(n,n) = 1
+
+Useful for small n without precomputation.</code></pre>
+<div class="sourceCode" id="cb50"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Build PascalCONTENT_PLACEHOLDER#39;s triangle</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>vector<span class="op">CONTENT_PLACEHOLDERlt;</span>vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">long</span> <span class="dt">long</span><span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;</span> pascal<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">CONTENT_PLACEHOLDERlt;</span>vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">long</span> <span class="dt">long</span><span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;</span> C<span class="op">(</span>n<span class="op">+</span><span class="dv">1</span><span class="op">,</span> vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">long</span> <span class="dt">long</span><span class="op">CONTENT_PLACEHOLDERgt;(</span>n<span class="op">+</span><span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">));</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>    rep<span class="op">(</span>i<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> n<span class="op">+</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>        C<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>        rep<span class="op">(</span>j<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> i<span class="op">+</span><span class="dv">1</span><span class="op">)</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>            C<span class="op">[</span>i<span class="op">][</span>j<span class="op">]</span> <span class="op">=</span> <span class="op">(</span>C<span class="op">[</span>i<span class="op">-</span><span class="dv">1</span><span class="op">][</span>j<span class="op">-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> C<span class="op">[</span>i<span class="op">-</span><span class="dv">1</span><span class="op">][</span>j<span class="op">])</span> <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> C<span class="op">;</span></span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="pigeonhole-principle">Pigeonhole Principle</h3>
+<pre><code>If n items go into k containers, at least one container
+has at least ceil(n/k) items.
+
+Examples:
+- In any group of 13 people, at least 2 share a birth month
+- In any sequence of n^2+1 numbers, thereCONTENT_PLACEHOLDER#39;s a monotone
+  subsequence of length n+1  (used in LIS problems)</code></pre>
+<h3 id="stars-and-bars">Stars and Bars</h3>
+<pre><code>Distributing n identical items into k distinct bins:
+  With zero allowed: C(n+k-1, k-1)
+  Without zero:      C(n-1, k-1)
+
+Example: ways to write n as sum of k positive integers
+= C(n-1, k-1)</code></pre>
+<h3 id="catalan-numbers">Catalan Numbers</h3>
+<pre><code>C(0)=1, C(1)=1, C(2)=2, C(3)=5, C(4)=14, C(5)=42...
+
+C(n) = C(2n, n) / (n+1)
+
+Applications:
+- Number of valid bracket sequences of length 2n
+- Number of BSTs with n nodes
+- Number of ways to triangulate a polygon
+- Monotonic paths that donCONTENT_PLACEHOLDER#39;t cross diagonal</code></pre>
+<div class="sourceCode" id="cb54"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> catalan<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> C<span class="op">(</span><span class="dv">2</span><span class="op">*</span>n<span class="op">,</span> n<span class="op">)</span> <span class="op">*</span> modinv<span class="op">(</span>n<span class="op">+</span><span class="dv">1</span><span class="op">)</span> <span class="op">%</span> MOD<span class="op">;</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="probability-basics">11. Probability Basics</h2>
+<pre><code>P(event) = favorable outcomes / total outcomes
+0 CONTENT_PLACEHOLDERlt;= P(E) CONTENT_PLACEHOLDERlt;= 1
+P(not E) = 1 - P(E)
+
+Independent events: P(A and B) = P(A) * P(B)
+Mutually exclusive: P(A or B)  = P(A) + P(B)
+General:           P(A or B)  = P(A) + P(B) - P(A and B)
+
+Expected value E[X] = sum of x * P(X = x)
+  If fair dice: E = (1+2+3+4+5+6)/6 = 3.5</code></pre>
+<div class="sourceCode" id="cb56"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Expected value in problems (often modular)</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="co">// E[X] = sum over all states of (value * probability)</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="co">// In CP: probabilities as fractions mod p using modinv</span></span></code></pre></div>
+<hr />
+<h2 id="binary-and-bitwise">12. Binary and Bitwise</h2>
+<h3 id="number-systems">Number Systems</h3>
+<pre><code>Decimal  (base 10): 0-9         → everyday numbers
+Binary   (base 2) : 0,1         → computers use this
+Octal    (base 8) : 0-7         → rarely used
+Hex      (base 16): 0-9, A-F    → memory addresses, colors
+
+Converting:
+  Decimal → Binary: divide by 2, collect remainders
+  Binary → Decimal: multiply bits by powers of 2
+
+13 in binary:
+  13 / 2 = 6 R 1
+   6 / 2 = 3 R 0
+   3 / 2 = 1 R 1
+   1 / 2 = 0 R 1
+  Read remainders bottom up: 1101
+  Verify: 1*8 + 1*4 + 0*2 + 1*1 = 13 ✓</code></pre>
+<h3 id="bitwise-operators">Bitwise Operators</h3>
+<pre><code>CONTENT_PLACEHOLDERamp;   AND       1CONTENT_PLACEHOLDERamp;1=1, 1CONTENT_PLACEHOLDERamp;0=0, 0CONTENT_PLACEHOLDERamp;0=0
+|   OR        1|0=1, 0|0=0, 1|1=1
+^   XOR       1^1=0, 1^0=1, 0^0=0   (different=1, same=0)
+~   NOT       ~1=0, ~0=1
+CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;  left shift  xCONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;k = x * 2^k
+CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;  right shift xCONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;k = x / 2^k</code></pre>
+<div class="sourceCode" id="cb59"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Common tricks — these appear CONSTANTLY in CP</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Check if bit k is set</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isSet<span class="op">(</span><span class="dt">int</span> n<span class="op">,</span> <span class="dt">int</span> k<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> <span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;</span> k<span class="op">)</span> <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="dv">1</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Set bit k</span></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> setBit<span class="op">(</span><span class="dt">int</span> n<span class="op">,</span> <span class="dt">int</span> k<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">|</span> <span class="op">(</span><span class="dv">1</span> <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> k<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Clear bit k</span></span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> clearBit<span class="op">(</span><span class="dt">int</span> n<span class="op">,</span> <span class="dt">int</span> k<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="op">~(</span><span class="dv">1</span> <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> k<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-12"><a href="#cb59-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Toggle bit k</span></span>
+<span id="cb59-13"><a href="#cb59-13" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> toggleBit<span class="op">(</span><span class="dt">int</span> n<span class="op">,</span> <span class="dt">int</span> k<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">^</span> <span class="op">(</span><span class="dv">1</span> <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> k<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb59-14"><a href="#cb59-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-15"><a href="#cb59-15" aria-hidden="true" tabindex="-1"></a><span class="co">// Check odd (last bit)</span></span>
+<span id="cb59-16"><a href="#cb59-16" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isOdd<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="dv">1</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb59-17"><a href="#cb59-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-18"><a href="#cb59-18" aria-hidden="true" tabindex="-1"></a><span class="co">// Check power of 2</span></span>
+<span id="cb59-19"><a href="#cb59-19" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> isPow2<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span> <span class="op">CONTENT_PLACEHOLDERamp;CONTENT_PLACEHOLDERamp;</span> <span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="op">(</span>n<span class="op">-</span><span class="dv">1</span><span class="op">))</span> <span class="op">==</span> <span class="dv">0</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb59-20"><a href="#cb59-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-21"><a href="#cb59-21" aria-hidden="true" tabindex="-1"></a><span class="co">// Count set bits (popcount)</span></span>
+<span id="cb59-22"><a href="#cb59-22" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> countBits<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> <span class="fu">__builtin_popcount</span><span class="op">(</span>n<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb59-23"><a href="#cb59-23" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> countBits64<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> <span class="fu">__builtin_popcountll</span><span class="op">(</span>n<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb59-24"><a href="#cb59-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-25"><a href="#cb59-25" aria-hidden="true" tabindex="-1"></a><span class="co">// Lowest set bit</span></span>
+<span id="cb59-26"><a href="#cb59-26" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lsb<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="op">(-</span>n<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb59-27"><a href="#cb59-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-28"><a href="#cb59-28" aria-hidden="true" tabindex="-1"></a><span class="co">// Remove lowest set bit</span></span>
+<span id="cb59-29"><a href="#cb59-29" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> removeLsb<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> n <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="op">(</span>n<span class="op">-</span><span class="dv">1</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb59-30"><a href="#cb59-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-31"><a href="#cb59-31" aria-hidden="true" tabindex="-1"></a><span class="co">// XOR properties</span></span>
+<span id="cb59-32"><a href="#cb59-32" aria-hidden="true" tabindex="-1"></a><span class="co">// a ^ a = 0</span></span>
+<span id="cb59-33"><a href="#cb59-33" aria-hidden="true" tabindex="-1"></a><span class="co">// a ^ 0 = a</span></span>
+<span id="cb59-34"><a href="#cb59-34" aria-hidden="true" tabindex="-1"></a><span class="co">// XOR is commutative and associative</span></span>
+<span id="cb59-35"><a href="#cb59-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-36"><a href="#cb59-36" aria-hidden="true" tabindex="-1"></a><span class="co">// Find single non-duplicate in array where all others appear twice</span></span>
+<span id="cb59-37"><a href="#cb59-37" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> findSingle<span class="op">(</span>vi<span class="op">CONTENT_PLACEHOLDERamp;</span> arr<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb59-38"><a href="#cb59-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> result <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb59-39"><a href="#cb59-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="kw">auto</span> x <span class="op">:</span> arr<span class="op">)</span> result <span class="op">^=</span> x<span class="op">;</span></span>
+<span id="cb59-40"><a href="#cb59-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb59-41"><a href="#cb59-41" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="bitmask-subset-enumeration">Bitmask / Subset Enumeration</h3>
+<div class="sourceCode" id="cb60"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Enumerate all subsets of set {0,1,...,n-1}</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Each integer from 0 to 2^n - 1 represents a subset</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Bit i set means element i is in subset</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> allSubsets<span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> total <span class="op">=</span> <span class="dv">1</span> <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> n<span class="op">;</span>           <span class="co">// 2^n subsets</span></span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>    rep<span class="op">(</span>mask<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> total<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>        cout <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> <span class="st">CONTENT_PLACEHOLDERquot;{ CONTENT_PLACEHOLDERquot;</span><span class="op">;</span></span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>        rep<span class="op">(</span>i<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span><span class="op">(</span>mask <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="op">(</span><span class="dv">1</span> <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> i<span class="op">))</span>   <span class="co">// if bit i is set</span></span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>                cout <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> i <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> <span class="st">CONTENT_PLACEHOLDERquot; CONTENT_PLACEHOLDERquot;</span><span class="op">;</span></span>
+<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb60-13"><a href="#cb60-13" aria-hidden="true" tabindex="-1"></a>        cout <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> <span class="st">CONTENT_PLACEHOLDERquot;}CONTENT_PLACEHOLDERquot;</span> <span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> endl<span class="op">;</span></span>
+<span id="cb60-14"><a href="#cb60-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb60-15"><a href="#cb60-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb60-16"><a href="#cb60-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-17"><a href="#cb60-17" aria-hidden="true" tabindex="-1"></a><span class="co">// Enumerate all subsets of a given mask</span></span>
+<span id="cb60-18"><a href="#cb60-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span><span class="op">(</span><span class="dt">int</span> sub <span class="op">=</span> mask<span class="op">;</span> sub <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">;</span> sub <span class="op">=</span> <span class="op">(</span>sub<span class="op">-</span><span class="dv">1</span><span class="op">)</span> <span class="op">CONTENT_PLACEHOLDERamp;</span> mask<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb60-19"><a href="#cb60-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// process sub</span></span>
+<span id="cb60-20"><a href="#cb60-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="geometry-basics">13. Geometry Basics</h2>
+<h3 id="points-and-distance">Points and Distance</h3>
+<div class="sourceCode" id="cb61"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Point <span class="op">{</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> x<span class="op">,</span> y<span class="op">;</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Euclidean distance</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dist<span class="op">(</span>Point a<span class="op">,</span> Point b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> dx <span class="op">=</span> a<span class="op">.</span>x <span class="op">-</span> b<span class="op">.</span>x<span class="op">;</span></span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> dy <span class="op">=</span> a<span class="op">.</span>y <span class="op">-</span> b<span class="op">.</span>y<span class="op">;</span></span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sqrt<span class="op">(</span>dx<span class="op">*</span>dx <span class="op">+</span> dy<span class="op">*</span>dy<span class="op">);</span></span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Distance squared (avoid sqrt when comparing)</span></span>
+<span id="cb61-13"><a href="#cb61-13" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dist2<span class="op">(</span>Point a<span class="op">,</span> Point b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb61-14"><a href="#cb61-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> dx <span class="op">=</span> a<span class="op">.</span>x <span class="op">-</span> b<span class="op">.</span>x<span class="op">;</span></span>
+<span id="cb61-15"><a href="#cb61-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> dy <span class="op">=</span> a<span class="op">.</span>y <span class="op">-</span> b<span class="op">.</span>y<span class="op">;</span></span>
+<span id="cb61-16"><a href="#cb61-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dx<span class="op">*</span>dx <span class="op">+</span> dy<span class="op">*</span>dy<span class="op">;</span></span>
+<span id="cb61-17"><a href="#cb61-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="cross-product-and-area">Cross Product and Area</h3>
+<div class="sourceCode" id="cb62"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Cross product of vectors OA and OB</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Positive: B is counter-clockwise from A</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Negative: B is clockwise from A</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Zero: collinear</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> cross<span class="op">(</span>Point O<span class="op">,</span> Point A<span class="op">,</span> Point B<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span>A<span class="op">.</span>x<span class="op">-</span>O<span class="op">.</span>x<span class="op">)*(</span>B<span class="op">.</span>y<span class="op">-</span>O<span class="op">.</span>y<span class="op">)</span> <span class="op">-</span> <span class="op">(</span>A<span class="op">.</span>y<span class="op">-</span>O<span class="op">.</span>y<span class="op">)*(</span>B<span class="op">.</span>x<span class="op">-</span>O<span class="op">.</span>x<span class="op">);</span></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Area of triangle given 3 points (Shoelace formula)</span></span>
+<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> triangleArea<span class="op">(</span>Point a<span class="op">,</span> Point b<span class="op">,</span> Point c<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> abs<span class="op">(</span>cross<span class="op">(</span>a<span class="op">,</span> b<span class="op">,</span> c<span class="op">))</span> <span class="op">/</span> <span class="fl">2.0</span><span class="op">;</span></span>
+<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-14"><a href="#cb62-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Area of polygon (Shoelace formula)</span></span>
+<span id="cb62-15"><a href="#cb62-15" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> polygonArea<span class="op">(</span>vector<span class="op">CONTENT_PLACEHOLDERlt;</span>Point<span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERamp;</span> pts<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb62-16"><a href="#cb62-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> n <span class="op">=</span> pts<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb62-17"><a href="#cb62-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> area <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb62-18"><a href="#cb62-18" aria-hidden="true" tabindex="-1"></a>    rep<span class="op">(</span>i<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb62-19"><a href="#cb62-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> j <span class="op">=</span> <span class="op">(</span>i<span class="op">+</span><span class="dv">1</span><span class="op">)</span> <span class="op">%</span> n<span class="op">;</span></span>
+<span id="cb62-20"><a href="#cb62-20" aria-hidden="true" tabindex="-1"></a>        area <span class="op">+=</span> pts<span class="op">[</span>i<span class="op">].</span>x <span class="op">*</span> pts<span class="op">[</span>j<span class="op">].</span>y<span class="op">;</span></span>
+<span id="cb62-21"><a href="#cb62-21" aria-hidden="true" tabindex="-1"></a>        area <span class="op">-=</span> pts<span class="op">[</span>j<span class="op">].</span>x <span class="op">*</span> pts<span class="op">[</span>i<span class="op">].</span>y<span class="op">;</span></span>
+<span id="cb62-22"><a href="#cb62-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb62-23"><a href="#cb62-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> abs<span class="op">(</span>area<span class="op">)</span> <span class="op">/</span> <span class="fl">2.0</span><span class="op">;</span></span>
+<span id="cb62-24"><a href="#cb62-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="circle">Circle</h3>
+<pre><code>Area      = pi * r^2
+Perimeter = 2 * pi * r
+pi ≈ 3.14159265358979
+
+Arc length     = r * theta  (theta in radians)
+Sector area    = 0.5 * r^2 * theta</code></pre>
+<div class="sourceCode" id="cb64"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> <span class="dt">double</span> PI <span class="op">=</span> acos<span class="op">(-</span><span class="fl">1.0</span><span class="op">);</span>  <span class="co">// most precise way to get pi</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> circleArea<span class="op">(</span><span class="dt">double</span> r<span class="op">)</span>  <span class="op">{</span> <span class="cf">return</span> PI <span class="op">*</span> r <span class="op">*</span> r<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> circlePerim<span class="op">(</span><span class="dt">double</span> r<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> <span class="dv">2</span> <span class="op">*</span> PI <span class="op">*</span> r<span class="op">;</span> <span class="op">}</span></span></code></pre></div>
+<h3 id="key-formulas">Key Formulas</h3>
+<pre><code>Triangle:
+  Area = 0.5 * base * height
+  Area = sqrt(s*(s-a)*(s-b)*(s-c))  (HeronCONTENT_PLACEHOLDER#39;s formula, s=(a+b+c)/2)
+  Angles sum to 180°
+
+Rectangle: Area = l*w,  Perimeter = 2*(l+w)
+Square:    Area = s^2,  Perimeter = 4*s
+Circle:    Area = pi*r^2, Circumference = 2*pi*r
+Sphere:    Volume = (4/3)*pi*r^3, Surface = 4*pi*r^2
+Cylinder:  Volume = pi*r^2*h
+Cone:      Volume = (1/3)*pi*r^2*h</code></pre>
+<hr />
+<h2 id="matrix-basics">14. Matrix Basics</h2>
+<h3 id="matrix-operations">Matrix Operations</h3>
+<div class="sourceCode" id="cb66"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> vector<span class="op">CONTENT_PLACEHOLDERlt;</span>vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">long</span> <span class="dt">long</span><span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;</span> Matrix<span class="op">;</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Matrix multiply — O(n^3)</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>Matrix multiply<span class="op">(</span>Matrix<span class="op">CONTENT_PLACEHOLDERamp;</span> A<span class="op">,</span> Matrix<span class="op">CONTENT_PLACEHOLDERamp;</span> B<span class="op">,</span> <span class="dt">int</span> mod <span class="op">=</span> MOD<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> n <span class="op">=</span> A<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>    Matrix C<span class="op">(</span>n<span class="op">,</span> vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">long</span> <span class="dt">long</span><span class="op">CONTENT_PLACEHOLDERgt;(</span>n<span class="op">,</span> <span class="dv">0</span><span class="op">));</span></span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>    rep<span class="op">(</span>i<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> n<span class="op">)</span> rep<span class="op">(</span>k<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> n<span class="op">)</span> rep<span class="op">(</span>j<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> n<span class="op">)</span></span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>        C<span class="op">[</span>i<span class="op">][</span>j<span class="op">]</span> <span class="op">=</span> <span class="op">(</span>C<span class="op">[</span>i<span class="op">][</span>j<span class="op">]</span> <span class="op">+</span> A<span class="op">[</span>i<span class="op">][</span>k<span class="op">]</span> <span class="op">*</span> B<span class="op">[</span>k<span class="op">][</span>j<span class="op">])</span> <span class="op">%</span> mod<span class="op">;</span></span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> C<span class="op">;</span></span>
+<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb66-11"><a href="#cb66-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-12"><a href="#cb66-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Matrix fast power — O(n^3 log k)</span></span>
+<span id="cb66-13"><a href="#cb66-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Used for: Fibonacci in O(log n), linear recurrences</span></span>
+<span id="cb66-14"><a href="#cb66-14" aria-hidden="true" tabindex="-1"></a>Matrix matpow<span class="op">(</span>Matrix A<span class="op">,</span> <span class="dt">long</span> <span class="dt">long</span> k<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb66-15"><a href="#cb66-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> n <span class="op">=</span> A<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb66-16"><a href="#cb66-16" aria-hidden="true" tabindex="-1"></a>    Matrix result<span class="op">(</span>n<span class="op">,</span> vector<span class="op">CONTENT_PLACEHOLDERlt;</span><span class="dt">long</span> <span class="dt">long</span><span class="op">CONTENT_PLACEHOLDERgt;(</span>n<span class="op">,</span> <span class="dv">0</span><span class="op">));</span></span>
+<span id="cb66-17"><a href="#cb66-17" aria-hidden="true" tabindex="-1"></a>    rep<span class="op">(</span>i<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> n<span class="op">)</span> result<span class="op">[</span>i<span class="op">][</span>i<span class="op">]</span> <span class="op">=</span> <span class="dv">1</span><span class="op">;</span>  <span class="co">// identity matrix</span></span>
+<span id="cb66-18"><a href="#cb66-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-19"><a href="#cb66-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(</span>k <span class="op">CONTENT_PLACEHOLDERgt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb66-20"><a href="#cb66-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>k <span class="op">CONTENT_PLACEHOLDERamp;</span> <span class="dv">1</span><span class="op">)</span> result <span class="op">=</span> multiply<span class="op">(</span>result<span class="op">,</span> A<span class="op">);</span></span>
+<span id="cb66-21"><a href="#cb66-21" aria-hidden="true" tabindex="-1"></a>        A <span class="op">=</span> multiply<span class="op">(</span>A<span class="op">,</span> A<span class="op">);</span></span>
+<span id="cb66-22"><a href="#cb66-22" aria-hidden="true" tabindex="-1"></a>        k <span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb66-23"><a href="#cb66-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb66-24"><a href="#cb66-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result<span class="op">;</span></span>
+<span id="cb66-25"><a href="#cb66-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb66-26"><a href="#cb66-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-27"><a href="#cb66-27" aria-hidden="true" tabindex="-1"></a><span class="co">// Fibonacci using matrix power</span></span>
+<span id="cb66-28"><a href="#cb66-28" aria-hidden="true" tabindex="-1"></a><span class="co">// [F(n+1)] = [1 1]^n * [F(1)]</span></span>
+<span id="cb66-29"><a href="#cb66-29" aria-hidden="true" tabindex="-1"></a><span class="co">// [F(n)  ]   [1 0]     [F(0)]</span></span>
+<span id="cb66-30"><a href="#cb66-30" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> <span class="dt">long</span> fib<span class="op">(</span><span class="dt">long</span> <span class="dt">long</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb66-31"><a href="#cb66-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(</span>n <span class="op">CONTENT_PLACEHOLDERlt;=</span> <span class="dv">1</span><span class="op">)</span> <span class="cf">return</span> n<span class="op">;</span></span>
+<span id="cb66-32"><a href="#cb66-32" aria-hidden="true" tabindex="-1"></a>    Matrix M <span class="op">=</span> <span class="op">{{</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">},{</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">}};</span></span>
+<span id="cb66-33"><a href="#cb66-33" aria-hidden="true" tabindex="-1"></a>    Matrix R <span class="op">=</span> matpow<span class="op">(</span>M<span class="op">,</span> n<span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb66-34"><a href="#cb66-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> R<span class="op">[</span><span class="dv">0</span><span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb66-35"><a href="#cb66-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="game-theory">15. Game Theory</h2>
+<h3 id="nim-game">Nim Game</h3>
+<pre><code>Given piles of stones. Two players alternately remove
+any number from any one pile. Player who canCONTENT_PLACEHOLDER#39;t move loses.
+
+THEOREM: First player wins if and only if XOR of all pile sizes != 0
+
+Nim-value (Grundy number) of a position:
+  = mex{Grundy values of all positions reachable in one move}
+  mex = minimum excludant (smallest non-negative integer not in set)</code></pre>
+<div class="sourceCode" id="cb68"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Nim — first player wins if XOR != 0</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> nimWins<span class="op">(</span>vi<span class="op">CONTENT_PLACEHOLDERamp;</span> piles<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> xorSum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span><span class="kw">auto</span> p <span class="op">:</span> piles<span class="op">)</span> xorSum <span class="op">^=</span> p<span class="op">;</span></span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> xorSum <span class="op">!=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Grundy number for single pile game</span></span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a><span class="co">// where you can remove 1 to k stones</span></span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Grundy(n) = n % (k+1)</span></span></code></pre></div>
+<h3 id="sprague-grundy-theorem">Sprague-Grundy Theorem</h3>
+<pre><code>Any impartial game position has a Grundy number.
+Combined game of multiple sub-games:
+  G(combined) = XOR of all sub-game Grundy numbers
+If G != 0, first player wins.</code></pre>
+<hr />
+<h2 id="important-constants">16. Important Constants</h2>
+<div class="sourceCode" id="cb70"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Numerical constants</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> <span class="dt">long</span> <span class="dt">long</span> MOD   <span class="op">=</span> <span class="fl">1e9</span> <span class="op">+</span> <span class="dv">7</span><span class="op">;</span>       <span class="co">// 10^9 + 7 (prime)</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> <span class="dt">long</span> <span class="dt">long</span> MOD2  <span class="op">=</span> <span class="dv">998244353</span><span class="op">;</span>      <span class="co">// another common prime</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> <span class="dt">long</span> <span class="dt">long</span> INF   <span class="op">=</span> <span class="fl">1e18</span><span class="op">;</span>           <span class="co">// infinity for long long</span></span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> <span class="dt">int</span>       INF_I <span class="op">=</span> <span class="fl">1e9</span><span class="op">;</span>            <span class="co">// infinity for int</span></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> <span class="dt">double</span>    PI    <span class="op">=</span> acos<span class="op">(-</span><span class="fl">1.0</span><span class="op">);</span>     <span class="co">// pi</span></span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a><span class="at">const</span> <span class="dt">double</span>    EPS   <span class="op">=</span> <span class="fl">1e-9</span><span class="op">;</span>           <span class="co">// epsilon for double comparison</span></span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Data type limits</span></span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a><span class="co">// int:       ~2.1 * 10^9</span></span>
+<span id="cb70-11"><a href="#cb70-11" aria-hidden="true" tabindex="-1"></a><span class="co">// long long: ~9.2 * 10^18</span></span>
+<span id="cb70-12"><a href="#cb70-12" aria-hidden="true" tabindex="-1"></a><span class="co">// double:    ~1.8 * 10^308  (but only 15-16 significant digits)</span></span>
+<span id="cb70-13"><a href="#cb70-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-14"><a href="#cb70-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Comparing doubles (NEVER use == for doubles)</span></span>
+<span id="cb70-15"><a href="#cb70-15" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> equal<span class="op">(</span><span class="dt">double</span> a<span class="op">,</span> <span class="dt">double</span> b<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> fabs<span class="op">(</span>a <span class="op">-</span> b<span class="op">)</span> <span class="op">CONTENT_PLACEHOLDERlt;</span> EPS<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb70-16"><a href="#cb70-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-17"><a href="#cb70-17" aria-hidden="true" tabindex="-1"></a><span class="co">// Time/Space rough limits (per second)</span></span>
+<span id="cb70-18"><a href="#cb70-18" aria-hidden="true" tabindex="-1"></a><span class="co">// 10^8 simple operations</span></span>
+<span id="cb70-19"><a href="#cb70-19" aria-hidden="true" tabindex="-1"></a><span class="co">// 10^7 heavy operations (sort, etc.)</span></span>
+<span id="cb70-20"><a href="#cb70-20" aria-hidden="true" tabindex="-1"></a><span class="co">// 256MB RAM ≈ 64 million integers (int = 4 bytes)</span></span>
+<span id="cb70-21"><a href="#cb70-21" aria-hidden="true" tabindex="-1"></a><span class="co">//            ≈ 32 million long longs (8 bytes)</span></span></code></pre></div>
+<hr />
+<h2 id="summary-what-to-memorize">Summary — What to Memorize</h2>
+<pre><code>FORMULAS:
+  sum(1..n)      = n*(n+1)/2
+  sum(squares)   = n*(n+1)*(2n+1)/6
+  sum(cubes)     = (n*(n+1)/2)^2
+  sum(odd)       = n^2
+  sum(even)      = n*(n+1)
+
+PRIMES:
+  Check: i*i CONTENT_PLACEHOLDERlt;= n, not i CONTENT_PLACEHOLDERlt;= sqrt(n)
+  Sieve: outer loop to sqrt(n), inner from i*i
+  First few: 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47
+
+GCD/LCM:
+  gcd(a,b) = gcd(b, a%b)
+  lcm(a,b) = (a/gcd)*b   (divide first!)
+
+MODULAR:
+  (a+b)%m = ((a%m)+(b%m))%m
+  (a-b)%m = ((a%m)-(b%m)+m)%m
+  (a*b)%m = (a%m)*(b%m)%m
+  inverse  = a^(p-2) % p   (p prime, Fermat)
+
+BITS:
+  nCONTENT_PLACEHOLDERamp;1    = odd check
+  nCONTENT_PLACEHOLDERamp;(n-1)= remove lowest set bit
+  nCONTENT_PLACEHOLDERamp;(-n) = lowest set bit
+  n^n    = 0
+  n^0    = n
+  xCONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;k   = x * 2^k
+  xCONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;k   = x / 2^k
+
+COMPLEXITY:
+  Sieve       O(n log log n)
+  Prime check O(sqrt n)
+  Factorize   O(sqrt n)
+  GCD         O(log min(a,b))
+  Fast power  O(log n)
+  Matrix pow  O(n^3 log k)</code></pre>
+<hr />
+<p><em>This is your complete math arsenal for CP. Revisit sections as
+problems demand them. Math in CP is learned by doing, not
+reading.</em></p>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

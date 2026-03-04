@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TITLE_PLACEHOLDER | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        NAV_PLACEHOLDER
+    </nav>
+</div>
+
+<div class="content">
+    CONTENT_PLACEHOLDER
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

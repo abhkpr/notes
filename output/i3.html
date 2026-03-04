@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>i3 Complete Shortcuts TITLE_PLACEHOLDER Config Notes | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a>\n<a href="vim.html">Vim Cheatsheet — Most Used Commands</a>\n<a href="mds.html">Markdown Cheatsheet</a>\n<a href="git.html">Git NAV_PLACEHOLDER GitHub</a>\n<a href="i3.html" class="active">i3 Complete Shortcuts NAV_PLACEHOLDER Config Notes</a>\n<a href="C++.html">C++ for Competitive Programming — Complete Notes</a>\n<a href="arithmetic.html">Mathematics for Competitive Programming</a>\n<a href="warbird.html">warbird site — documentation</a>\n
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="i3-complete-shortcuts-config-notes">i3 Complete Shortcuts CONTENT_PLACEHOLDERamp;
+Config Notes</h1>
+<hr />
+<h2 id="config-file-locations">Config File Locations</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>Path</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>i3 config</td>
+<td><code>~/.config/i3/config</code></td>
+</tr>
+<tr class="even">
+<td>i3blocks</td>
+<td><code>~/.config/i3blocks/config</code></td>
+</tr>
+<tr class="odd">
+<td>Alacritty</td>
+<td><code>~/.config/alacritty/alacritty.toml</code></td>
+</tr>
+<tr class="even">
+<td>SDDM</td>
+<td><code>/etc/sddm.conf</code></td>
+</tr>
+<tr class="odd">
+<td>Firefox CSS</td>
+<td><code>~/.mozilla/firefox/CONTENT_PLACEHOLDERlt;profileCONTENT_PLACEHOLDERgt;/chrome/userChrome.css</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="autostart-programs">Autostart Programs</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Program</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>dex</code></td>
+<td>Autostart XDG desktop apps</td>
+</tr>
+<tr class="even">
+<td><code>xss-lock + i3lock</code></td>
+<td>Locks screen before suspend</td>
+</tr>
+<tr class="odd">
+<td><code>nm-applet</code></td>
+<td>Network manager tray icon</td>
+</tr>
+<tr class="even">
+<td><code>nitrogen --restore</code></td>
+<td>Restores wallpaper on login</td>
+</tr>
+<tr class="odd">
+<td><code>picom</code></td>
+<td>Compositor (transparency, fading)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="key-bindings">Key Bindings</h2>
+<blockquote>
+<p><strong>Mod key = Super (Windows key)</strong> <strong>Custom
+vim-style keys:</strong> j=left, k=down, l=up, ;=right</p>
+</blockquote>
+<h3 id="terminal-apps">Terminal CONTENT_PLACEHOLDERamp; Apps</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Super + Enter</code></td>
+<td>Open terminal</td>
+</tr>
+<tr class="even">
+<td><code>Super + d</code></td>
+<td>Open dmenu app launcher</td>
+</tr>
+</tbody>
+</table>
+<h3 id="window-management">Window Management</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Super + Shift + q</code></td>
+<td>Kill focused window</td>
+</tr>
+<tr class="even">
+<td><code>Super + f</code></td>
+<td>Toggle fullscreen</td>
+</tr>
+<tr class="odd">
+<td><code>Super + Shift + Space</code></td>
+<td>Toggle floating / tiling</td>
+</tr>
+<tr class="even">
+<td><code>Super + Space</code></td>
+<td>Toggle focus between floating and tiling</td>
+</tr>
+</tbody>
+</table>
+<h3 id="focus-move-cursor-between-windows">Focus (move cursor between
+windows)</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Super + Left</code></td>
+<td>Focus window to the left</td>
+</tr>
+<tr class="even">
+<td><code>Super + Right</code></td>
+<td>Focus window to the right</td>
+</tr>
+<tr class="odd">
+<td><code>Super + Up</code></td>
+<td>Focus window above</td>
+</tr>
+<tr class="even">
+<td><code>Super + Down</code></td>
+<td>Focus window below</td>
+</tr>
+<tr class="odd">
+<td><code>Super + j</code></td>
+<td>Focus left (vim style)</td>
+</tr>
+<tr class="even">
+<td><code>Super + ;</code></td>
+<td>Focus right (vim style)</td>
+</tr>
+<tr class="odd">
+<td><code>Super + l</code></td>
+<td>Focus up (vim style)</td>
+</tr>
+<tr class="even">
+<td><code>Super + k</code></td>
+<td>Focus down (vim style)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="move-windows">Move Windows</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Super + Shift + Left</code></td>
+<td>Move window left</td>
+</tr>
+<tr class="even">
+<td><code>Super + Shift + Right</code></td>
+<td>Move window right</td>
+</tr>
+<tr class="odd">
+<td><code>Super + Shift + Up</code></td>
+<td>Move window up</td>
+</tr>
+<tr class="even">
+<td><code>Super + Shift + Down</code></td>
+<td>Move window down</td>
+</tr>
+<tr class="odd">
+<td><code>Super + Shift + j</code></td>
+<td>Move window left (vim style)</td>
+</tr>
+<tr class="even">
+<td><code>Super + Shift + ;</code></td>
+<td>Move window right (vim style)</td>
+</tr>
+<tr class="odd">
+<td><code>Super + Shift + l</code></td>
+<td>Move window up (vim style)</td>
+</tr>
+<tr class="even">
+<td><code>Super + Shift + k</code></td>
+<td>Move window down (vim style)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="splitting-layouts">Splitting CONTENT_PLACEHOLDERamp; Layouts</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Super + h</code></td>
+<td>Split next window horizontally (side by side)</td>
+</tr>
+<tr class="even">
+<td><code>Super + v</code></td>
+<td>Split next window vertically (above/below)</td>
+</tr>
+<tr class="odd">
+<td><code>Super + Shift + h</code></td>
+<td>Split horizontal (custom)</td>
+</tr>
+<tr class="even">
+<td><code>Super + Shift + v</code></td>
+<td>Split vertical (custom)</td>
+</tr>
+<tr class="odd">
+<td><code>Super + t</code></td>
+<td>Toggle split direction</td>
+</tr>
+<tr class="even">
+<td><code>Super + s</code></td>
+<td>Stacking layout</td>
+</tr>
+<tr class="odd">
+<td><code>Super + w</code></td>
+<td>Tabbed layout</td>
+</tr>
+<tr class="even">
+<td><code>Super + e</code></td>
+<td>Toggle split layout</td>
+</tr>
+<tr class="odd">
+<td><code>Super + a</code></td>
+<td>Focus parent container</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scratchpad">Scratchpad</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Super + Shift + -</code></td>
+<td>Send window to scratchpad (hide it)</td>
+</tr>
+<tr class="even">
+<td><code>Super + -</code></td>
+<td>Show / cycle scratchpad windows</td>
+</tr>
+</tbody>
+</table>
+<h3 id="workspaces">Workspaces</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Super + 1</code> to <code>Super + 9</code></td>
+<td>Switch to workspace 1-9</td>
+</tr>
+<tr class="even">
+<td><code>Super + 0</code></td>
+<td>Switch to workspace 10</td>
+</tr>
+<tr class="odd">
+<td><code>Super + Shift + 1</code> to
+<code>Super + Shift + 9</code></td>
+<td>Move window to workspace 1-9</td>
+</tr>
+<tr class="even">
+<td><code>Super + Shift + 0</code></td>
+<td>Move window to workspace 10</td>
+</tr>
+</tbody>
+</table>
+<h3 id="resize-mode">Resize Mode</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Super + r</code></td>
+<td>Enter resize mode</td>
+</tr>
+<tr class="even">
+<td><code>Left / j</code></td>
+<td>Shrink window width</td>
+</tr>
+<tr class="odd">
+<td><code>Right / ;</code></td>
+<td>Grow window width</td>
+</tr>
+<tr class="even">
+<td><code>Up / l</code></td>
+<td>Shrink window height</td>
+</tr>
+<tr class="odd">
+<td><code>Down / k</code></td>
+<td>Grow window height</td>
+</tr>
+<tr class="even">
+<td><code>Enter or Escape</code></td>
+<td>Exit resize mode</td>
+</tr>
+<tr class="odd">
+<td><code>Super + r</code></td>
+<td>Exit resize mode</td>
+</tr>
+</tbody>
+</table>
+<h3 id="i3-system">i3 System</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Super + Shift + c</code></td>
+<td>Reload i3 config</td>
+</tr>
+<tr class="even">
+<td><code>Super + Shift + r</code></td>
+<td>Restart i3 (preserves layout)</td>
+</tr>
+<tr class="odd">
+<td><code>Super + Shift + e</code></td>
+<td>Exit i3 / logout</td>
+</tr>
+</tbody>
+</table>
+<h3 id="volume-media-keys">Volume (Media Keys)</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Shortcut</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Volume Up key</code></td>
+<td>Increase volume by 10%</td>
+</tr>
+<tr class="even">
+<td><code>Volume Down key</code></td>
+<td>Decrease volume by 10%</td>
+</tr>
+<tr class="odd">
+<td><code>Mute key</code></td>
+<td>Toggle mute</td>
+</tr>
+<tr class="even">
+<td><code>Mic Mute key</code></td>
+<td>Toggle mic mute</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="i3blocks-bar">i3blocks Bar</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Block</th>
+<th>What it shows</th>
+<th>Refresh</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BAT</td>
+<td>Battery %</td>
+<td>30s</td>
+</tr>
+<tr class="even">
+<td>CPU</td>
+<td>CPU usage %</td>
+<td>5s</td>
+</tr>
+<tr class="odd">
+<td>RAM</td>
+<td>RAM used / total</td>
+<td>5s</td>
+</tr>
+<tr class="even">
+<td>DISK</td>
+<td>Disk used / total</td>
+<td>30s</td>
+</tr>
+<tr class="odd">
+<td>VOL</td>
+<td>Volume %</td>
+<td>5s</td>
+</tr>
+<tr class="even">
+<td>NET</td>
+<td>Wifi network name</td>
+<td>10s</td>
+</tr>
+<tr class="odd">
+<td>Time</td>
+<td>Date and time</td>
+<td>60s</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="window-rules">Window Rules</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">for_window</span> <span class="pp">[</span><span class="ss">class=</span><span class="st">CONTENT_PLACEHOLDERquot;.*CONTENT_PLACEHOLDERquot;</span><span class="pp">]</span> border pixel 2   <span class="co"># removes titlebars, keeps 2px border</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">default_border</span> pixel 2                   <span class="co"># default border for all windows</span></span></code></pre></div>
+<hr />
+<h2 id="alacritty-settings">Alacritty Settings</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Setting</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Opacity</td>
+<td>0.85 (85% transparent)</td>
+</tr>
+<tr class="even">
+<td>Padding X</td>
+<td>10px</td>
+</tr>
+<tr class="odd">
+<td>Padding Y</td>
+<td>10px</td>
+</tr>
+<tr class="even">
+<td>Font size</td>
+<td>9.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="vim-shortcuts">Vim Shortcuts</h2>
+<h3 id="modes">Modes</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Mode</th>
+<th>Enter</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Normal</td>
+<td><code>Esc</code></td>
+<td>Navigate and run commands</td>
+</tr>
+<tr class="even">
+<td>Insert</td>
+<td><code>i</code></td>
+<td>Type text</td>
+</tr>
+<tr class="odd">
+<td>Visual</td>
+<td><code>v</code></td>
+<td>Select text</td>
+</tr>
+</tbody>
+</table>
+<h3 id="exit-save">Exit CONTENT_PLACEHOLDERamp; Save</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>:w</code></td>
+<td>Save</td>
+</tr>
+<tr class="even">
+<td><code>:q</code></td>
+<td>Quit</td>
+</tr>
+<tr class="odd">
+<td><code>:wq</code></td>
+<td>Save and quit</td>
+</tr>
+<tr class="even">
+<td><code>:q!</code></td>
+<td>Quit without saving</td>
+</tr>
+</tbody>
+</table>
+<h3 id="navigation">Navigation</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>h j k l</code></td>
+<td>Left, down, up, right</td>
+</tr>
+<tr class="even">
+<td><code>gg</code></td>
+<td>Top of file</td>
+</tr>
+<tr class="odd">
+<td><code>G</code></td>
+<td>Bottom of file</td>
+</tr>
+<tr class="even">
+<td><code>0</code></td>
+<td>Start of line</td>
+</tr>
+<tr class="odd">
+<td><code>$</code></td>
+<td>End of line</td>
+</tr>
+<tr class="even">
+<td><code>Ctrl+d</code></td>
+<td>Scroll down half page</td>
+</tr>
+<tr class="odd">
+<td><code>Ctrl+u</code></td>
+<td>Scroll up half page</td>
+</tr>
+</tbody>
+</table>
+<h3 id="editing">Editing</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>i</code></td>
+<td>Insert before cursor</td>
+</tr>
+<tr class="even">
+<td><code>a</code></td>
+<td>Insert after cursor</td>
+</tr>
+<tr class="odd">
+<td><code>o</code></td>
+<td>New line below</td>
+</tr>
+<tr class="even">
+<td><code>O</code></td>
+<td>New line above</td>
+</tr>
+<tr class="odd">
+<td><code>dd</code></td>
+<td>Delete line</td>
+</tr>
+<tr class="even">
+<td><code>yy</code></td>
+<td>Copy line</td>
+</tr>
+<tr class="odd">
+<td><code>p</code></td>
+<td>Paste</td>
+</tr>
+<tr class="even">
+<td><code>u</code></td>
+<td>Undo</td>
+</tr>
+<tr class="odd">
+<td><code>Ctrl+r</code></td>
+<td>Redo</td>
+</tr>
+</tbody>
+</table>
+<h3 id="search-replace">Search CONTENT_PLACEHOLDERamp; Replace</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>/word</code></td>
+<td>Search forward</td>
+</tr>
+<tr class="even">
+<td><code>n</code></td>
+<td>Next result</td>
+</tr>
+<tr class="odd">
+<td><code>N</code></td>
+<td>Previous result</td>
+</tr>
+<tr class="even">
+<td><code>:%s/old/new/g</code></td>
+<td>Replace all occurrences</td>
+</tr>
+</tbody>
+</table>
+<h3 id="visual-mode">Visual Mode</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>v</code></td>
+<td>Select characters</td>
+</tr>
+<tr class="even">
+<td><code>V</code></td>
+<td>Select whole lines</td>
+</tr>
+<tr class="odd">
+<td><code>d</code></td>
+<td>Delete selected</td>
+</tr>
+<tr class="even">
+<td><code>y</code></td>
+<td>Copy selected</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="useful-commands">Useful Commands</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert markdown to pdf</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pandoc</span> file.md <span class="at">-o</span> file.pdf <span class="at">-V</span> geometry:margin=1in <span class="at">-V</span> fontsize=12pt <span class="at">--pdf-engine</span><span class="op">=</span>xelatex</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Disable trackpad temporarily</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> modprobe <span class="at">-r</span> psmouse</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Re-enable trackpad</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> modprobe psmouse</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Open bluetooth GUI</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ex">blueman-manager</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Set wallpaper</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="ex">nitrogen</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Reload i3</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Super</span> + Shift + r</span></code></pre></div>
+<hr />
+<blockquote>
+<p><strong>Tip:</strong> Always reload i3 with
+<code>Super + Shift + r</code> after editing the config.
+<strong>Tip:</strong> Press <code>Esc</code> in vim whenever you’re lost
+— it always returns to Normal mode.</p>
+</blockquote>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
