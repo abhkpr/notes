@@ -1,182 +1,225 @@
-<!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
-    <head>
-        <!-- Book generated using mdBook -->
-        <meta charset="UTF-8">
-        <title>Warbird</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>warbird site — documentation | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        <!-- Custom HTML head -->
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
 
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff">
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
 
-        <link rel="icon" href="favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="favicon-8114d1fc.png">
-        <link rel="stylesheet" href="css/variables-8adf115d.css">
-        <link rel="stylesheet" href="css/general-96259f5b.css">
-        <link rel="stylesheet" href="css/chrome-ae938929.css">
-        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
 
-        <!-- Fonts -->
-        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+        .hamburger:hover {
+            border-color: var(--green);
+        }
 
-        <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
 
-        <!-- Custom theme stylesheets -->
+        .overlay.open { display: block; }
 
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
 
-        <!-- Provide site root and default themes to javascript -->
-        <script>
-            const path_to_root = "";
-            const default_light_theme = "light";
-            const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-21ff755f.js";
-        </script>
-        <!-- Start loading toc.js asap -->
-        <script src="toc-13446770.js"></script>
-    </head>
-    <body>
-    <div id="mdbook-help-container">
-        <div id="mdbook-help-popup">
-            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
-            <div>
-                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
-                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
-                <p>Press <kbd>?</kbd> to show this help</p>
-                <p>Press <kbd>Esc</kbd> to hide this help</p>
-            </div>
-        </div>
-    </div>
-    <div id="mdbook-body-container">
-        <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script>
-            try {
-                let theme = localStorage.getItem('mdbook-theme');
-                let sidebar = localStorage.getItem('mdbook-sidebar');
+        .sidebar.open {
+            transform: translateX(0);
+        }
 
-                if (theme.startsWith('"') && theme.endsWith('"')) {
-                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
-                }
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
 
-                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
-                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
-                }
-            } catch (e) { }
-        </script>
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
 
-        <!-- Set the theme before any content is loaded, prevents flash -->
-        <script>
-            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
-            let theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
-            if (theme === null || theme === undefined) { theme = default_theme; }
-            const html = document.documentElement;
-            html.classList.remove('light')
-            html.classList.add(theme);
-            html.classList.add("js");
-        </script>
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
 
-        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
 
-        <!-- Hide / unhide sidebar before it is displayed -->
-        <script>
-            let sidebar = null;
-            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
-            if (document.body.clientWidth >= 1080) {
-                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
-                sidebar = sidebar || 'visible';
-            } else {
-                sidebar = 'hidden';
-                sidebar_toggle.checked = false;
-            }
-            if (sidebar === 'visible') {
-                sidebar_toggle.checked = true;
-            } else {
-                html.classList.remove('sidebar-visible');
-            }
-        </script>
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
 
-        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
-            <!-- populated by js -->
-            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
-            <noscript>
-                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
-            </noscript>
-            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
-                <div class="sidebar-resize-indicator"></div>
-            </div>
-        </nav>
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
 
-        <div id="mdbook-page-wrapper" class="page-wrapper">
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
 
-            <div class="page">
-                <div id="mdbook-menu-bar-hover-placeholder"></div>
-                <div id="mdbook-menu-bar" class="menu-bar sticky">
-                    <div class="left-buttons">
-                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
-                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
-                        </label>
-                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
-                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
-                        </button>
-                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
-                        </ul>
-                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
-                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
-                        </button>
-                    </div>
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
 
-                    <h1 class="menu-title"></h1>
+        p { margin-bottom: 14px; color: var(--fg); }
 
-                    <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
-                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
-                        </a>
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
 
-                    </div>
-                </div>
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
 
-                <div id="mdbook-search-wrapper" class="hidden">
-                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
-                        <div class="search-wrapper">
-                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
-                            <div class="spinner-wrapper">
-                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
-                            </div>
-                        </div>
-                    </form>
-                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
-                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
-                        <ul id="mdbook-searchresults">
-                        </ul>
-                    </div>
-                </div>
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
 
-                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script>
-                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
-                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
-                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
-                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
-                    });
-                </script>
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
 
-                <div id="mdbook-content" class="content">
-                    <main>
-                        <h1 id="warbird-site--documentation"><a class="header" href="#warbird-site--documentation">warbird site — documentation</a></h1>
-<hr>
-<h2 id="table-of-contents"><a class="header" href="#table-of-contents">table of contents</a></h2>
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a>\n<a href="vim.html">Vim Cheatsheet — Most Used Commands</a>\n<a href="mds.html">Markdown Cheatsheet</a>\n<a href="git.html">Git NAV_PLACEHOLDER GitHub</a>\n<a href="i3.html">i3 Complete Shortcuts NAV_PLACEHOLDER Config Notes</a>\n<a href="C++.html">C++ for Competitive Programming — Complete Notes</a>\n<a href="arithmetic.html">Mathematics for Competitive Programming</a>\n<a href="warbird.html" class="active">warbird site — documentation</a>\n
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="warbird-site-documentation">warbird site — documentation</h1>
+<hr />
+<h2 id="table-of-contents">table of contents</h2>
 <ul>
 <li><a href="#project-structure">project structure</a></li>
 <li><a href="#daily-workflow">daily workflow</a></li>
@@ -188,8 +231,8 @@
 <li><a href="#custom-domain-setup">custom domain setup</a></li>
 <li><a href="#troubleshooting">troubleshooting</a></li>
 </ul>
-<hr>
-<h2 id="project-structure"><a class="header" href="#project-structure">project structure</a></h2>
+<hr />
+<h2 id="project-structure">project structure</h2>
 <pre><code>~/warbird/
 ├── .github/
 │   └── workflows/
@@ -206,291 +249,250 @@
 │       └── static/
 │           └── css/
 │               └── main.css ← all styles
-└── hugo.toml                ← site config
-</code></pre>
-<hr>
-<h2 id="daily-workflow"><a class="header" href="#daily-workflow">daily workflow</a></h2>
-<pre><code class="language-bash"># 1. go to project
-cd ~/warbird
-
-# 2. make your changes (write post, edit page etc)
-
-# 3. preview locally
-hugo server
-# open localhost:1313 in firefox
-
-# 4. when happy, push to live
-git add .
-git commit -m "what you did"
-git push
-
-# site goes live in ~2 minutes automatically
-</code></pre>
-<hr>
-<h2 id="writing-blog-posts"><a class="header" href="#writing-blog-posts">writing blog posts</a></h2>
+└── hugo.toml                ← site config</code></pre>
+<hr />
+<h2 id="daily-workflow">daily workflow</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. go to project</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/warbird</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. make your changes (write post, edit page etc)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. preview locally</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">hugo</span> server</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># open localhost:1313 in firefox</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. when happy, push to live</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;what you didCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># site goes live in ~2 minutes automatically</span></span></code></pre></div>
+<hr />
+<h2 id="writing-blog-posts">writing blog posts</h2>
 <p>every post is a markdown file inside <code>content/blog/</code></p>
 <p><strong>create a new post:</strong></p>
-<pre><code class="language-bash">nano ~/warbird/content/blog/your-post-name.md
-</code></pre>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/content/blog/your-post-name.md</span></code></pre></div>
 <p><strong>required front matter at the top:</strong></p>
-<pre><code class="language-markdown">---
-title: "Your Post Title"
-date: 2026-03-04
-summary: "one line that shows on homepage and blog list"
----
-
-your content starts here...
-</code></pre>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> CONTENT_PLACEHOLDERquot;Your Post TitleCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2026-03-04</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="an">summary:</span><span class="co"> CONTENT_PLACEHOLDERquot;one line that shows on homepage and blog listCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>your content starts here...</span></code></pre></div>
 <p><strong>example post:</strong></p>
-<pre><code class="language-markdown">---
-title: "Learning Vim"
-date: 2026-03-04
-summary: "why i switched to vim and never looked back"
----
-
-## why vim
-
-started using vim because i wanted full keyboard control...
-
-## keybinds i use daily
-
-- `dd` to delete a line
-- `yy` to copy a line
-- `p` to paste
-
-## conclusion
-
-vim is hard at first but worth it.
-</code></pre>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> CONTENT_PLACEHOLDERquot;Learning VimCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2026-03-04</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="an">summary:</span><span class="co"> CONTENT_PLACEHOLDERquot;why i switched to vim and never looked backCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## why vim</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>started using vim because i wanted full keyboard control...</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">## keybinds i use daily</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`dd`</span> to delete a line</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`yy`</span> to copy a line</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`p`</span> to paste</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## conclusion</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>vim is hard at first but worth it.</span></code></pre></div>
 <p><strong>push it live:</strong></p>
-<pre><code class="language-bash">git add .
-git commit -m "post: learning vim"
-git push
-</code></pre>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;post: learning vimCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
 <p><strong>naming convention for post files:</strong></p>
 <pre><code>good: learning-vim.md
 good: my-cp-journey.md
 bad:  My Post.md
-bad:  post1.md
-</code></pre>
-<hr>
-<h2 id="managing-projects"><a class="header" href="#managing-projects">managing projects</a></h2>
+bad:  post1.md</code></pre>
+<hr />
+<h2 id="managing-projects">managing projects</h2>
 <p>edit the projects page:</p>
-<pre><code class="language-bash">nano ~/warbird/content/projects/index.md
-</code></pre>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/content/projects/index.md</span></code></pre></div>
 <p><strong>format for each project:</strong></p>
-<pre><code class="language-markdown">## project name
-what it does, one or two lines
-[visit →](https://link-to-project.com)
-
-## another project
-description here
-[github →](https://github.com/abhkpr/repo)
-</code></pre>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## project name</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>what it does, one or two lines</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">visit →</span><span class="co">](https://link-to-project.com)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## another project</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>description here</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">github →</span><span class="co">](https://github.com/abhkpr/repo)</span></span></code></pre></div>
 <p><strong>push:</strong></p>
-<pre><code class="language-bash">git add .
-git commit -m "projects: add new project"
-git push
-</code></pre>
-<hr>
-<h2 id="updating-about-page"><a class="header" href="#updating-about-page">updating about page</a></h2>
-<pre><code class="language-bash">nano ~/warbird/content/about.md
-</code></pre>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;projects: add new projectCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
+<hr />
+<h2 id="updating-about-page">updating about page</h2>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/content/about.md</span></code></pre></div>
 <p>front matter must stay at top:</p>
-<pre><code class="language-markdown">---
-title: "About"
-layout: "about"
-date: 2026-03-01
----
-
-your about content here
-</code></pre>
-<p>update this whenever:</p>
-<ul>
-<li>you learn something new</li>
-<li>you start a new project</li>
-<li>your stack changes</li>
-<li>you want to add/remove social links</li>
-</ul>
-<hr>
-<h2 id="adding-social-links"><a class="header" href="#adding-social-links">adding social links</a></h2>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> CONTENT_PLACEHOLDERquot;AboutCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">layout:</span><span class="co"> CONTENT_PLACEHOLDERquot;aboutCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2026-03-01</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>your about content here</span></code></pre></div>
+<p>update this whenever: - you learn something new - you start a new
+project - your stack changes - you want to add/remove social links</p>
+<hr />
+<h2 id="adding-social-links">adding social links</h2>
 <p><strong>STEP 1 — add to hugo.toml:</strong></p>
-<pre><code class="language-bash">nano ~/warbird/hugo.toml
-</code></pre>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/hugo.toml</span></code></pre></div>
 <p>add your links in the <code>[params]</code> section:</p>
-<pre><code class="language-toml">[params]
-  description = "thoughts, projects and notes"
-  author = "Abhishek Kumar"
-  github = "https://github.com/abhkpr"
-  notes = "https://abhkpr.github.io/notes"
-  twitter = "https://twitter.com/yourhandle"
-  linkedin = "https://linkedin.com/in/yourname"
-</code></pre>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[params]</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">description</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;thoughts, projects and notesCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;Abhishek KumarCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">github</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://github.com/abhkprCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">notes</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://abhkpr.github.io/notesCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">twitter</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://twitter.com/yourhandleCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">linkedin</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://linkedin.com/in/yournameCONTENT_PLACEHOLDERquot;</span></span></code></pre></div>
 <p><strong>STEP 2 — add to about layout:</strong></p>
-<pre><code class="language-bash">nano ~/warbird/themes/warbird/layouts/page/about.html
-</code></pre>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/themes/warbird/layouts/page/about.html</span></code></pre></div>
 <p>add links inside <code>.social-links</code> div:</p>
-<pre><code class="language-html">&lt;div class="social-links"&gt;
-    &lt;a href="{{ .Site.Params.github }}" target="_blank"&gt;github&lt;/a&gt;
-    &lt;a href="{{ .Site.Params.notes }}" target="_blank"&gt;notes&lt;/a&gt;
-    &lt;a href="{{ .Site.Params.twitter }}" target="_blank"&gt;twitter&lt;/a&gt;
-    &lt;a href="{{ .Site.Params.linkedin }}" target="_blank"&gt;linkedin&lt;/a&gt;
-&lt;/div&gt;
-</code></pre>
-<hr>
-<h2 id="customizing-the-look"><a class="header" href="#customizing-the-look">customizing the look</a></h2>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">div</span> <span class="er">class</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;social-linksCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">a</span> <span class="er">href</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;{{ .Site.Params.github }}CONTENT_PLACEHOLDERquot;</span> <span class="er">target</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;_blankCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span>github<span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">a</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">a</span> <span class="er">href</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;{{ .Site.Params.notes }}CONTENT_PLACEHOLDERquot;</span> <span class="er">target</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;_blankCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span>notes<span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">a</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">a</span> <span class="er">href</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;{{ .Site.Params.twitter }}CONTENT_PLACEHOLDERquot;</span> <span class="er">target</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;_blankCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span>twitter<span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">a</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">CONTENT_PLACEHOLDERlt;</span><span class="kw">a</span> <span class="er">href</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;{{ .Site.Params.linkedin }}CONTENT_PLACEHOLDERquot;</span> <span class="er">target</span><span class="ot">=</span><span class="st">CONTENT_PLACEHOLDERquot;_blankCONTENT_PLACEHOLDERquot;</span><span class="dt">CONTENT_PLACEHOLDERgt;</span>linkedin<span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">a</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="dt">CONTENT_PLACEHOLDERlt;/</span><span class="kw">div</span><span class="dt">CONTENT_PLACEHOLDERgt;</span></span></code></pre></div>
+<hr />
+<h2 id="customizing-the-look">customizing the look</h2>
 <p>all styles are in one file:</p>
-<pre><code class="language-bash">nano ~/warbird/themes/warbird/static/css/main.css
-</code></pre>
-<p><strong>color variables at the top — change these to retheme entire site:</strong></p>
-<pre><code class="language-css">:root {
-    --bg:        #1a1a14;   /* main background */
-    --bg2:       #222218;   /* secondary background */
-    --cream:     #e8dcc8;   /* main text color */
-    --olive:     #6b7c3a;   /* primary accent */
-    --olive-lt:  #8a9e4a;   /* lighter accent */
-    --amber:     #c8a84b;   /* hover color */
-    --muted:     #8a8a7a;   /* muted text */
-    --border:    #3a3a2a;   /* border color */
-}
-</code></pre>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/themes/warbird/static/css/main.css</span></code></pre></div>
+<p><strong>color variables at the top — change these to retheme entire
+site:</strong></p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="in">:root</span> {</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">--bg</span>:        <span class="cn">#1a1a14</span><span class="op">;</span>   <span class="co">/* main background */</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    --bg2<span class="in">:       #222218;   /* secondary</span> background <span class="op">*</span>/</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">--cream</span>:     <span class="cn">#e8dcc8</span><span class="op">;</span>   <span class="co">/* main text color */</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">--olive</span>:     <span class="cn">#6b7c3a</span><span class="op">;</span>   <span class="co">/* primary accent */</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">--olive-lt</span>:  <span class="cn">#8a9e4a</span><span class="op">;</span>   <span class="co">/* lighter accent */</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="va">--amber</span>:     <span class="cn">#c8a84b</span><span class="op">;</span>   <span class="co">/* hover color */</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="va">--muted</span>:     <span class="cn">#8a8a7a</span><span class="op">;</span>   <span class="co">/* muted text */</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="va">--border</span>:    <span class="cn">#3a3a2a</span><span class="op">;</span>   <span class="co">/* border color */</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p><strong>fonts:</strong></p>
-<pre><code class="language-css">:root {
-    --font-head: 'Special Elite', cursive;  /* headings */
-    --font-mono: 'Share Tech Mono', monospace; /* body */
-}
-</code></pre>
-<p>to change fonts go to <code>themes/warbird/layouts/_default/baseof.html</code>
-and update the google fonts import link</p>
-<hr>
-<h2 id="custom-domain-setup"><a class="header" href="#custom-domain-setup">custom domain setup</a></h2>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="in">:root</span> {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">--font-head</span>: <span class="st">CONTENT_PLACEHOLDER#39;Special EliteCONTENT_PLACEHOLDER#39;</span><span class="op">,</span> <span class="dv">cursive</span><span class="op">;</span>  <span class="co">/* headings */</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">--font-mono</span>: <span class="st">CONTENT_PLACEHOLDER#39;Share Tech MonoCONTENT_PLACEHOLDER#39;</span><span class="op">,</span> <span class="dv">monospace</span><span class="op">;</span> <span class="co">/* body */</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>to change fonts go to
+<code>themes/warbird/layouts/_default/baseof.html</code> and update the
+google fonts import link</p>
+<hr />
+<h2 id="custom-domain-setup">custom domain setup</h2>
 <p>when you get a domain (free .tech from github student pack etc):</p>
 <p><strong>STEP 1 — update hugo.toml:</strong></p>
-<pre><code class="language-bash">nano ~/warbird/hugo.toml
-</code></pre>
-<pre><code class="language-toml">baseURL = "https://yourdomain.tech/"
-</code></pre>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nano</span> ~/warbird/hugo.toml</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">baseURL</span> <span class="op">=</span> <span class="st">CONTENT_PLACEHOLDERquot;https://yourdomain.tech/CONTENT_PLACEHOLDERquot;</span></span></code></pre></div>
 <p><strong>STEP 2 — add CNAME file:</strong></p>
-<pre><code class="language-bash">echo "yourdomain.tech" &gt; ~/warbird/static/CNAME
-</code></pre>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">CONTENT_PLACEHOLDERquot;yourdomain.techCONTENT_PLACEHOLDERquot;</span> <span class="op">CONTENT_PLACEHOLDERgt;</span> ~/warbird/static/CNAME</span></code></pre></div>
 <p><strong>STEP 3 — DNS settings on your registrar:</strong></p>
 <p>add these records:</p>
 <pre><code>Type: A     Name: @    Value: 185.199.108.153
 Type: A     Name: @    Value: 185.199.109.153
 Type: A     Name: @    Value: 185.199.110.153
 Type: A     Name: @    Value: 185.199.111.153
-Type: CNAME Name: www  Value: abhkpr.github.io
-</code></pre>
-<p><strong>STEP 4 — enable on github:</strong></p>
-<ul>
-<li>repo settings → pages</li>
-<li>custom domain → enter your domain</li>
-<li>enable enforce https</li>
-</ul>
+Type: CNAME Name: www  Value: abhkpr.github.io</code></pre>
+<p><strong>STEP 4 — enable on github:</strong> - repo settings → pages -
+custom domain → enter your domain - enable enforce https</p>
 <p><strong>STEP 5 — push and wait:</strong></p>
-<pre><code class="language-bash">git add .
-git commit -m "add custom domain"
-git push
-</code></pre>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;add custom domainCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code></pre></div>
 <p>DNS takes 10-30 mins to propagate</p>
-<hr>
-<h2 id="troubleshooting"><a class="header" href="#troubleshooting">troubleshooting</a></h2>
-<p><strong>site not updating after push:</strong></p>
-<ul>
-<li>check Actions tab on github — is workflow green?</li>
-<li>if red, check the error in the failed step</li>
-<li>wait 2-3 mins after green before checking live site</li>
-</ul>
+<hr />
+<h2 id="troubleshooting">troubleshooting</h2>
+<p><strong>site not updating after push:</strong> - check Actions tab on
+github — is workflow green? - if red, check the error in the failed step
+- wait 2-3 mins after green before checking live site</p>
 <p><strong>local preview broken:</strong></p>
-<pre><code class="language-bash">hugo server --disableFastRender
-</code></pre>
-<p><strong>workflow permissions error:</strong></p>
-<ul>
-<li>repo → settings → actions → general</li>
-<li>set read and write permissions</li>
-<li>re-run failed jobs</li>
-</ul>
-<p><strong>post not showing up:</strong></p>
-<ul>
-<li>check date in front matter is not in the future</li>
-<li>check file is inside <code>content/blog/</code></li>
-<li>check SUMMARY is correct</li>
-</ul>
-<p><strong>styles not loading:</strong></p>
-<ul>
-<li>check <code>baseURL</code> in hugo.toml matches your actual url</li>
-<li>clear browser cache <code>ctrl + shift + r</code></li>
-</ul>
-<hr>
-<h2 id="quick-reference"><a class="header" href="#quick-reference">quick reference</a></h2>
-<div class="table-wrapper">
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">hugo</span> server <span class="at">--disableFastRender</span></span></code></pre></div>
+<p><strong>workflow permissions error:</strong> - repo → settings →
+actions → general - set read and write permissions - re-run failed
+jobs</p>
+<p><strong>post not showing up:</strong> - check date in front matter is
+not in the future - check file is inside <code>content/blog/</code> -
+check SUMMARY is correct</p>
+<p><strong>styles not loading:</strong> - check <code>baseURL</code> in
+hugo.toml matches your actual url - clear browser cache
+<code>ctrl + shift + r</code></p>
+<hr />
+<h2 id="quick-reference">quick reference</h2>
 <table>
 <thead>
-<tr><th>task</th><th>command</th></tr>
+<tr class="header">
+<th>task</th>
+<th>command</th>
+</tr>
 </thead>
 <tbody>
-<tr><td>new blog post</td><td><code>nano content/blog/name.md</code></td></tr>
-<tr><td>preview locally</td><td><code>hugo server</code></td></tr>
-<tr><td>push live</td><td><code>git add . &amp;&amp; git commit -m "" &amp;&amp; git push</code></td></tr>
-<tr><td>edit styles</td><td><code>nano themes/warbird/static/css/main.css</code></td></tr>
-<tr><td>edit config</td><td><code>nano hugo.toml</code></td></tr>
-<tr><td>edit about</td><td><code>nano content/about.md</code></td></tr>
-<tr><td>edit projects</td><td><code>nano content/projects/index.md</code></td></tr>
+<tr class="odd">
+<td>new blog post</td>
+<td><code>nano content/blog/name.md</code></td>
+</tr>
+<tr class="even">
+<td>preview locally</td>
+<td><code>hugo server</code></td>
+</tr>
+<tr class="odd">
+<td>push live</td>
+<td><code>git add . CONTENT_PLACEHOLDERamp;CONTENT_PLACEHOLDERamp; git commit -m "" CONTENT_PLACEHOLDERamp;CONTENT_PLACEHOLDERamp; git push</code></td>
+</tr>
+<tr class="even">
+<td>edit styles</td>
+<td><code>nano themes/warbird/static/css/main.css</code></td>
+</tr>
+<tr class="odd">
+<td>edit config</td>
+<td><code>nano hugo.toml</code></td>
+</tr>
+<tr class="even">
+<td>edit about</td>
+<td><code>nano content/about.md</code></td>
+</tr>
+<tr class="odd">
+<td>edit projects</td>
+<td><code>nano content/projects/index.md</code></td>
+</tr>
 </tbody>
 </table>
+<hr />
+<pre><code>✈ wheels up. keep writing, keep pushing.</code></pre>
 </div>
-<hr>
-<pre><code>✈ wheels up. keep writing, keep pushing.
-</code></pre>
 
-                    </main>
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
 
-                    <nav class="nav-wrapper" aria-label="Page navigation">
-                        <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="arithmetic.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
-                            </a>
-
-
-                        <div style="clear: both"></div>
-                    </nav>
-                </div>
-            </div>
-
-            <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="arithmetic.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
-                    </a>
-
-            </nav>
-
-        </div>
-
-        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
-        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
-        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
-        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
-        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
-
-
-
-        <script>
-            window.playground_copyable = true;
-        </script>
-
-
-        <script src="elasticlunr-ef4e11c1.min.js"></script>
-        <script src="mark-09e88c2c.min.js"></script>
-        <script src="searcher-c2a407aa.js"></script>
-
-        <script src="clipboard-1626706a.min.js"></script>
-        <script src="highlight-abc7f01d.js"></script>
-        <script src="book-a0b12cfe.js"></script>
-
-        <!-- Custom JS scripts -->
-
-
-
-    </div>
-    </body>
+</body>
 </html>
