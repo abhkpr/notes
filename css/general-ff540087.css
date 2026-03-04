@@ -407,33 +407,4 @@ dd > p {
     margin-right: 8px;
 }
 
-/* responsive fix */
-@media (max-width: 1000px) {
-    .content {
-        margin-left: 0 !important;
-        padding: 16px !important;
-        overflow-x: hidden;
-    }
 
-    .sidebar {
-        display: none;
-    }
-
-    .sidebar-visible .sidebar {
-        display: block;
-    }
-
-    .page-wrapper {
-        overflow-x: hidden;
-    }
-
-    pre {
-        overflow-x: auto;
-        white-space: pre-wrap;
-        word-break: break-word;
-    }
-
-    code {
-        word-break: break-word;
-    }
-}
