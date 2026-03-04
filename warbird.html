@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>i3</title>
+        <title>Warbird</title>
 
 
         <!-- Custom HTML head -->
@@ -174,364 +174,286 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="i3-complete-shortcuts--config-notes"><a class="header" href="#i3-complete-shortcuts--config-notes">i3 Complete Shortcuts &amp; Config Notes</a></h1>
-<hr>
-<h2 id="config-file-locations"><a class="header" href="#config-file-locations">Config File Locations</a></h2>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Tool</th><th>Path</th></tr>
-</thead>
-<tbody>
-<tr><td>i3 config</td><td><code>~/.config/i3/config</code></td></tr>
-<tr><td>i3blocks</td><td><code>~/.config/i3blocks/config</code></td></tr>
-<tr><td>Alacritty</td><td><code>~/.config/alacritty/alacritty.toml</code></td></tr>
-<tr><td>SDDM</td><td><code>/etc/sddm.conf</code></td></tr>
-<tr><td>Firefox CSS</td><td><code>~/.mozilla/firefox/&lt;profile&gt;/chrome/userChrome.css</code></td></tr>
-</tbody>
-</table>
-</div>
-<hr>
-<h2 id="autostart-programs"><a class="header" href="#autostart-programs">Autostart Programs</a></h2>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Program</th><th>What it does</th></tr>
-</thead>
-<tbody>
-<tr><td><code>dex</code></td><td>Autostart XDG desktop apps</td></tr>
-<tr><td><code>xss-lock + i3lock</code></td><td>Locks screen before suspend</td></tr>
-<tr><td><code>nm-applet</code></td><td>Network manager tray icon</td></tr>
-<tr><td><code>nitrogen --restore</code></td><td>Restores wallpaper on login</td></tr>
-<tr><td><code>picom</code></td><td>Compositor (transparency, fading)</td></tr>
-</tbody>
-</table>
-</div>
-<hr>
-<h2 id="key-bindings"><a class="header" href="#key-bindings">Key Bindings</a></h2>
-<blockquote>
-<p><strong>Mod key = Super (Windows key)</strong>
-<strong>Custom vim-style keys:</strong> j=left, k=down, l=up, ;=right</p>
-</blockquote>
-<h3 id="terminal--apps"><a class="header" href="#terminal--apps">Terminal &amp; Apps</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Super + Enter</code></td><td>Open terminal</td></tr>
-<tr><td><code>Super + d</code></td><td>Open dmenu app launcher</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="window-management"><a class="header" href="#window-management">Window Management</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Super + Shift + q</code></td><td>Kill focused window</td></tr>
-<tr><td><code>Super + f</code></td><td>Toggle fullscreen</td></tr>
-<tr><td><code>Super + Shift + Space</code></td><td>Toggle floating / tiling</td></tr>
-<tr><td><code>Super + Space</code></td><td>Toggle focus between floating and tiling</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="focus-move-cursor-between-windows"><a class="header" href="#focus-move-cursor-between-windows">Focus (move cursor between windows)</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Super + Left</code></td><td>Focus window to the left</td></tr>
-<tr><td><code>Super + Right</code></td><td>Focus window to the right</td></tr>
-<tr><td><code>Super + Up</code></td><td>Focus window above</td></tr>
-<tr><td><code>Super + Down</code></td><td>Focus window below</td></tr>
-<tr><td><code>Super + j</code></td><td>Focus left (vim style)</td></tr>
-<tr><td><code>Super + ;</code></td><td>Focus right (vim style)</td></tr>
-<tr><td><code>Super + l</code></td><td>Focus up (vim style)</td></tr>
-<tr><td><code>Super + k</code></td><td>Focus down (vim style)</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="move-windows"><a class="header" href="#move-windows">Move Windows</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Super + Shift + Left</code></td><td>Move window left</td></tr>
-<tr><td><code>Super + Shift + Right</code></td><td>Move window right</td></tr>
-<tr><td><code>Super + Shift + Up</code></td><td>Move window up</td></tr>
-<tr><td><code>Super + Shift + Down</code></td><td>Move window down</td></tr>
-<tr><td><code>Super + Shift + j</code></td><td>Move window left (vim style)</td></tr>
-<tr><td><code>Super + Shift + ;</code></td><td>Move window right (vim style)</td></tr>
-<tr><td><code>Super + Shift + l</code></td><td>Move window up (vim style)</td></tr>
-<tr><td><code>Super + Shift + k</code></td><td>Move window down (vim style)</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="splitting--layouts"><a class="header" href="#splitting--layouts">Splitting &amp; Layouts</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Super + h</code></td><td>Split next window horizontally (side by side)</td></tr>
-<tr><td><code>Super + v</code></td><td>Split next window vertically (above/below)</td></tr>
-<tr><td><code>Super + Shift + h</code></td><td>Split horizontal (custom)</td></tr>
-<tr><td><code>Super + Shift + v</code></td><td>Split vertical (custom)</td></tr>
-<tr><td><code>Super + t</code></td><td>Toggle split direction</td></tr>
-<tr><td><code>Super + s</code></td><td>Stacking layout</td></tr>
-<tr><td><code>Super + w</code></td><td>Tabbed layout</td></tr>
-<tr><td><code>Super + e</code></td><td>Toggle split layout</td></tr>
-<tr><td><code>Super + a</code></td><td>Focus parent container</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="scratchpad"><a class="header" href="#scratchpad">Scratchpad</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Super + Shift + -</code></td><td>Send window to scratchpad (hide it)</td></tr>
-<tr><td><code>Super + -</code></td><td>Show / cycle scratchpad windows</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="workspaces"><a class="header" href="#workspaces">Workspaces</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Super + 1</code> to <code>Super + 9</code></td><td>Switch to workspace 1-9</td></tr>
-<tr><td><code>Super + 0</code></td><td>Switch to workspace 10</td></tr>
-<tr><td><code>Super + Shift + 1</code> to <code>Super + Shift + 9</code></td><td>Move window to workspace 1-9</td></tr>
-<tr><td><code>Super + Shift + 0</code></td><td>Move window to workspace 10</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="resize-mode"><a class="header" href="#resize-mode">Resize Mode</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Super + r</code></td><td>Enter resize mode</td></tr>
-<tr><td><code>Left / j</code></td><td>Shrink window width</td></tr>
-<tr><td><code>Right / ;</code></td><td>Grow window width</td></tr>
-<tr><td><code>Up / l</code></td><td>Shrink window height</td></tr>
-<tr><td><code>Down / k</code></td><td>Grow window height</td></tr>
-<tr><td><code>Enter or Escape</code></td><td>Exit resize mode</td></tr>
-<tr><td><code>Super + r</code></td><td>Exit resize mode</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="i3-system"><a class="header" href="#i3-system">i3 System</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Super + Shift + c</code></td><td>Reload i3 config</td></tr>
-<tr><td><code>Super + Shift + r</code></td><td>Restart i3 (preserves layout)</td></tr>
-<tr><td><code>Super + Shift + e</code></td><td>Exit i3 / logout</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="volume-media-keys"><a class="header" href="#volume-media-keys">Volume (Media Keys)</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Shortcut</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>Volume Up key</code></td><td>Increase volume by 10%</td></tr>
-<tr><td><code>Volume Down key</code></td><td>Decrease volume by 10%</td></tr>
-<tr><td><code>Mute key</code></td><td>Toggle mute</td></tr>
-<tr><td><code>Mic Mute key</code></td><td>Toggle mic mute</td></tr>
-</tbody>
-</table>
-</div>
-<hr>
-<h2 id="i3blocks-bar"><a class="header" href="#i3blocks-bar">i3blocks Bar</a></h2>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Block</th><th>What it shows</th><th>Refresh</th></tr>
-</thead>
-<tbody>
-<tr><td>BAT</td><td>Battery %</td><td>30s</td></tr>
-<tr><td>CPU</td><td>CPU usage %</td><td>5s</td></tr>
-<tr><td>RAM</td><td>RAM used / total</td><td>5s</td></tr>
-<tr><td>DISK</td><td>Disk used / total</td><td>30s</td></tr>
-<tr><td>VOL</td><td>Volume %</td><td>5s</td></tr>
-<tr><td>NET</td><td>Wifi network name</td><td>10s</td></tr>
-<tr><td>Time</td><td>Date and time</td><td>60s</td></tr>
-</tbody>
-</table>
-</div>
-<hr>
-<h2 id="window-rules"><a class="header" href="#window-rules">Window Rules</a></h2>
-<pre><code class="language-bash">for_window [class=".*"] border pixel 2   # removes titlebars, keeps 2px border
-default_border pixel 2                   # default border for all windows
+                        <h1 id="warbird-site--documentation"><a class="header" href="#warbird-site--documentation">warbird site — documentation</a></h1>
+<pre><code>✈ abhkpr.github.io
+built with hugo, deployed on github pages
 </code></pre>
 <hr>
-<h2 id="alacritty-settings"><a class="header" href="#alacritty-settings">Alacritty Settings</a></h2>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Setting</th><th>Value</th></tr>
-</thead>
-<tbody>
-<tr><td>Opacity</td><td>0.85 (85% transparent)</td></tr>
-<tr><td>Padding X</td><td>10px</td></tr>
-<tr><td>Padding Y</td><td>10px</td></tr>
-<tr><td>Font size</td><td>9.0</td></tr>
-</tbody>
-</table>
-</div>
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">table of contents</a></h2>
+<ul>
+<li><a href="#project-structure">project structure</a></li>
+<li><a href="#daily-workflow">daily workflow</a></li>
+<li><a href="#writing-blog-posts">writing blog posts</a></li>
+<li><a href="#managing-projects">managing projects</a></li>
+<li><a href="#updating-about-page">updating about page</a></li>
+<li><a href="#adding-social-links">adding social links</a></li>
+<li><a href="#customizing-the-look">customizing the look</a></li>
+<li><a href="#custom-domain-setup">custom domain setup</a></li>
+<li><a href="#troubleshooting">troubleshooting</a></li>
+</ul>
 <hr>
-<h2 id="vim-shortcuts"><a class="header" href="#vim-shortcuts">Vim Shortcuts</a></h2>
-<h3 id="modes"><a class="header" href="#modes">Modes</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Mode</th><th>Enter</th><th>What it does</th></tr>
-</thead>
-<tbody>
-<tr><td>Normal</td><td><code>Esc</code></td><td>Navigate and run commands</td></tr>
-<tr><td>Insert</td><td><code>i</code></td><td>Type text</td></tr>
-<tr><td>Visual</td><td><code>v</code></td><td>Select text</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="exit--save"><a class="header" href="#exit--save">Exit &amp; Save</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Command</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>:w</code></td><td>Save</td></tr>
-<tr><td><code>:q</code></td><td>Quit</td></tr>
-<tr><td><code>:wq</code></td><td>Save and quit</td></tr>
-<tr><td><code>:q!</code></td><td>Quit without saving</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="navigation"><a class="header" href="#navigation">Navigation</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Key</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>h j k l</code></td><td>Left, down, up, right</td></tr>
-<tr><td><code>gg</code></td><td>Top of file</td></tr>
-<tr><td><code>G</code></td><td>Bottom of file</td></tr>
-<tr><td><code>0</code></td><td>Start of line</td></tr>
-<tr><td><code>$</code></td><td>End of line</td></tr>
-<tr><td><code>Ctrl+d</code></td><td>Scroll down half page</td></tr>
-<tr><td><code>Ctrl+u</code></td><td>Scroll up half page</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="editing"><a class="header" href="#editing">Editing</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Key</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>i</code></td><td>Insert before cursor</td></tr>
-<tr><td><code>a</code></td><td>Insert after cursor</td></tr>
-<tr><td><code>o</code></td><td>New line below</td></tr>
-<tr><td><code>O</code></td><td>New line above</td></tr>
-<tr><td><code>dd</code></td><td>Delete line</td></tr>
-<tr><td><code>yy</code></td><td>Copy line</td></tr>
-<tr><td><code>p</code></td><td>Paste</td></tr>
-<tr><td><code>u</code></td><td>Undo</td></tr>
-<tr><td><code>Ctrl+r</code></td><td>Redo</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="search--replace"><a class="header" href="#search--replace">Search &amp; Replace</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Command</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>/word</code></td><td>Search forward</td></tr>
-<tr><td><code>n</code></td><td>Next result</td></tr>
-<tr><td><code>N</code></td><td>Previous result</td></tr>
-<tr><td><code>:%s/old/new/g</code></td><td>Replace all occurrences</td></tr>
-</tbody>
-</table>
-</div>
-<h3 id="visual-mode"><a class="header" href="#visual-mode">Visual Mode</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Key</th><th>Action</th></tr>
-</thead>
-<tbody>
-<tr><td><code>v</code></td><td>Select characters</td></tr>
-<tr><td><code>V</code></td><td>Select whole lines</td></tr>
-<tr><td><code>d</code></td><td>Delete selected</td></tr>
-<tr><td><code>y</code></td><td>Copy selected</td></tr>
-</tbody>
-</table>
-</div>
-<hr>
-<h2 id="useful-commands"><a class="header" href="#useful-commands">Useful Commands</a></h2>
-<pre><code class="language-bash"># Convert markdown to pdf
-pandoc file.md -o file.pdf -V geometry:margin=1in -V fontsize=12pt --pdf-engine=xelatex
-
-# Disable trackpad temporarily
-sudo modprobe -r psmouse
-
-# Re-enable trackpad
-sudo modprobe psmouse
-
-# Open bluetooth GUI
-blueman-manager
-
-# Set wallpaper
-nitrogen
-
-# Reload i3
-Super + Shift + r
+<h2 id="project-structure"><a class="header" href="#project-structure">project structure</a></h2>
+<pre><code>~/warbird/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml       ← github actions auto deploy
+├── content/
+│   ├── blog/                ← all blog posts go here
+│   │   └── first-flight.md
+│   ├── projects/
+│   │   └── index.md         ← projects page
+│   └── about.md             ← about page
+├── themes/
+│   └── warbird/
+│       ├── layouts/         ← html templates
+│       └── static/
+│           └── css/
+│               └── main.css ← all styles
+└── hugo.toml                ← site config
 </code></pre>
 <hr>
-<blockquote>
-<p><strong>Tip:</strong> Always reload i3 with <code>Super + Shift + r</code> after editing the config.
-<strong>Tip:</strong> Press <code>Esc</code> in vim whenever you’re lost — it always returns to Normal mode.</p>
-</blockquote>
+<h2 id="daily-workflow"><a class="header" href="#daily-workflow">daily workflow</a></h2>
+<pre><code class="language-bash"># 1. go to project
+cd ~/warbird
+
+# 2. make your changes (write post, edit page etc)
+
+# 3. preview locally
+hugo server
+# open localhost:1313 in firefox
+
+# 4. when happy, push to live
+git add .
+git commit -m "what you did"
+git push
+
+# site goes live in ~2 minutes automatically
+</code></pre>
+<hr>
+<h2 id="writing-blog-posts"><a class="header" href="#writing-blog-posts">writing blog posts</a></h2>
+<p>every post is a markdown file inside <code>content/blog/</code></p>
+<p><strong>create a new post:</strong></p>
+<pre><code class="language-bash">nano ~/warbird/content/blog/your-post-name.md
+</code></pre>
+<p><strong>required front matter at the top:</strong></p>
+<pre><code class="language-markdown">---
+title: "Your Post Title"
+date: 2026-03-04
+summary: "one line that shows on homepage and blog list"
+---
+
+your content starts here...
+</code></pre>
+<p><strong>example post:</strong></p>
+<pre><code class="language-markdown">---
+title: "Learning Vim"
+date: 2026-03-04
+summary: "why i switched to vim and never looked back"
+---
+
+## why vim
+
+started using vim because i wanted full keyboard control...
+
+## keybinds i use daily
+
+- `dd` to delete a line
+- `yy` to copy a line
+- `p` to paste
+
+## conclusion
+
+vim is hard at first but worth it.
+</code></pre>
+<p><strong>push it live:</strong></p>
+<pre><code class="language-bash">git add .
+git commit -m "post: learning vim"
+git push
+</code></pre>
+<p><strong>naming convention for post files:</strong></p>
+<pre><code>good: learning-vim.md
+good: my-cp-journey.md
+bad:  My Post.md
+bad:  post1.md
+</code></pre>
+<hr>
+<h2 id="managing-projects"><a class="header" href="#managing-projects">managing projects</a></h2>
+<p>edit the projects page:</p>
+<pre><code class="language-bash">nano ~/warbird/content/projects/index.md
+</code></pre>
+<p><strong>format for each project:</strong></p>
+<pre><code class="language-markdown">## project name
+what it does, one or two lines
+[visit →](https://link-to-project.com)
+
+## another project
+description here
+[github →](https://github.com/abhkpr/repo)
+</code></pre>
+<p><strong>push:</strong></p>
+<pre><code class="language-bash">git add .
+git commit -m "projects: add new project"
+git push
+</code></pre>
+<hr>
+<h2 id="updating-about-page"><a class="header" href="#updating-about-page">updating about page</a></h2>
+<pre><code class="language-bash">nano ~/warbird/content/about.md
+</code></pre>
+<p>front matter must stay at top:</p>
+<pre><code class="language-markdown">---
+title: "About"
+layout: "about"
+date: 2026-03-01
+---
+
+your about content here
+</code></pre>
+<p>update this whenever:</p>
+<ul>
+<li>you learn something new</li>
+<li>you start a new project</li>
+<li>your stack changes</li>
+<li>you want to add/remove social links</li>
+</ul>
+<hr>
+<h2 id="adding-social-links"><a class="header" href="#adding-social-links">adding social links</a></h2>
+<p><strong>STEP 1 — add to hugo.toml:</strong></p>
+<pre><code class="language-bash">nano ~/warbird/hugo.toml
+</code></pre>
+<p>add your links in the <code>[params]</code> section:</p>
+<pre><code class="language-toml">[params]
+  description = "thoughts, projects and notes"
+  author = "Abhishek Kumar"
+  github = "https://github.com/abhkpr"
+  notes = "https://abhkpr.github.io/notes"
+  twitter = "https://twitter.com/yourhandle"
+  linkedin = "https://linkedin.com/in/yourname"
+</code></pre>
+<p><strong>STEP 2 — add to about layout:</strong></p>
+<pre><code class="language-bash">nano ~/warbird/themes/warbird/layouts/page/about.html
+</code></pre>
+<p>add links inside <code>.social-links</code> div:</p>
+<pre><code class="language-html">&lt;div class="social-links"&gt;
+    &lt;a href="{{ .Site.Params.github }}" target="_blank"&gt;github&lt;/a&gt;
+    &lt;a href="{{ .Site.Params.notes }}" target="_blank"&gt;notes&lt;/a&gt;
+    &lt;a href="{{ .Site.Params.twitter }}" target="_blank"&gt;twitter&lt;/a&gt;
+    &lt;a href="{{ .Site.Params.linkedin }}" target="_blank"&gt;linkedin&lt;/a&gt;
+&lt;/div&gt;
+</code></pre>
+<hr>
+<h2 id="customizing-the-look"><a class="header" href="#customizing-the-look">customizing the look</a></h2>
+<p>all styles are in one file:</p>
+<pre><code class="language-bash">nano ~/warbird/themes/warbird/static/css/main.css
+</code></pre>
+<p><strong>color variables at the top — change these to retheme entire site:</strong></p>
+<pre><code class="language-css">:root {
+    --bg:        #1a1a14;   /* main background */
+    --bg2:       #222218;   /* secondary background */
+    --cream:     #e8dcc8;   /* main text color */
+    --olive:     #6b7c3a;   /* primary accent */
+    --olive-lt:  #8a9e4a;   /* lighter accent */
+    --amber:     #c8a84b;   /* hover color */
+    --muted:     #8a8a7a;   /* muted text */
+    --border:    #3a3a2a;   /* border color */
+}
+</code></pre>
+<p><strong>fonts:</strong></p>
+<pre><code class="language-css">:root {
+    --font-head: 'Special Elite', cursive;  /* headings */
+    --font-mono: 'Share Tech Mono', monospace; /* body */
+}
+</code></pre>
+<p>to change fonts go to <code>themes/warbird/layouts/_default/baseof.html</code>
+and update the google fonts import link</p>
+<hr>
+<h2 id="custom-domain-setup"><a class="header" href="#custom-domain-setup">custom domain setup</a></h2>
+<p>when you get a domain (free .tech from github student pack etc):</p>
+<p><strong>STEP 1 — update hugo.toml:</strong></p>
+<pre><code class="language-bash">nano ~/warbird/hugo.toml
+</code></pre>
+<pre><code class="language-toml">baseURL = "https://yourdomain.tech/"
+</code></pre>
+<p><strong>STEP 2 — add CNAME file:</strong></p>
+<pre><code class="language-bash">echo "yourdomain.tech" &gt; ~/warbird/static/CNAME
+</code></pre>
+<p><strong>STEP 3 — DNS settings on your registrar:</strong></p>
+<p>add these records:</p>
+<pre><code>Type: A     Name: @    Value: 185.199.108.153
+Type: A     Name: @    Value: 185.199.109.153
+Type: A     Name: @    Value: 185.199.110.153
+Type: A     Name: @    Value: 185.199.111.153
+Type: CNAME Name: www  Value: abhkpr.github.io
+</code></pre>
+<p><strong>STEP 4 — enable on github:</strong></p>
+<ul>
+<li>repo settings → pages</li>
+<li>custom domain → enter your domain</li>
+<li>enable enforce https</li>
+</ul>
+<p><strong>STEP 5 — push and wait:</strong></p>
+<pre><code class="language-bash">git add .
+git commit -m "add custom domain"
+git push
+</code></pre>
+<p>DNS takes 10-30 mins to propagate</p>
+<hr>
+<h2 id="troubleshooting"><a class="header" href="#troubleshooting">troubleshooting</a></h2>
+<p><strong>site not updating after push:</strong></p>
+<ul>
+<li>check Actions tab on github — is workflow green?</li>
+<li>if red, check the error in the failed step</li>
+<li>wait 2-3 mins after green before checking live site</li>
+</ul>
+<p><strong>local preview broken:</strong></p>
+<pre><code class="language-bash">hugo server --disableFastRender
+</code></pre>
+<p><strong>workflow permissions error:</strong></p>
+<ul>
+<li>repo → settings → actions → general</li>
+<li>set read and write permissions</li>
+<li>re-run failed jobs</li>
+</ul>
+<p><strong>post not showing up:</strong></p>
+<ul>
+<li>check date in front matter is not in the future</li>
+<li>check file is inside <code>content/blog/</code></li>
+<li>check SUMMARY is correct</li>
+</ul>
+<p><strong>styles not loading:</strong></p>
+<ul>
+<li>check <code>baseURL</code> in hugo.toml matches your actual url</li>
+<li>clear browser cache <code>ctrl + shift + r</code></li>
+</ul>
+<hr>
+<h2 id="quick-reference"><a class="header" href="#quick-reference">quick reference</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>task</th><th>command</th></tr>
+</thead>
+<tbody>
+<tr><td>new blog post</td><td><code>nano content/blog/name.md</code></td></tr>
+<tr><td>preview locally</td><td><code>hugo server</code></td></tr>
+<tr><td>push live</td><td><code>git add . &amp;&amp; git commit -m "" &amp;&amp; git push</code></td></tr>
+<tr><td>edit styles</td><td><code>nano themes/warbird/static/css/main.css</code></td></tr>
+<tr><td>edit config</td><td><code>nano hugo.toml</code></td></tr>
+<tr><td>edit about</td><td><code>nano content/about.md</code></td></tr>
+<tr><td>edit projects</td><td><code>nano content/projects/index.md</code></td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<pre><code>✈ wheels up. keep writing, keep pushing.
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="git.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="arithmetic.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="C++.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
-                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -539,13 +461,10 @@ Super + Shift + r
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="git.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="arithmetic.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="C++.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
-                    </a>
             </nav>
 
         </div>

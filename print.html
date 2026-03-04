@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-9fd22659.js";
+            window.path_to_searchindex_js = "searchindex-ee1bc4da.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-5dc35146.js"></script>
+        <script src="toc-13446770.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -2268,6 +2268,278 @@ COMPLEXITY:
 </code></pre>
 <hr>
 <p><em>This is your complete math arsenal for CP. Revisit sections as problems demand them. Math in CP is learned by doing, not reading.</em></p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="warbird-site--documentation"><a class="header" href="#warbird-site--documentation">warbird site — documentation</a></h1>
+<pre><code>✈ abhkpr.github.io
+built with hugo, deployed on github pages
+</code></pre>
+<hr>
+<h2 id="table-of-contents-1"><a class="header" href="#table-of-contents-1">table of contents</a></h2>
+<ul>
+<li><a href="#project-structure">project structure</a></li>
+<li><a href="#daily-workflow-1">daily workflow</a></li>
+<li><a href="#writing-blog-posts">writing blog posts</a></li>
+<li><a href="#managing-projects">managing projects</a></li>
+<li><a href="#updating-about-page">updating about page</a></li>
+<li><a href="#adding-social-links">adding social links</a></li>
+<li><a href="#customizing-the-look">customizing the look</a></li>
+<li><a href="#custom-domain-setup">custom domain setup</a></li>
+<li><a href="#troubleshooting">troubleshooting</a></li>
+</ul>
+<hr>
+<h2 id="project-structure"><a class="header" href="#project-structure">project structure</a></h2>
+<pre><code>~/warbird/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml       ← github actions auto deploy
+├── content/
+│   ├── blog/                ← all blog posts go here
+│   │   └── first-flight.md
+│   ├── projects/
+│   │   └── index.md         ← projects page
+│   └── about.md             ← about page
+├── themes/
+│   └── warbird/
+│       ├── layouts/         ← html templates
+│       └── static/
+│           └── css/
+│               └── main.css ← all styles
+└── hugo.toml                ← site config
+</code></pre>
+<hr>
+<h2 id="daily-workflow-1"><a class="header" href="#daily-workflow-1">daily workflow</a></h2>
+<pre><code class="language-bash"># 1. go to project
+cd ~/warbird
+
+# 2. make your changes (write post, edit page etc)
+
+# 3. preview locally
+hugo server
+# open localhost:1313 in firefox
+
+# 4. when happy, push to live
+git add .
+git commit -m "what you did"
+git push
+
+# site goes live in ~2 minutes automatically
+</code></pre>
+<hr>
+<h2 id="writing-blog-posts"><a class="header" href="#writing-blog-posts">writing blog posts</a></h2>
+<p>every post is a markdown file inside <code>content/blog/</code></p>
+<p><strong>create a new post:</strong></p>
+<pre><code class="language-bash">nano ~/warbird/content/blog/your-post-name.md
+</code></pre>
+<p><strong>required front matter at the top:</strong></p>
+<pre><code class="language-markdown">---
+title: "Your Post Title"
+date: 2026-03-04
+summary: "one line that shows on homepage and blog list"
+---
+
+your content starts here...
+</code></pre>
+<p><strong>example post:</strong></p>
+<pre><code class="language-markdown">---
+title: "Learning Vim"
+date: 2026-03-04
+summary: "why i switched to vim and never looked back"
+---
+
+## why vim
+
+started using vim because i wanted full keyboard control...
+
+## keybinds i use daily
+
+- `dd` to delete a line
+- `yy` to copy a line
+- `p` to paste
+
+## conclusion
+
+vim is hard at first but worth it.
+</code></pre>
+<p><strong>push it live:</strong></p>
+<pre><code class="language-bash">git add .
+git commit -m "post: learning vim"
+git push
+</code></pre>
+<p><strong>naming convention for post files:</strong></p>
+<pre><code>good: learning-vim.md
+good: my-cp-journey.md
+bad:  My Post.md
+bad:  post1.md
+</code></pre>
+<hr>
+<h2 id="managing-projects"><a class="header" href="#managing-projects">managing projects</a></h2>
+<p>edit the projects page:</p>
+<pre><code class="language-bash">nano ~/warbird/content/projects/index.md
+</code></pre>
+<p><strong>format for each project:</strong></p>
+<pre><code class="language-markdown">## project name
+what it does, one or two lines
+[visit →](https://link-to-project.com)
+
+## another project
+description here
+[github →](https://github.com/abhkpr/repo)
+</code></pre>
+<p><strong>push:</strong></p>
+<pre><code class="language-bash">git add .
+git commit -m "projects: add new project"
+git push
+</code></pre>
+<hr>
+<h2 id="updating-about-page"><a class="header" href="#updating-about-page">updating about page</a></h2>
+<pre><code class="language-bash">nano ~/warbird/content/about.md
+</code></pre>
+<p>front matter must stay at top:</p>
+<pre><code class="language-markdown">---
+title: "About"
+layout: "about"
+date: 2026-03-01
+---
+
+your about content here
+</code></pre>
+<p>update this whenever:</p>
+<ul>
+<li>you learn something new</li>
+<li>you start a new project</li>
+<li>your stack changes</li>
+<li>you want to add/remove social links</li>
+</ul>
+<hr>
+<h2 id="adding-social-links"><a class="header" href="#adding-social-links">adding social links</a></h2>
+<p><strong>STEP 1 — add to hugo.toml:</strong></p>
+<pre><code class="language-bash">nano ~/warbird/hugo.toml
+</code></pre>
+<p>add your links in the <code>[params]</code> section:</p>
+<pre><code class="language-toml">[params]
+  description = "thoughts, projects and notes"
+  author = "Abhishek Kumar"
+  github = "https://github.com/abhkpr"
+  notes = "https://abhkpr.github.io/notes"
+  twitter = "https://twitter.com/yourhandle"
+  linkedin = "https://linkedin.com/in/yourname"
+</code></pre>
+<p><strong>STEP 2 — add to about layout:</strong></p>
+<pre><code class="language-bash">nano ~/warbird/themes/warbird/layouts/page/about.html
+</code></pre>
+<p>add links inside <code>.social-links</code> div:</p>
+<pre><code class="language-html">&lt;div class="social-links"&gt;
+    &lt;a href="{{ .Site.Params.github }}" target="_blank"&gt;github&lt;/a&gt;
+    &lt;a href="{{ .Site.Params.notes }}" target="_blank"&gt;notes&lt;/a&gt;
+    &lt;a href="{{ .Site.Params.twitter }}" target="_blank"&gt;twitter&lt;/a&gt;
+    &lt;a href="{{ .Site.Params.linkedin }}" target="_blank"&gt;linkedin&lt;/a&gt;
+&lt;/div&gt;
+</code></pre>
+<hr>
+<h2 id="customizing-the-look"><a class="header" href="#customizing-the-look">customizing the look</a></h2>
+<p>all styles are in one file:</p>
+<pre><code class="language-bash">nano ~/warbird/themes/warbird/static/css/main.css
+</code></pre>
+<p><strong>color variables at the top — change these to retheme entire site:</strong></p>
+<pre><code class="language-css">:root {
+    --bg:        #1a1a14;   /* main background */
+    --bg2:       #222218;   /* secondary background */
+    --cream:     #e8dcc8;   /* main text color */
+    --olive:     #6b7c3a;   /* primary accent */
+    --olive-lt:  #8a9e4a;   /* lighter accent */
+    --amber:     #c8a84b;   /* hover color */
+    --muted:     #8a8a7a;   /* muted text */
+    --border:    #3a3a2a;   /* border color */
+}
+</code></pre>
+<p><strong>fonts:</strong></p>
+<pre><code class="language-css">:root {
+    --font-head: 'Special Elite', cursive;  /* headings */
+    --font-mono: 'Share Tech Mono', monospace; /* body */
+}
+</code></pre>
+<p>to change fonts go to <code>themes/warbird/layouts/_default/baseof.html</code>
+and update the google fonts import link</p>
+<hr>
+<h2 id="custom-domain-setup"><a class="header" href="#custom-domain-setup">custom domain setup</a></h2>
+<p>when you get a domain (free .tech from github student pack etc):</p>
+<p><strong>STEP 1 — update hugo.toml:</strong></p>
+<pre><code class="language-bash">nano ~/warbird/hugo.toml
+</code></pre>
+<pre><code class="language-toml">baseURL = "https://yourdomain.tech/"
+</code></pre>
+<p><strong>STEP 2 — add CNAME file:</strong></p>
+<pre><code class="language-bash">echo "yourdomain.tech" &gt; ~/warbird/static/CNAME
+</code></pre>
+<p><strong>STEP 3 — DNS settings on your registrar:</strong></p>
+<p>add these records:</p>
+<pre><code>Type: A     Name: @    Value: 185.199.108.153
+Type: A     Name: @    Value: 185.199.109.153
+Type: A     Name: @    Value: 185.199.110.153
+Type: A     Name: @    Value: 185.199.111.153
+Type: CNAME Name: www  Value: abhkpr.github.io
+</code></pre>
+<p><strong>STEP 4 — enable on github:</strong></p>
+<ul>
+<li>repo settings → pages</li>
+<li>custom domain → enter your domain</li>
+<li>enable enforce https</li>
+</ul>
+<p><strong>STEP 5 — push and wait:</strong></p>
+<pre><code class="language-bash">git add .
+git commit -m "add custom domain"
+git push
+</code></pre>
+<p>DNS takes 10-30 mins to propagate</p>
+<hr>
+<h2 id="troubleshooting"><a class="header" href="#troubleshooting">troubleshooting</a></h2>
+<p><strong>site not updating after push:</strong></p>
+<ul>
+<li>check Actions tab on github — is workflow green?</li>
+<li>if red, check the error in the failed step</li>
+<li>wait 2-3 mins after green before checking live site</li>
+</ul>
+<p><strong>local preview broken:</strong></p>
+<pre><code class="language-bash">hugo server --disableFastRender
+</code></pre>
+<p><strong>workflow permissions error:</strong></p>
+<ul>
+<li>repo → settings → actions → general</li>
+<li>set read and write permissions</li>
+<li>re-run failed jobs</li>
+</ul>
+<p><strong>post not showing up:</strong></p>
+<ul>
+<li>check date in front matter is not in the future</li>
+<li>check file is inside <code>content/blog/</code></li>
+<li>check SUMMARY is correct</li>
+</ul>
+<p><strong>styles not loading:</strong></p>
+<ul>
+<li>check <code>baseURL</code> in hugo.toml matches your actual url</li>
+<li>clear browser cache <code>ctrl + shift + r</code></li>
+</ul>
+<hr>
+<h2 id="quick-reference-1"><a class="header" href="#quick-reference-1">quick reference</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>task</th><th>command</th></tr>
+</thead>
+<tbody>
+<tr><td>new blog post</td><td><code>nano content/blog/name.md</code></td></tr>
+<tr><td>preview locally</td><td><code>hugo server</code></td></tr>
+<tr><td>push live</td><td><code>git add . &amp;&amp; git commit -m "" &amp;&amp; git push</code></td></tr>
+<tr><td>edit styles</td><td><code>nano themes/warbird/static/css/main.css</code></td></tr>
+<tr><td>edit config</td><td><code>nano hugo.toml</code></td></tr>
+<tr><td>edit about</td><td><code>nano content/about.md</code></td></tr>
+<tr><td>edit projects</td><td><code>nano content/projects/index.md</code></td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<pre><code>✈ wheels up. keep writing, keep pushing.
+</code></pre>
 
                     </main>
 
