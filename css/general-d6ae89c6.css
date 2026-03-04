@@ -408,3 +408,6 @@ dd > p {
 }
 
 
+#sidebar-toggle {
+    display: block !important;
+}
