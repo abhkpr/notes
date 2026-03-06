@@ -21,6 +21,7 @@ ORDER=(
     "js"
     "py"
     "kt"
+    "vocab"
     "cs"
     "database"
     "network"
