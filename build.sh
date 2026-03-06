@@ -9,6 +9,7 @@ mkdir -p "$OUT"
 
 ORDER=(
     "README"
+    "how-to-build"
     "linux"
     "vim"
     "mds"
