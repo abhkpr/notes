@@ -1,16 +1,24 @@
-name: Deploy Notes
+name: Build and Deploy Notes
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pandoc
+        run: sudo apt-get install -y pandoc
+
+      - name: Build site
+        run: bash build.sh
+
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
