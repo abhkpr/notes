@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Vocabulary | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="C++.html">C++ for Competitive Programming — Complete Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="py.html">Python</a><a href="kt.html">Kotlin</a><a href="vocab.html" class="active">Dev Vocabulary</a><a href="cs.html">Computer Science Fundamentals</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="system-design.html">System Design</a><a href="warbird.html">warbird site — documentation</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="dev-vocabulary">Dev Vocabulary</h1>
+<blockquote>
+<p>every term you will encounter building websites, web apps and android
+apps.</p>
+</blockquote>
+<hr />
+<h2 id="ui-components">UI components</h2>
+<p>these are the building blocks of every interface. learn these names
+and you can communicate clearly with any designer or developer.</p>
+<h3 id="navigation">navigation</h3>
+<p><strong>Navbar / Navigation Bar</strong> — horizontal bar at top of
+page with links and logo.</p>
+<p><strong>Sidebar</strong> — vertical panel on left or right side with
+navigation or extra content.</p>
+<p><strong>Breadcrumb</strong> — shows current location in hierarchy.
+<code>Home &gt; Blog &gt; Article Title</code></p>
+<p><strong>Tab Bar</strong> — tabs at top or bottom to switch between
+sections.</p>
+<p><strong>Drawer / Side Sheet</strong> — panel that slides in from the
+side, usually on mobile.</p>
+<p><strong>Bottom Navigation Bar</strong> — Android/iOS style tabs at
+bottom of screen.</p>
+<p><strong>Hamburger Menu</strong> — three horizontal lines icon that
+opens a menu on click. common on mobile.</p>
+<p><strong>Dropdown Menu</strong> — list that appears below a button
+when clicked.</p>
+<p><strong>Mega Menu</strong> — large dropdown with multiple columns,
+used for complex sites.</p>
+<p><strong>Pagination</strong> — numbered pages at bottom.
+<code>&lt; 1 2 3 4 5 &gt;</code></p>
+<p><strong>Breadcrumb Trail</strong> — path showing where you are in the
+app hierarchy.</p>
+<hr />
+<h3 id="content-display">content display</h3>
+<p><strong>Card</strong> — box containing related content (image, title,
+description, action). the most common UI component.</p>
+<p><strong>Hero Section</strong> — large banner at top of page, usually
+with headline and CTA.</p>
+<p><strong>Banner</strong> — wide horizontal strip, often for
+announcements or ads.</p>
+<p><strong>Avatar</strong> — small circular image representing a
+user.</p>
+<p><strong>Badge</strong> — small indicator showing count or status,
+often on icons. the notification count on an app icon.</p>
+<p><strong>Tag / Chip / Pill</strong> — small label to categorize
+content. <code>#technology</code> <code>React</code>
+<code>Beginner</code>.</p>
+<p><strong>Tooltip</strong> — small popup with extra info when you hover
+over something.</p>
+<p><strong>Popover</strong> — floating panel with more content,
+triggered by click.</p>
+<p><strong>Callout / Alert Box</strong> — highlighted box for important
+messages. success (green), warning (yellow), error (red), info
+(blue).</p>
+<p><strong>Empty State</strong> — what is shown when there is no data.
+“No posts yet — create your first post!”</p>
+<p><strong>Skeleton Screen</strong> — animated placeholder shown while
+content loads. grey boxes that pulse.</p>
+<p><strong>Placeholder</strong> — grayed-out hint text inside an empty
+input field.</p>
+<hr />
+<h3 id="feedback-and-status">feedback and status</h3>
+<p><strong>Toast / Snackbar</strong> — small temporary notification that
+appears briefly at bottom or top of screen. “Message sent
+successfully.”</p>
+<p><strong>Modal / Dialog</strong> — popup overlay that requires user
+action before continuing. blocks background interaction.</p>
+<p><strong>Alert</strong> — inline message about something
+important.</p>
+<p><strong>Progress Bar</strong> — horizontal bar showing completion
+percentage.</p>
+<p><strong>Spinner / Loader</strong> — rotating animation showing
+something is loading.</p>
+<p><strong>Loading Skeleton</strong> — animated gray placeholder
+mimicking content layout while loading.</p>
+<p><strong>Notification</strong> — message alerting user to an event
+(new message, like, etc).</p>
+<p><strong>Error State</strong> — what is shown when something goes
+wrong. error message with retry option.</p>
+<hr />
+<h3 id="input-and-forms">input and forms</h3>
+<p><strong>Input Field / Text Field</strong> — box where user types
+text.</p>
+<p><strong>Textarea</strong> — multi-line text input for longer
+content.</p>
+<p><strong>Dropdown / Select</strong> — click to reveal list of options,
+pick one.</p>
+<p><strong>Checkbox</strong> — square box, tick to select. multiple can
+be selected.</p>
+<p><strong>Radio Button</strong> — circular button. only one in a group
+can be selected.</p>
+<p><strong>Toggle / Switch</strong> — on/off switch. like a light
+switch.</p>
+<p><strong>Slider</strong> — drag left/right to pick a value in a
+range.</p>
+<p><strong>Date Picker</strong> — calendar UI for picking a date.</p>
+<p><strong>Time Picker</strong> — clock UI for picking a time.</p>
+<p><strong>Color Picker</strong> — palette UI for picking a color.</p>
+<p><strong>Search Bar</strong> — input field with search icon, often
+with autocomplete.</p>
+<p><strong>Autocomplete</strong> — dropdown suggestions that appear as
+you type.</p>
+<p><strong>File Upload</strong> — button or drag-drop area to select
+files.</p>
+<p><strong>Form</strong> — group of input fields with a submit
+button.</p>
+<p><strong>Field Validation</strong> — check if input is correct. shows
+error message if not.</p>
+<p><strong>Label</strong> — text above or beside an input describing
+what it is.</p>
+<p><strong>Placeholder Text</strong> — hint text inside empty input.
+disappears when you start typing.</p>
+<p><strong>Required Field</strong> — input that must be filled before
+form can be submitted.</p>
+<hr />
+<h3 id="actions-and-buttons">actions and buttons</h3>
+<p><strong>CTA (Call to Action)</strong> — button that prompts user to
+do something. “Sign Up”, “Get Started”, “Buy Now”.</p>
+<p><strong>Primary Button</strong> — main action, visually prominent
+(filled, colored).</p>
+<p><strong>Secondary Button</strong> — alternative action, less
+prominent (outlined or ghost).</p>
+<p><strong>Ghost Button</strong> — button with only an outline, no
+fill.</p>
+<p><strong>Icon Button</strong> — button with just an icon, no text
+label.</p>
+<p><strong>FAB (Floating Action Button)</strong> — circular button
+floating over content, for primary action. common in Android apps.</p>
+<p><strong>Link Button</strong> — looks like a link but works like a
+button.</p>
+<p><strong>Button Group</strong> — multiple related buttons
+together.</p>
+<p><strong>Split Button</strong> — button + dropdown arrow combined.</p>
+<hr />
+<h3 id="layout-components">layout components</h3>
+<p><strong>Container</strong> — wrapper that limits content width and
+centers it on the page.</p>
+<p><strong>Grid</strong> — layout system dividing page into rows and
+columns.</p>
+<p><strong>Divider / Separator</strong> — horizontal or vertical line
+separating sections.</p>
+<p><strong>Spacer</strong> — empty space between elements for visual
+breathing room.</p>
+<p><strong>Section</strong> — major part of a page. hero section,
+features section, testimonials section.</p>
+<p><strong>Panel</strong> — contained area of content, usually with a
+border or background.</p>
+<p><strong>Accordion</strong> — list of items that expand/collapse on
+click to show content.</p>
+<p><strong>Tabs</strong> — multiple panels where one is shown at a time,
+switched by clicking tab labels.</p>
+<p><strong>Stepper</strong> — shows steps in a multi-step process.
+<code>Step 1 &gt; Step 2 &gt; Step 3</code>.</p>
+<p><strong>Timeline</strong> — vertical or horizontal list of events in
+chronological order.</p>
+<p><strong>List Item</strong> — single row in a list, often with icon,
+title, subtitle and action.</p>
+<p><strong>Table</strong> — rows and columns of data with sortable
+headers.</p>
+<p><strong>Data Grid</strong> — advanced table with sorting, filtering,
+pagination.</p>
+<hr />
+<h3 id="media">media</h3>
+<p><strong>Carousel / Slider</strong> — shows multiple images/cards that
+scroll horizontally.</p>
+<p><strong>Gallery</strong> — grid of images.</p>
+<p><strong>Lightbox</strong> — overlay that shows full-size image when
+thumbnail is clicked.</p>
+<p><strong>Video Player</strong> — component with play/pause/volume
+controls.</p>
+<p><strong>Image</strong> — obvious. always needs alt text for
+accessibility.</p>
+<p><strong>Icon</strong> — small visual symbol representing an action or
+concept.</p>
+<p><strong>Illustration</strong> — custom drawing used decoratively in
+UI.</p>
+<hr />
+<h2 id="layout-and-design-terms">layout and design terms</h2>
+<p><strong>Whitespace / Negative Space</strong> — empty space around
+elements. essential for readability. more whitespace = more premium
+feel.</p>
+<p><strong>Padding</strong> — space inside an element, between content
+and border.</p>
+<p><strong>Margin</strong> — space outside an element, between it and
+other elements.</p>
+<p><strong>Border</strong> — line around an element.</p>
+<p><strong>Border Radius</strong> — rounded corners. high border-radius
+= pill shape.</p>
+<p><strong>Shadow</strong> — drop shadow under element to create
+depth.</p>
+<p><strong>Elevation</strong> — how high an element appears to float
+above the surface (material design concept).</p>
+<p><strong>Z-index</strong> — stacking order. higher z-index = on
+top.</p>
+<p><strong>Viewport</strong> — visible area of the browser window.</p>
+<p><strong>Above the fold</strong> — content visible without scrolling.
+the most important content goes here.</p>
+<p><strong>Below the fold</strong> — content that requires scrolling to
+see.</p>
+<p><strong>Breakpoint</strong> — screen width at which layout changes
+for responsiveness. common: 480px, 768px, 1024px, 1280px.</p>
+<p><strong>Grid System</strong> — set of columns used to align content.
+12-column grid is standard.</p>
+<p><strong>Gutter</strong> — space between columns in a grid.</p>
+<p><strong>Alignment</strong> — how elements are positioned relative to
+each other. left, center, right, justified.</p>
+<p><strong>Hierarchy</strong> — visual ordering of importance.
+biggest/boldest = most important.</p>
+<p><strong>Contrast</strong> — difference between elements. high
+contrast = easier to read.</p>
+<p><strong>Consistency</strong> — same patterns repeated. buttons look
+the same everywhere. same font, same spacing.</p>
+<hr />
+<h2 id="web-development-terms">web development terms</h2>
+<p><strong>Frontend</strong> — everything the user sees and interacts
+with. HTML, CSS, JavaScript.</p>
+<p><strong>Backend</strong> — server-side logic, database, APIs. user
+never sees this directly.</p>
+<p><strong>Full Stack</strong> — both frontend and backend.</p>
+<p><strong>Static Site</strong> — pre-built HTML files. no server
+needed. fast, secure, cheap. (your Hugo site)</p>
+<p><strong>Dynamic Site</strong> — content generated on the fly by a
+server.</p>
+<p><strong>SPA (Single Page Application)</strong> — one HTML page,
+JavaScript handles all navigation without reloading. React, Vue, Angular
+apps.</p>
+<p><strong>SSR (Server-Side Rendering)</strong> — HTML generated on
+server for each request. good for SEO. Next.js does this.</p>
+<p><strong>SSG (Static Site Generation)</strong> — HTML generated at
+build time. fastest. Hugo, Next.js, Astro.</p>
+<p><strong>CSR (Client-Side Rendering)</strong> — HTML generated in
+browser by JavaScript. React default behavior.</p>
+<p><strong>Hydration</strong> — process where static HTML becomes
+interactive by attaching JavaScript event listeners.</p>
+<p><strong>API (Application Programming Interface)</strong> — a way for
+two programs to talk to each other. your frontend calls an API to get
+data.</p>
+<p><strong>REST API</strong> — standard for web APIs. uses HTTP methods
+(GET, POST, PUT, DELETE) with JSON data.</p>
+<p><strong>GraphQL</strong> — alternative to REST where client requests
+exactly the data it needs.</p>
+<p><strong>JSON (JavaScript Object Notation)</strong> — lightweight data
+format used in APIs.</p>
+<p><strong>HTTP</strong> — protocol for web communication.
+request/response.</p>
+<p><strong>HTTPS</strong> — HTTP with encryption (TLS/SSL).</p>
+<p><strong>URL (Uniform Resource Locator)</strong> — web address.
+<code>https://example.com/path?query=value</code>.</p>
+<p><strong>Domain</strong> — human-readable address.
+<code>google.com</code>, <code>abhishekkumar.xyz</code>.</p>
+<p><strong>Subdomain</strong> — prefix to domain.
+<code>api.example.com</code>, <code>app.example.com</code>.</p>
+<p><strong>DNS</strong> — system that converts domain names to IP
+addresses.</p>
+<p><strong>IP Address</strong> — numerical address of a computer on the
+internet.</p>
+<p><strong>Server</strong> — computer that responds to requests and
+serves data.</p>
+<p><strong>Client</strong> — browser or app that makes requests to a
+server.</p>
+<p><strong>Request</strong> — message sent from client to server asking
+for something.</p>
+<p><strong>Response</strong> — server’s reply to a request.</p>
+<p><strong>Status Code</strong> — number in HTTP response indicating
+success or failure. 200=ok, 404=not found, 500=server error.</p>
+<p><strong>Authentication</strong> — verifying who a user is. logging
+in.</p>
+<p><strong>Authorization</strong> — verifying what a user is allowed to
+do.</p>
+<p><strong>Session</strong> — period of user activity. maintained by
+cookie or token.</p>
+<p><strong>JWT (JSON Web Token)</strong> — encoded token proving user’s
+identity. sent with each request.</p>
+<p><strong>Cookie</strong> — small file stored in browser, sent
+automatically with requests.</p>
+<p><strong>Local Storage</strong> — browser storage that persists after
+tab close.</p>
+<p><strong>Session Storage</strong> — browser storage that clears when
+tab closes.</p>
+<p><strong>Cache</strong> — stored copy of data for faster access.</p>
+<p><strong>CDN (Content Delivery Network)</strong> — servers around the
+world that serve files from nearest location.</p>
+<p><strong>Deployment</strong> — process of making your code live on the
+internet.</p>
+<p><strong>Environment Variables</strong> — configuration values stored
+outside code. API keys, database URLs.</p>
+<p><strong>Dev/Staging/Production</strong> — development (local),
+staging (test server), production (live site).</p>
+<p><strong>CI/CD (Continuous Integration/Continuous Deployment)</strong>
+— automatic testing and deployment when you push code. GitHub
+Actions.</p>
+<p><strong>Version Control</strong> — tracking changes to code over
+time. Git.</p>
+<p><strong>Repository (Repo)</strong> — project folder tracked by
+Git.</p>
+<p><strong>Branch</strong> — separate version of code for a feature or
+fix.</p>
+<p><strong>Pull Request (PR)</strong> — request to merge your branch
+into main. for code review.</p>
+<p><strong>Dependency</strong> — external package your code needs to
+work.</p>
+<p><strong>Package Manager</strong> — tool to install and manage
+dependencies. npm, pip, gradle.</p>
+<p><strong>Build</strong> — process of compiling/bundling code for
+production.</p>
+<p><strong>Bundle</strong> — single file combining all your JS/CSS for
+production.</p>
+<p><strong>Minification</strong> — removing whitespace and renaming
+variables to make files smaller.</p>
+<p><strong>CORS (Cross-Origin Resource Sharing)</strong> — browser
+security rule that blocks requests from different domains.</p>
+<p><strong>Webhook</strong> — HTTP callback. when event happens, send
+POST to a URL.</p>
+<p><strong>WebSocket</strong> — persistent connection for real-time
+two-way communication.</p>
+<hr />
+<h2 id="database-terms">database terms</h2>
+<p><strong>Database</strong> — organized collection of data.</p>
+<p><strong>SQL</strong> — language for querying relational
+databases.</p>
+<p><strong>Table</strong> — data organized in rows and columns (like
+Excel).</p>
+<p><strong>Row / Record</strong> — one entry in a table.</p>
+<p><strong>Column / Field</strong> — one attribute of the data.</p>
+<p><strong>Primary Key</strong> — unique identifier for each row.
+usually <code>id</code>.</p>
+<p><strong>Foreign Key</strong> — column that references primary key of
+another table. creates relationship.</p>
+<p><strong>Index</strong> — data structure that speeds up database
+queries.</p>
+<p><strong>Query</strong> — request to get or modify data from a
+database.</p>
+<p><strong>Schema</strong> — structure/blueprint of the database.
+tables, columns, types.</p>
+<p><strong>Migration</strong> — versioned changes to database
+schema.</p>
+<p><strong>ORM (Object-Relational Mapper)</strong> — tool that lets you
+interact with database using code instead of SQL.</p>
+<p><strong>NoSQL</strong> — non-relational databases. MongoDB, Redis,
+Cassandra.</p>
+<p><strong>CRUD</strong> — Create, Read, Update, Delete. the four basic
+database operations.</p>
+<p><strong>Transaction</strong> — group of operations that all succeed
+or all fail together.</p>
+<hr />
+<h2 id="android-development-terms">Android development terms</h2>
+<p><strong>Activity</strong> — a single screen in an Android app. like a
+page.</p>
+<p><strong>Fragment</strong> — reusable portion of UI within an
+Activity.</p>
+<p><strong>Intent</strong> — message to start an Activity or communicate
+between components.</p>
+<p><strong>View</strong> — basic building block of Android UI. button,
+text, image.</p>
+<p><strong>ViewGroup</strong> — container that holds Views.
+LinearLayout, RelativeLayout.</p>
+<p><strong>Layout</strong> — XML file defining the structure of a
+screen.</p>
+<p><strong>RecyclerView</strong> — efficient scrolling list that
+recycles views.</p>
+<p><strong>Adapter</strong> — connects data to a RecyclerView or
+ListView.</p>
+<p><strong>ViewModel</strong> — holds and manages UI data, survives
+configuration changes (screen rotation).</p>
+<p><strong>LiveData</strong> — observable data holder that respects
+Android lifecycle.</p>
+<p><strong>StateFlow</strong> — Kotlin version of LiveData, modern
+approach.</p>
+<p><strong>Coroutine</strong> — Kotlin’s way of doing async operations
+cleanly.</p>
+<p><strong>Repository</strong> — layer between ViewModel and data
+sources (API, database).</p>
+<p><strong>Room</strong> — Android’s SQLite ORM library.</p>
+<p><strong>Jetpack Compose</strong> — modern way to build Android UI
+with Kotlin code instead of XML.</p>
+<p><strong>Composable</strong> — a function that defines UI in Jetpack
+Compose.</p>
+<p><strong>Recomposition</strong> — Compose re-running composables when
+state changes.</p>
+<p><strong>APK (Android Package Kit)</strong> — the file format for
+distributing Android apps.</p>
+<p><strong>Manifest</strong> — XML file declaring app components,
+permissions, configuration.</p>
+<p><strong>Permission</strong> — user must grant app access to features
+like camera, location, storage.</p>
+<p><strong>Gradle</strong> — build system for Android. like npm for
+Android.</p>
+<p><strong>SDK (Software Development Kit)</strong> — tools and libraries
+for building Android apps.</p>
+<p><strong>API Level</strong> — Android version number. API 21 = Android
+5.0.</p>
+<p><strong>minSdk</strong> — minimum Android version your app
+supports.</p>
+<p><strong>targetSdk</strong> — Android version your app is optimized
+for.</p>
+<p><strong>Notification</strong> — message shown in status
+bar/notification drawer.</p>
+<p><strong>Service</strong> — background operation without a UI. music
+player, download manager.</p>
+<p><strong>BroadcastReceiver</strong> — listens for system-wide events.
+battery low, boot complete.</p>
+<p><strong>ContentProvider</strong> — shares data between apps.</p>
+<p><strong>Deep Link</strong> — URL that opens a specific screen in your
+app.</p>
+<p><strong>Back Stack</strong> — history of screens user has visited,
+navigated with back button.</p>
+<p><strong>Lifecycle</strong> — states an Activity goes through:
+created, started, resumed, paused, stopped, destroyed.</p>
+<hr />
+<h2 id="performance-terms">performance terms</h2>
+<p><strong>Render</strong> — process of browser drawing elements on
+screen.</p>
+<p><strong>Repaint</strong> — browser redrawing pixels (color changes,
+visibility).</p>
+<p><strong>Reflow / Layout</strong> — browser recalculating element
+positions and sizes. expensive.</p>
+<p><strong>FPS (Frames Per Second)</strong> — how many frames render per
+second. 60fps = smooth.</p>
+<p><strong>Jank</strong> — visible stuttering/lag in animation or
+scrolling.</p>
+<p><strong>Lazy Loading</strong> — load content only when needed, not
+all at once.</p>
+<p><strong>Code Splitting</strong> — splitting JS into smaller chunks
+loaded on demand.</p>
+<p><strong>Tree Shaking</strong> — removing unused code from build.</p>
+<p><strong>Memoization</strong> — caching results of expensive function
+calls.</p>
+<p><strong>Debounce</strong> — delay function execution until user stops
+triggering it. search input.</p>
+<p><strong>Throttle</strong> — limit how often a function can run.
+scroll events.</p>
+<p><strong>TTI (Time to Interactive)</strong> — how long until page is
+usable.</p>
+<p><strong>LCP (Largest Contentful Paint)</strong> — how long until
+largest content element loads.</p>
+<p><strong>CLS (Cumulative Layout Shift)</strong> — how much layout
+shifts unexpectedly. annoying.</p>
+<p><strong>Core Web Vitals</strong> — Google’s metrics for page
+experience. LCP, FID, CLS.</p>
+<hr />
+<h2 id="design-system-terms">design system terms</h2>
+<p><strong>Design System</strong> — collection of reusable components
+and guidelines for consistent UI.</p>
+<p><strong>Component Library</strong> — reusable UI components. Material
+UI, shadcn/ui, Ant Design.</p>
+<p><strong>Style Guide</strong> — documentation of colors, fonts,
+spacing, and usage rules.</p>
+<p><strong>Design Tokens</strong> — named values for colors, spacing,
+fonts. CSS variables.</p>
+<p><strong>Theme</strong> — set of design tokens that can be swapped.
+light/dark mode.</p>
+<p><strong>Variant</strong> — different visual versions of a component.
+primary/secondary/danger button.</p>
+<p><strong>State</strong> — visual condition of a component. default,
+hover, focus, active, disabled, loading.</p>
+<p><strong>Responsive</strong> — design that adapts to different screen
+sizes.</p>
+<p><strong>Mobile-First</strong> — designing for smallest screen first,
+then adding for larger screens.</p>
+<p><strong>Pixel Perfect</strong> — matching design exactly to the
+pixel.</p>
+<p><strong>Wireframe</strong> — low-fidelity sketch of a UI, no
+styling.</p>
+<p><strong>Mockup</strong> — high-fidelity static design, looks real but
+not interactive.</p>
+<p><strong>Prototype</strong> — interactive mockup to test user
+flows.</p>
+<p><strong>Figma</strong> — most popular UI design tool. designers use
+it, developers implement from it.</p>
+<p><strong>Handoff</strong> — when designer gives developer all specs to
+implement the design.</p>
+<hr />
+<h2 id="common-abbreviations">common abbreviations</h2>
+<pre><code>UI     User Interface
+UX     User Experience
+CTA    Call to Action
+SPA    Single Page Application
+SSR    Server Side Rendering
+SSG    Static Site Generation
+API    Application Programming Interface
+REST   Representational State Transfer
+JWT    JSON Web Token
+CRUD   Create Read Update Delete
+ORM    Object Relational Mapper
+CDN    Content Delivery Network
+DNS    Domain Name System
+HTTP   HyperText Transfer Protocol
+HTML   HyperText Markup Language
+CSS    Cascading Style Sheets
+JS     JavaScript
+TS     TypeScript
+DOM    Document Object Model
+CORS   Cross Origin Resource Sharing
+CI/CD  Continuous Integration / Continuous Deployment
+PR     Pull Request
+SDK    Software Development Kit
+APK    Android Package Kit
+MVP    Minimum Viable Product
+LGTM   Looks Good To Me (code review)
+WIP    Work In Progress
+DRY    Don&#39;t Repeat Yourself
+SOLID  Single responsibility, Open/closed, Liskov, Interface, Dependency
+a11y   Accessibility (a + 11 letters + y)
+i18n   Internationalization (i + 18 letters + n)</code></pre>
+<hr />
+<pre><code>=^._.^= know the words, speak the language</code></pre>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
