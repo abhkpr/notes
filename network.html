@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Networking | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="C++.html">C++ for Competitive Programming — Complete Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript & TypeScript</a><a href="py.html">Python</a><a href="kt.html">Kotlin</a><a href="cs.html">Computer Science Fundamentals</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html" class="active">Networking</a><a href="system-design.html">System Design</a><a href="warbird.html">warbird site — documentation</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="networking">Networking</h1>
+<blockquote>
+<p>how computers talk to each other.</p>
+</blockquote>
+<hr />
+<h2 id="what-is-a-network">what is a network</h2>
+<p>a network is two or more computers connected together to share data
+and resources. the internet is just the world’s largest network.</p>
+<p><strong>types of networks:</strong> - <strong>LAN</strong> (Local
+Area Network) → your home/office network - <strong>WAN</strong> (Wide
+Area Network) → connects cities/countries (internet) -
+<strong>MAN</strong> (Metropolitan Area Network) → city-wide network -
+<strong>PAN</strong> (Personal Area Network) → Bluetooth, very short
+range</p>
+<hr />
+<h2 id="osi-model">OSI model</h2>
+<p>the 7-layer model that explains how data travels from one computer to
+another. think of it as 7 departments — each has one job.</p>
+<pre><code>Layer 7 │ Application  │ what the user sees (HTTP, FTP, SMTP)
+Layer 6 │ Presentation │ encryption, compression (SSL/TLS)
+Layer 5 │ Session      │ managing connections (sessions)
+Layer 4 │ Transport    │ end-to-end delivery (TCP, UDP)
+Layer 3 │ Network      │ routing between networks (IP)
+Layer 2 │ Data Link    │ node-to-node (MAC address, Ethernet)
+Layer 1 │ Physical     │ actual bits on wire (cables, WiFi)</code></pre>
+<p><strong>mnemonic:</strong> “All People Seem To Need Data
+Processing”</p>
+<p><strong>how it works in practice:</strong></p>
+<pre><code>you send &quot;GET / HTTP/1.1&quot;
+
+Layer 7: HTTP adds request headers
+Layer 6: TLS encrypts the data
+Layer 5: session is managed
+Layer 4: TCP breaks into segments, adds port numbers
+Layer 3: IP adds source/destination IP address
+Layer 2: Ethernet adds MAC addresses
+Layer 1: converted to electrical signals and sent</code></pre>
+<p>on the receiving end, it’s unwrapped from layer 1 back to layer
+7.</p>
+<hr />
+<h2 id="tcpip-model">TCP/IP model</h2>
+<p>the practical 4-layer model actually used on the internet:</p>
+<pre><code>Application  → HTTP, HTTPS, DNS, FTP, SMTP, SSH (OSI layers 5-7)
+Transport    → TCP, UDP (OSI layer 4)
+Internet     → IP, ICMP, ARP (OSI layer 3)
+Network      → Ethernet, WiFi (OSI layers 1-2)</code></pre>
+<hr />
+<h2 id="ip-addresses">IP addresses</h2>
+<p>every device on a network has an IP address — like a postal address
+for computers.</p>
+<p><strong>IPv4:</strong></p>
+<pre><code>192.168.1.100
+  ↑   ↑  ↑  ↑
+  4 octets, each 0-255
+  32 bits total
+  ~4.3 billion addresses (running out)</code></pre>
+<p><strong>IPv6:</strong></p>
+<pre><code>2001:0db8:85a3:0000:0000:8a2e:0370:7334
+  64 bits network + 64 bits host
+  128 bits total
+  340 undecillion addresses</code></pre>
+<p><strong>special addresses:</strong></p>
+<pre><code>127.0.0.1          → localhost (your own machine)
+0.0.0.0            → all interfaces
+255.255.255.255    → broadcast
+192.168.x.x        → private (home networks)
+10.x.x.x           → private (corporate)
+172.16.x.x - 172.31.x.x → private</code></pre>
+<p><strong>CIDR notation:</strong></p>
+<pre><code>192.168.1.0/24
+            ↑ 24 bits for network, 8 bits for hosts
+            = 256 addresses (192.168.1.0 to 192.168.1.255)
+
+192.168.0.0/16  → 65536 addresses
+10.0.0.0/8      → 16 million addresses</code></pre>
+<p><strong>subnetting:</strong> dividing a network into smaller
+networks</p>
+<pre><code>192.168.1.0/24 can be split into:
+192.168.1.0/25   → first 128 addresses
+192.168.1.128/25 → last 128 addresses</code></pre>
+<hr />
+<h2 id="mac-address">MAC address</h2>
+<p>physical address burned into network hardware (NIC card)</p>
+<pre><code>AA:BB:CC:DD:EE:FF
+↑↑↑↑↑↑  ↑↑↑↑↑↑
+vendor  device unique
+
+48 bits, written in hex
+globally unique (in theory)</code></pre>
+<ul>
+<li>IP address = logical, can change</li>
+<li>MAC address = physical, permanent</li>
+<li>ARP (Address Resolution Protocol) maps IP → MAC</li>
+</ul>
+<hr />
+<h2 id="tcp-vs-udp">TCP vs UDP</h2>
+<p><strong>TCP (Transmission Control Protocol)</strong>
+connection-oriented, reliable, ordered delivery</p>
+<pre><code>1. three-way handshake to connect:
+   client → SYN    → server
+   client ← SYN-ACK ← server
+   client → ACK    → server
+
+2. data sent in segments
+3. receiver sends ACK for each segment
+4. lost segments are retransmitted
+5. four-way handshake to close
+
+use for: HTTP, SSH, email, file transfer
+anything where accuracy matters</code></pre>
+<p><strong>UDP (User Datagram Protocol)</strong> connectionless, no
+guarantee of delivery, very fast</p>
+<pre><code>just sends packets — no handshake, no ACK, no retransmit
+if packet is lost → it&#39;s lost
+
+use for: video streaming, gaming, DNS, VoIP
+anything where speed &gt; accuracy
+live video with one dropped frame is better than
+waiting for retransmission (would cause freeze)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th>feature</th>
+<th>TCP</th>
+<th>UDP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>connection</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+<tr class="even">
+<td>reliable</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+<tr class="odd">
+<td>ordered</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+<tr class="even">
+<td>speed</td>
+<td>slower</td>
+<td>faster</td>
+</tr>
+<tr class="odd">
+<td>overhead</td>
+<td>high</td>
+<td>low</td>
+</tr>
+<tr class="even">
+<td>use</td>
+<td>HTTP, SSH</td>
+<td>video, games</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ports">ports</h2>
+<p>ports identify which application gets the incoming data.</p>
+<pre><code>IP address = which machine
+Port       = which application on that machine
+
+192.168.1.100:80  → machine at 192.168.1.100, web server</code></pre>
+<p><strong>well-known ports (0-1023):</strong></p>
+<pre><code>20, 21  → FTP (file transfer)
+22      → SSH (secure shell)
+23      → Telnet (insecure, avoid)
+25      → SMTP (send email)
+53      → DNS (domain names)
+67, 68  → DHCP (IP assignment)
+80      → HTTP (web)
+110     → POP3 (receive email)
+143     → IMAP (receive email)
+443     → HTTPS (secure web)
+3306    → MySQL
+5432    → PostgreSQL
+6379    → Redis
+27017   → MongoDB
+8080    → HTTP alternate</code></pre>
+<p><strong>registered ports (1024-49151)</strong> → applications
+<strong>dynamic ports (49152-65535)</strong> → temporary, assigned by
+OS</p>
+<hr />
+<h2 id="dns-domain-name-system">DNS (Domain Name System)</h2>
+<p>translates human-readable domain names to IP addresses.</p>
+<pre><code>google.com → 142.250.80.46</code></pre>
+<p><strong>DNS hierarchy:</strong></p>
+<pre><code>. (root)
+├── com
+│   ├── google.com
+│   │   ├── www.google.com
+│   │   └── mail.google.com
+│   └── github.com
+├── org
+│   └── wikipedia.org
+└── in
+    └── irctc.co.in</code></pre>
+<p><strong>DNS resolution process:</strong></p>
+<pre><code>1. browser cache
+2. OS cache (/etc/hosts)
+3. recursive resolver (your ISP/8.8.8.8)
+4. root nameserver → where is .com?
+5. TLD nameserver (.com) → where is google.com?
+6. authoritative nameserver → google.com is 142.250.80.46
+7. response cached and returned</code></pre>
+<p><strong>DNS record types:</strong></p>
+<pre><code>A     → domain to IPv4 address
+AAAA  → domain to IPv6 address
+CNAME → alias to another domain (www → example.com)
+MX    → mail server for domain
+TXT   → arbitrary text (SPF, DKIM, verification)
+NS    → nameservers for domain
+PTR   → reverse DNS (IP to domain)
+SOA   → start of authority record
+SRV   → service record (host, port, priority)</code></pre>
+<p><strong>TTL (Time To Live)</strong> → how long to cache the record
+(in seconds)</p>
+<p><strong>DNS tools:</strong></p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dig</span> google.com          <span class="co"># detailed DNS lookup</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">dig</span> google.com MX       <span class="co"># specific record type</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="ex">dig</span> @8.8.8.8 google.com <span class="co"># use specific resolver</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="ex">nslookup</span> google.com     <span class="co"># simple lookup</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="ex">host</span> google.com         <span class="co"># simple lookup</span></span></code></pre></div>
+<hr />
+<h2 id="http">HTTP</h2>
+<p>the protocol for web communication. stateless request-response
+protocol.</p>
+<p><strong>HTTP request structure:</strong></p>
+<pre><code>GET /users/123 HTTP/1.1          ← method, path, version
+Host: api.example.com            ←
+Authorization: Bearer token      ← headers
+Content-Type: application/json   ←
+                                 ← blank line
+{ &quot;name&quot;: &quot;abhishek&quot; }           ← body (for POST/PUT)</code></pre>
+<p><strong>HTTP response structure:</strong></p>
+<pre><code>HTTP/1.1 200 OK                  ← version, status code
+Content-Type: application/json   ← headers
+Content-Length: 45               ←
+                                 ← blank line
+{ &quot;id&quot;: 123, &quot;name&quot;: &quot;abhishek&quot; } ← body</code></pre>
+<p><strong>HTTP methods:</strong></p>
+<pre><code>GET     → read data (safe, idempotent)
+POST    → create data
+PUT     → replace data (idempotent)
+PATCH   → update partial data
+DELETE  → delete data (idempotent)
+HEAD    → like GET but no body (check if resource exists)
+OPTIONS → what methods are allowed</code></pre>
+<p><strong>idempotent</strong> = same request multiple times = same
+result (GET, PUT, DELETE are idempotent. POST is not)</p>
+<p><strong>status codes:</strong></p>
+<pre><code>1xx → informational
+100 Continue
+
+2xx → success
+200 OK
+201 Created
+204 No Content
+
+3xx → redirect
+301 Moved Permanently
+302 Found (temporary redirect)
+304 Not Modified (cached)
+
+4xx → client error
+400 Bad Request
+401 Unauthorized (not logged in)
+403 Forbidden (logged in but no permission)
+404 Not Found
+405 Method Not Allowed
+409 Conflict
+422 Unprocessable Entity
+429 Too Many Requests
+
+5xx → server error
+500 Internal Server Error
+502 Bad Gateway
+503 Service Unavailable
+504 Gateway Timeout</code></pre>
+<p><strong>HTTP headers:</strong></p>
+<pre><code>Request headers:
+Authorization: Bearer &lt;token&gt;
+Content-Type: application/json
+Accept: application/json
+User-Agent: Mozilla/5.0...
+Cookie: session=abc
+Origin: https://myapp.com
+If-Modified-Since: ...
+
+Response headers:
+Content-Type: application/json
+Cache-Control: max-age=3600
+Set-Cookie: session=abc; HttpOnly
+Access-Control-Allow-Origin: *
+Location: /users/123  (for 301/302)</code></pre>
+<hr />
+<h2 id="https-and-tls">HTTPS and TLS</h2>
+<p>HTTP + TLS (Transport Layer Security) = HTTPS</p>
+<p>TLS provides: - <strong>encryption</strong> → data is unreadable if
+intercepted - <strong>authentication</strong> → server is who it claims
+to be (certificate) - <strong>integrity</strong> → data hasn’t been
+tampered with</p>
+<p><strong>TLS handshake:</strong></p>
+<pre><code>1. client hello → supported TLS versions, cipher suites
+2. server hello → chosen version, cipher, certificate
+3. client verifies certificate with CA
+4. key exchange → agree on session key
+5. encrypted communication begins</code></pre>
+<p><strong>certificates:</strong> - issued by Certificate Authority (CA)
+like Let’s Encrypt, DigiCert - contains: domain, public key, issuer,
+expiry - self-signed = no CA, browser shows warning</p>
+<p><strong>getting HTTPS for free:</strong></p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let&#39;s Encrypt with Certbot</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install certbot</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> certbot <span class="at">--nginx</span> <span class="at">-d</span> example.com</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># auto-renews every 90 days</span></span></code></pre></div>
+<hr />
+<h2 id="http-versions">HTTP versions</h2>
+<p><strong>HTTP/1.0</strong> - new TCP connection for every request -
+slow, lots of overhead</p>
+<p><strong>HTTP/1.1</strong> - persistent connections (keep-alive) -
+pipelining (send multiple requests without waiting) - still has
+head-of-line blocking</p>
+<p><strong>HTTP/2</strong> - multiplexing: multiple requests over one
+connection simultaneously - header compression (HPACK) - server push -
+binary protocol (not text) - ~30% faster than HTTP/1.1</p>
+<p><strong>HTTP/3</strong> - uses QUIC instead of TCP - UDP-based
+(faster) - no head-of-line blocking at transport layer - better on
+mobile/lossy networks</p>
+<hr />
+<h2 id="websockets">WebSockets</h2>
+<p>persistent bidirectional connection between client and server.</p>
+<pre><code>1. HTTP upgrade request:
+   GET /chat HTTP/1.1
+   Upgrade: websocket
+   Connection: Upgrade
+
+2. server responds 101 Switching Protocols
+
+3. persistent TCP connection open
+   client ←→ server (both can send anytime)
+
+4. close when done</code></pre>
+<p><strong>when to use:</strong> - real-time chat - live notifications -
+multiplayer games - live trading/stock prices - collaborative editing
+(Google Docs style)</p>
+<p><strong>vs polling:</strong></p>
+<pre><code>polling:  client asks every 1 second → wasteful
+long polling: client asks, server holds → better
+WebSocket: server pushes when needed → best</code></pre>
+<hr />
+<h2 id="cors-cross-origin-resource-sharing">CORS (Cross-Origin Resource
+Sharing)</h2>
+<p>browser security feature that blocks requests from different
+origins.</p>
+<p><strong>same origin:</strong> same protocol + domain + port</p>
+<pre><code>https://app.com → https://app.com/api   → same origin ✓
+https://app.com → https://api.app.com   → different ✗
+https://app.com → http://app.com        → different ✗
+https://app.com → https://app.com:3000  → different ✗</code></pre>
+<p><strong>preflight request:</strong> for non-simple requests, browser
+sends OPTIONS first</p>
+<pre><code>OPTIONS /api/users
+Origin: https://myapp.com
+Access-Control-Request-Method: POST</code></pre>
+<p><strong>server must respond with:</strong></p>
+<pre><code>Access-Control-Allow-Origin: https://myapp.com
+Access-Control-Allow-Methods: GET, POST, PUT, DELETE
+Access-Control-Allow-Headers: Authorization, Content-Type</code></pre>
+<p><strong>in practice (Express.js):</strong></p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> cors <span class="op">=</span> <span class="pp">require</span>(<span class="st">&#39;cors&#39;</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>app<span class="op">.</span><span class="fu">use</span>(<span class="fu">cors</span>({</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">origin</span><span class="op">:</span> <span class="st">&#39;https://myapp.com&#39;</span><span class="op">,</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">methods</span><span class="op">:</span> [<span class="st">&#39;GET&#39;</span><span class="op">,</span> <span class="st">&#39;POST&#39;</span><span class="op">,</span> <span class="st">&#39;PUT&#39;</span><span class="op">,</span> <span class="st">&#39;DELETE&#39;</span>]</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>}))</span></code></pre></div>
+<hr />
+<h2 id="firewalls">firewalls</h2>
+<p>controls incoming and outgoing network traffic based on rules.</p>
+<p><strong>types:</strong> - <strong>packet filtering</strong> → filter
+by IP, port, protocol (fast, basic) - <strong>stateful</strong> → tracks
+connections, more intelligent - <strong>application firewall
+(WAF)</strong> → understands HTTP, blocks SQL injection etc.</p>
+<p><strong>iptables (Linux):</strong></p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># list rules</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ex">iptables</span> <span class="at">-L</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># allow port 80</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="ex">iptables</span> <span class="at">-A</span> INPUT <span class="at">-p</span> tcp <span class="at">--dport</span> 80 <span class="at">-j</span> ACCEPT</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co"># block IP</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="ex">iptables</span> <span class="at">-A</span> INPUT <span class="at">-s</span> 1.2.3.4 <span class="at">-j</span> DROP</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co"># allow established connections</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="ex">iptables</span> <span class="at">-A</span> INPUT <span class="at">-m</span> state <span class="at">--state</span> ESTABLISHED,RELATED <span class="at">-j</span> ACCEPT</span></code></pre></div>
+<p><strong>ufw (simpler):</strong></p>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ufw</span> enable</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ufw</span> allow 22</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="ex">ufw</span> allow 80/tcp</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="ex">ufw</span> allow 443/tcp</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="ex">ufw</span> deny 3306          <span class="co"># block MySQL from outside</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="ex">ufw</span> status verbose</span></code></pre></div>
+<hr />
+<h2 id="nat-network-address-translation">NAT (Network Address
+Translation)</h2>
+<p>translates private IP addresses to public IPs.</p>
+<pre><code>your laptop: 192.168.1.5 (private)
+      ↓
+router does NAT
+      ↓
+internet sees: 203.0.113.5 (public)
+
+multiple devices share one public IP</code></pre>
+<p><strong>why:</strong> IPv4 addresses are limited. NAT lets thousands
+of devices share one public IP.</p>
+<p><strong>port forwarding:</strong> map external port to internal
+IP:port</p>
+<pre><code>external: 203.0.113.5:8080
+               ↓ forward
+internal: 192.168.1.10:80</code></pre>
+<hr />
+<h2 id="vpn-virtual-private-network">VPN (Virtual Private Network)</h2>
+<p>creates encrypted tunnel over public internet, makes you appear to be
+on a private network.</p>
+<pre><code>your device → encrypted tunnel → VPN server → internet</code></pre>
+<p><strong>how it works:</strong> 1. connect to VPN server 2. all
+traffic encrypted and sent to VPN server 3. VPN server forwards to
+destination 4. response comes back through VPN</p>
+<p><strong>protocols:</strong> - <strong>OpenVPN</strong> → open source,
+widely used - <strong>WireGuard</strong> → modern, fast, simple -
+<strong>IPSec</strong> → widely supported, complex - <strong>SSL/TLS
+VPN</strong> → through browser</p>
+<p><strong>use cases:</strong> - secure connection on public WiFi -
+access private company network remotely - bypass geo-restrictions</p>
+<hr />
+<h2 id="proxies">proxies</h2>
+<p><strong>forward proxy:</strong></p>
+<pre><code>client → proxy → server</code></pre>
+<p>client hides behind proxy. server sees proxy’s IP. use: privacy,
+content filtering, caching</p>
+<p><strong>reverse proxy:</strong></p>
+<pre><code>client → reverse proxy → backend servers</code></pre>
+<p>server hides behind proxy. client sees proxy’s IP. use: load
+balancing, SSL termination, caching, security</p>
+<p><strong>Nginx as reverse proxy:</strong></p>
+<pre class="nginx"><code>server {
+    listen 80;
+    server_name example.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}</code></pre>
+<hr />
+<h2 id="network-tools">network tools</h2>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># connectivity</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> google.com              <span class="co"># basic connectivity</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ping</span> <span class="at">-c</span> 4 google.com         <span class="co"># 4 packets</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="ex">ping6</span> google.com             <span class="co"># IPv6</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="co"># route tracing</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="ex">traceroute</span> google.com        <span class="co"># trace path to host</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="ex">mtr</span> google.com               <span class="co"># real-time traceroute</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="co"># DNS</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="ex">dig</span> google.com               <span class="co"># DNS lookup</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="ex">dig</span> google.com A             <span class="co"># specific record</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="ex">dig</span> google.com MX            <span class="co"># mail records</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a><span class="ex">nslookup</span> google.com          <span class="co"># simple lookup</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a><span class="ex">host</span> google.com</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a><span class="co"># port scanning</span></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a><span class="fu">nmap</span> localhost               <span class="co"># scan local machine</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a><span class="fu">nmap</span> <span class="at">-p</span> 80,443 example.com   <span class="co"># specific ports</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a><span class="fu">nmap</span> <span class="at">-sV</span> localhost           <span class="co"># service versions</span></span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a><span class="fu">nmap</span> <span class="at">-A</span> localhost            <span class="co"># aggressive scan</span></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a><span class="co"># connections</span></span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a><span class="ex">ss</span> <span class="at">-tulnp</span>                    <span class="co"># listening sockets (modern)</span></span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a><span class="fu">netstat</span> <span class="at">-tulnp</span>               <span class="co"># older</span></span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a><span class="ex">ss</span> <span class="at">-s</span>                        <span class="co"># summary</span></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a><span class="co"># HTTP testing</span></span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> https://example.com                    <span class="co"># fetch URL</span></span>
+<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-I</span> https://example.com                 <span class="co"># headers only</span></span>
+<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-X</span> POST <span class="at">-d</span> <span class="st">&#39;{}&#39;</span> <span class="at">-H</span> <span class="st">&quot;Content-Type: application/json&quot;</span> url</span>
+<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-v</span> https://example.com                 <span class="co"># verbose</span></span>
+<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://example.com/file              <span class="co"># download</span></span>
+<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a><span class="ex">httpie</span> https://example.com                 <span class="co"># better than curl</span></span>
+<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-36"><a href="#cb40-36" aria-hidden="true" tabindex="-1"></a><span class="co"># bandwidth</span></span>
+<span id="cb40-37"><a href="#cb40-37" aria-hidden="true" tabindex="-1"></a><span class="ex">iftop</span>                        <span class="co"># per-connection bandwidth</span></span>
+<span id="cb40-38"><a href="#cb40-38" aria-hidden="true" tabindex="-1"></a><span class="ex">nethogs</span>                      <span class="co"># per-process bandwidth</span></span>
+<span id="cb40-39"><a href="#cb40-39" aria-hidden="true" tabindex="-1"></a><span class="ex">iperf3</span> <span class="at">-s</span>                    <span class="co"># bandwidth test server</span></span>
+<span id="cb40-40"><a href="#cb40-40" aria-hidden="true" tabindex="-1"></a><span class="ex">iperf3</span> <span class="at">-c</span> server-ip          <span class="co"># bandwidth test client</span></span>
+<span id="cb40-41"><a href="#cb40-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-42"><a href="#cb40-42" aria-hidden="true" tabindex="-1"></a><span class="co"># packet capture</span></span>
+<span id="cb40-43"><a href="#cb40-43" aria-hidden="true" tabindex="-1"></a><span class="ex">tcpdump</span> <span class="at">-i</span> eth0              <span class="co"># capture all packets</span></span>
+<span id="cb40-44"><a href="#cb40-44" aria-hidden="true" tabindex="-1"></a><span class="ex">tcpdump</span> <span class="at">-i</span> eth0 port 80      <span class="co"># only port 80</span></span>
+<span id="cb40-45"><a href="#cb40-45" aria-hidden="true" tabindex="-1"></a><span class="ex">tcpdump</span> <span class="at">-i</span> eth0 host 1.2.3.4 <span class="co"># only from IP</span></span>
+<span id="cb40-46"><a href="#cb40-46" aria-hidden="true" tabindex="-1"></a><span class="ex">wireshark</span>                    <span class="co"># GUI packet analyzer</span></span></code></pre></div>
+<hr />
+<h2 id="network-protocols-summary">network protocols summary</h2>
+<pre><code>FTP   (21)  → file transfer (unencrypted, old)
+SFTP  (22)  → file transfer over SSH
+SSH   (22)  → secure remote shell
+SMTP  (25)  → send email
+DNS   (53)  → domain name resolution
+DHCP  (67)  → auto IP assignment
+HTTP  (80)  → web traffic
+POP3  (110) → retrieve email (download)
+IMAP  (143) → retrieve email (sync)
+HTTPS (443) → secure web traffic
+SMB   (445) → Windows file sharing
+LDAP  (389) → directory services
+RDP   (3389)→ Windows remote desktop</code></pre>
+<hr />
+<h2 id="dhcp-dynamic-host-configuration-protocol">DHCP (Dynamic Host
+Configuration Protocol)</h2>
+<p>automatically assigns IP addresses to devices on a network.</p>
+<pre><code>1. new device joins network (DHCP Discover broadcast)
+2. DHCP server offers IP address (DHCP Offer)
+3. device accepts offer (DHCP Request)
+4. server confirms (DHCP ACK)
+5. device uses IP until lease expires</code></pre>
+<p>without DHCP you’d have to manually set IP on every device.</p>
+<hr />
+<h2 id="arp-address-resolution-protocol">ARP (Address Resolution
+Protocol)</h2>
+<p>maps IP addresses to MAC addresses on local network.</p>
+<pre><code>&quot;who has 192.168.1.1?&quot; (broadcast)
+&quot;I have 192.168.1.1, my MAC is AA:BB:CC:DD:EE:FF&quot;</code></pre>
+<p>cached in ARP table:</p>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arp</span> <span class="at">-a</span>      <span class="co"># view ARP table</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="ex">arp</span> <span class="at">-n</span>      <span class="co"># without resolving hostnames</span></span></code></pre></div>
+<p><strong>ARP poisoning:</strong> attacker sends fake ARP replies to
+redirect traffic (MITM attack)</p>
+<hr />
+<h2 id="bgp-border-gateway-protocol">BGP (Border Gateway Protocol)</h2>
+<p>the routing protocol of the internet. routers use BGP to decide how
+to forward packets between autonomous systems (large networks like
+ISPs).</p>
+<pre><code>AS1 (Jio) ←→ BGP ←→ AS2 (Google)</code></pre>
+<p><strong>autonomous system (AS)</strong> = large network under single
+management (ISP, university, company)</p>
+<p>BGP is why the internet “heals” when routes go down — BGP converges
+on new paths.</p>
+<hr />
+<h2 id="network-security">network security</h2>
+<p><strong>common attacks:</strong></p>
+<p><strong>DDoS (Distributed Denial of Service)</strong></p>
+<pre><code>millions of infected devices (botnet)
+flood target with traffic
+target can&#39;t serve real users</code></pre>
+<p>mitigation: CDN, rate limiting, scrubbing centers, Cloudflare</p>
+<p><strong>man-in-the-middle (MITM)</strong></p>
+<pre><code>attacker intercepts communication between A and B
+A → [attacker] → B</code></pre>
+<p>mitigation: HTTPS, certificate pinning, VPN</p>
+<p><strong>DNS spoofing</strong></p>
+<pre><code>attacker poisons DNS cache
+google.com → attacker&#39;s IP instead of Google&#39;s</code></pre>
+<p>mitigation: DNSSEC, use trusted DNS resolver</p>
+<p><strong>port scanning</strong></p>
+<pre><code>attacker scans all ports to find open services</code></pre>
+<p>mitigation: firewall, close unused ports, fail2ban</p>
+<p><strong>SQL injection (application layer)</strong></p>
+<pre><code>input: &#39;; DROP TABLE users; --</code></pre>
+<p>mitigation: parameterized queries, input validation</p>
+<p><strong>SSL stripping</strong></p>
+<pre><code>downgrade HTTPS to HTTP</code></pre>
+<p>mitigation: HSTS (HTTP Strict Transport Security)</p>
+<hr />
+<h2 id="cloud-networking-basics">cloud networking basics</h2>
+<p><strong>VPC (Virtual Private Cloud)</strong> your own isolated
+network in the cloud</p>
+<pre><code>VPC: 10.0.0.0/16
+├── public subnet: 10.0.1.0/24   (has internet gateway)
+│   └── web servers, load balancers
+└── private subnet: 10.0.2.0/24  (no direct internet)
+    └── databases, app servers</code></pre>
+<p><strong>security groups</strong> = virtual firewall for cloud
+instances <strong>network ACL</strong> = subnet-level firewall</p>
+<p><strong>internet gateway</strong> = allows public subnet to reach
+internet <strong>NAT gateway</strong> = allows private subnet to reach
+internet (outbound only)</p>
+<p><strong>load balancer types in cloud:</strong> - <strong>ALB</strong>
+(Application Load Balancer) → HTTP/HTTPS, L7 - <strong>NLB</strong>
+(Network Load Balancer) → TCP/UDP, L4, very fast - <strong>GLB</strong>
+(Gateway Load Balancer) → for firewalls/inspection</p>
+<hr />
+<pre><code>=^._.^= the internet is just computers talking nicely</code></pre>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

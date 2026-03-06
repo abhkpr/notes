@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Git TITLE_PLACEHOLDER GitHub | notes</title>
+    <title>Git & GitHub | notes</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
@@ -212,12 +212,12 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-title">// notes</div>
     <nav>
-        <a href="README.html">=^..^=</a>\n<a href="vim.html">Vim Cheatsheet — Most Used Commands</a>\n<a href="mds.html">Markdown Cheatsheet</a>\n<a href="git.html" class="active">Git NAV_PLACEHOLDER GitHub</a>\n<a href="i3.html">i3 Complete Shortcuts NAV_PLACEHOLDER Config Notes</a>\n<a href="C++.html">C++ for Competitive Programming — Complete Notes</a>\n<a href="arithmetic.html">Mathematics for Competitive Programming</a>\n<a href="warbird.html">warbird site — documentation</a>\n
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html" class="active">Git & GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="C++.html">C++ for Competitive Programming — Complete Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript & TypeScript</a><a href="py.html">Python</a><a href="kt.html">Kotlin</a><a href="cs.html">Computer Science Fundamentals</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="system-design.html">System Design</a><a href="warbird.html">warbird site — documentation</a>
     </nav>
 </div>
 
 <div class="content">
-    <h1 id="git-github">Git CONTENT_PLACEHOLDERamp; GitHub</h1>
+    <h1 id="git-github">Git &amp; GitHub</h1>
 <blockquote>
 <p>version control. the thing that saves your ass.</p>
 </blockquote>
@@ -232,15 +232,15 @@ go back to any point.</p>
 <hr />
 <h2 id="the-mental-model">the mental model</h2>
 <pre><code>working directory   →   staging area   →   repository
-(files you edit)        (what youCONTENT_PLACEHOLDER#39;re         (saved history)
+(files you edit)        (what you&#39;re         (saved history)
                          about to save)
 
     git add                git commit</code></pre>
 <hr />
 <h2 id="setup-do-this-once">setup (do this once)</h2>
 <div class="sourceCode" id="cb3"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.name <span class="st">CONTENT_PLACEHOLDERquot;yournameCONTENT_PLACEHOLDERquot;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.email <span class="st">CONTENT_PLACEHOLDERquot;youremail@gmail.comCONTENT_PLACEHOLDERquot;</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.name <span class="st">&quot;yourname&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.email <span class="st">&quot;youremail@gmail.com&quot;</span></span></code></pre></div>
 <hr />
 <h2 id="starting-a-repo">starting a repo</h2>
 <div class="sourceCode" id="cb4"><pre
@@ -263,7 +263,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .                  <span class="co"># everything</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># commit (save snapshot)</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;what you didCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;what you did&quot;</span></span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># push to github</span></span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span>
@@ -274,14 +274,14 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="
 <h2 id="commit-messages">commit messages</h2>
 <p>keep them short and clear:</p>
 <div class="sourceCode" id="cb6"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;add vim notesCONTENT_PLACEHOLDERquot;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;fix typo in readmeCONTENT_PLACEHOLDERquot;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;update git cheatsheetCONTENT_PLACEHOLDERquot;</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;add vim notes&quot;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;fix typo in readme&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;update git cheatsheet&quot;</span></span></code></pre></div>
 <p>bad:</p>
 <div class="sourceCode" id="cb7"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;stuffCONTENT_PLACEHOLDERquot;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;asdfghCONTENT_PLACEHOLDERquot;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;changesCONTENT_PLACEHOLDERquot;</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;stuff&quot;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;asdfgh&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;changes&quot;</span></span></code></pre></div>
 <hr />
 <h2 id="branches">branches</h2>
 <p>branches let you work on something without breaking the main
@@ -340,7 +340,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href=
 <h2 id="ssh-setup-one-time">ssh setup (one time)</h2>
 <div class="sourceCode" id="cb11"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># generate key</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh-keygen</span> <span class="at">-t</span> ed25519 <span class="at">-C</span> <span class="st">CONTENT_PLACEHOLDERquot;youremail@gmail.comCONTENT_PLACEHOLDERquot;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh-keygen</span> <span class="at">-t</span> ed25519 <span class="at">-C</span> <span class="st">&quot;youremail@gmail.com&quot;</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># copy public key</span></span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> ~/.ssh/id_ed25519.pub</span>
@@ -353,7 +353,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href=
 <h2 id="common-situations">common situations</h2>
 <p><strong>i messed up my last commit message:</strong></p>
 <div class="sourceCode" id="cb12"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">--amend</span> <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;correct messageCONTENT_PLACEHOLDERquot;</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">--amend</span> <span class="at">-m</span> <span class="st">&quot;correct message&quot;</span></span></code></pre></div>
 <p><strong>i want to see what changed between commits:</strong></p>
 <div class="sourceCode" id="cb13"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span></span>
@@ -366,16 +366,16 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href=
 <p><strong>pull has conflicts:</strong></p>
 <div class="sourceCode" id="cb15"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># open the conflicting file, look for:</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;CONTENT_PLACEHOLDERlt;</span> HEAD</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span> HEAD</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">your</span> changes</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ex">=======</span></span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="ex">their</span> changes</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;CONTENT_PLACEHOLDERgt;</span> main</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;&gt;&gt;&gt;&gt;</span> main</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># pick what to keep, delete the markers</span></span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># then:</span></span>
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">CONTENT_PLACEHOLDERquot;resolve conflictCONTENT_PLACEHOLDERquot;</span></span></code></pre></div>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;resolve conflict&quot;</span></span></code></pre></div>
 <hr />
 <h2 id="git-ignore">git ignore</h2>
 <p>create <code>.gitignore</code> to tell git what to ignore:</p>
