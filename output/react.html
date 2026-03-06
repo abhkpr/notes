@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="git-workflow.html">Git and GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="cs.html">Computer Science Fundamentals</a><a href="system-design.html">System Design</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="react.html" class="active">React</a><a href="py.html">Python</a><a href="api.html">API Design and REST</a><a href="sql.html">SQL and PostgreSQL</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="kt.html">Kotlin</a><a href="fullstack.html">Full Stack — Frontend and Backend Together</a><a href="how-to-build.html">How to Build a Project</a><a href="web.html">Building Websites and Web Applications</a><a href="vocab.html">Dev Vocabulary</a><a href="warbird.html">warbird site — documentation</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="react">React</h1>
+<blockquote>
+<p>the library for building user interfaces.</p>
+</blockquote>
+<hr />
+<h2 id="what-is-react">what is React</h2>
+<p>React is a JavaScript library for building UIs. created by Facebook
+in 2013, it is now the most widely used frontend library.</p>
+<p><strong>the core idea:</strong> instead of manually manipulating the
+DOM, you describe what the UI should look like based on data (state).
+when data changes, React automatically updates the UI to match.</p>
+<pre><code>traditional DOM manipulation:
+  data changes → you write code to find element → you manually update it
+
+React way:
+  data changes → React re-renders component → DOM updates automatically</code></pre>
+<p><strong>why React:</strong> - component-based: build reusable pieces
+- declarative: describe what you want, not how to do it - huge
+ecosystem: libraries for everything - most in-demand frontend skill</p>
+<hr />
+<h2 id="jsx">JSX</h2>
+<p>JSX is HTML-like syntax inside JavaScript. React compiles it to
+regular JS.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// JSX</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> element <span class="op">= </span><span class="kw">&lt;h1</span> <span class="ot">className</span><span class="op">=</span><span class="st">&quot;title&quot;</span><span class="kw">&gt;</span>Hello <span class="va">{</span>name<span class="va">}</span><span class="kw">&lt;/h1&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">// compiles to</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> element <span class="op">=</span> React<span class="op">.</span><span class="fu">createElement</span>(<span class="st">&#39;h1&#39;</span><span class="op">,</span> { <span class="dt">className</span><span class="op">:</span> <span class="st">&#39;title&#39;</span> }<span class="op">,</span> <span class="st">&#39;Hello &#39;</span> <span class="op">+</span> name)</span></code></pre></div>
+<p><strong>JSX rules:</strong></p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. use className instead of class</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;div</span> <span class="ot">className</span><span class="op">=</span><span class="st">&quot;card&quot;</span><span class="kw">&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>// 2. all tags must be closed</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;img</span> <span class="ot">src</span><span class="op">=</span><span class="st">&quot;...&quot;</span> <span class="kw">/&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;br</span> <span class="kw">/&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;input</span> <span class="ot">type</span><span class="op">=</span><span class="st">&quot;text&quot;</span> <span class="kw">/&gt;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>// 3. return one root element (or fragment)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>return (</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;div&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;h1&gt;</span>Title<span class="kw">&lt;/h1&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;p&gt;</span>Content<span class="kw">&lt;/p&gt;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>// or use fragment (renders nothing extra in DOM)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>return (</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;&gt;</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;h1&gt;</span>Title<span class="kw">&lt;/h1&gt;</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;p&gt;</span>Content<span class="kw">&lt;/p&gt;</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/&gt;</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>// 4. JavaScript goes inside curly braces</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;p&gt;</span><span class="va">{</span>user<span class="op">.</span><span class="at">name</span><span class="va">}</span><span class="kw">&lt;/p&gt;</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;p&gt;</span><span class="va">{</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">2</span><span class="va">}</span><span class="kw">&lt;/p&gt;</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;p&gt;</span><span class="va">{</span>isLoggedIn <span class="op">?</span> <span class="st">&#39;Welcome&#39;</span> <span class="op">:</span> <span class="st">&#39;Please login&#39;</span><span class="va">}</span><span class="kw">&lt;/p&gt;</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>// 5. style is an object</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;div</span> <span class="ot">style</span><span class="op">=</span><span class="va">{</span>{ <span class="dt">color</span><span class="op">:</span> <span class="st">&#39;red&#39;</span><span class="op">,</span> <span class="dt">fontSize</span><span class="op">:</span> <span class="st">&#39;16px&#39;</span> }<span class="va">}</span><span class="kw">&gt;</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>// 6. camelCase for attributes</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;input</span> <span class="ot">onChange</span><span class="op">=</span><span class="va">{</span>handler<span class="va">}</span> <span class="ot">onKeyDown</span><span class="op">=</span><span class="va">{</span>handler<span class="va">}</span> <span class="kw">/&gt;</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;button</span> <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>handler<span class="va">}</span> <span class="kw">/&gt;</span></span></code></pre></div>
+<hr />
+<h2 id="components">components</h2>
+<p>a component is a function that returns JSX. it is the building block
+of React apps.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// functional component</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">Greeting</span>({ name }) {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return </span><span class="kw">&lt;h1&gt;</span>Hello <span class="va">{</span>name<span class="va">}</span><span class="kw">&lt;/h1&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">// arrow function component</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> Greeting <span class="op">=</span> ({ name }) <span class="kw">=&gt;</span> {</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return </span><span class="kw">&lt;h1&gt;</span>Hello <span class="va">{</span>name<span class="va">}</span><span class="kw">&lt;/h1&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">// use it</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;Greeting</span> <span class="ot">name</span><span class="op">=</span><span class="st">&quot;Abhishek&quot;</span> <span class="fu">/&gt;</span></span></code></pre></div>
+<p><strong>rules:</strong> - component name must start with capital
+letter - must return JSX (or null) - must be a pure function (same props
+= same output)</p>
+<hr />
+<h2 id="props">props</h2>
+<p>props (properties) are inputs passed to a component. they are
+read-only — a component never modifies its own props.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// passing props</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;UserCard</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="ot">name</span><span class="op">=</span><span class="st">&quot;Abhishek&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">age</span><span class="op">=</span><span class="va">{</span><span class="dv">20</span><span class="va">}</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="ot">isStudent</span><span class="op">=</span><span class="va">{</span><span class="kw">true</span><span class="va">}</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>handleClick<span class="va">}</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">user</span><span class="op">=</span><span class="va">{</span>{ <span class="dt">name</span><span class="op">:</span> <span class="st">&quot;Abhi&quot;</span><span class="op">,</span> <span class="dt">email</span><span class="op">:</span> <span class="st">&quot;a@b.com&quot;</span> }<span class="va">}</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">/&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">// receiving props</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">UserCard</span>({ name<span class="op">,</span> age<span class="op">,</span> isStudent<span class="op">,</span> onClick<span class="op">,</span> user }) {</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;div</span> <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>onClick<span class="va">}</span><span class="kw">&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;h2&gt;</span><span class="va">{</span>name<span class="va">}</span><span class="kw">&lt;/h2&gt;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;p&gt;</span>Age: <span class="va">{</span>age<span class="va">}</span><span class="kw">&lt;/p&gt;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span>isStudent <span class="op">&amp;&amp; </span><span class="kw">&lt;span&gt;</span>Student<span class="kw">&lt;/span&gt;</span><span class="va">}</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">// default props</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">Button</span>({ label <span class="op">=</span> <span class="st">&quot;Click me&quot;</span><span class="op">,</span> variant <span class="op">=</span> <span class="st">&quot;primary&quot;</span> }) {</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return </span><span class="kw">&lt;button</span> <span class="ot">className</span><span class="op">=</span><span class="va">{</span>variant<span class="va">}</span><span class="kw">&gt;</span><span class="va">{</span>label<span class="va">}</span><span class="kw">&lt;/button&gt;</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">// children prop — what goes between opening and closing tags</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">Card</span>({ children<span class="op">,</span> title }) {</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;div</span> <span class="ot">className</span><span class="op">=</span><span class="st">&quot;card&quot;</span><span class="kw">&gt;</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;h2&gt;</span><span class="va">{</span>title<span class="va">}</span><span class="kw">&lt;/h2&gt;</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;div</span> <span class="ot">className</span><span class="op">=</span><span class="st">&quot;card-body&quot;</span><span class="kw">&gt;</span><span class="va">{</span>children<span class="va">}</span><span class="kw">&lt;/div&gt;</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;Card</span> <span class="ot">title</span><span class="op">=</span><span class="st">&quot;My Card&quot;</span><span class="fu">&gt;</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;p&gt;</span>This goes into children<span class="kw">&lt;/p&gt;</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;button&gt;</span>Action<span class="kw">&lt;/button&gt;</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;/Card&gt;</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="co">// spread props</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> buttonProps <span class="op">=</span> { <span class="dt">onClick</span><span class="op">:</span> handleClick<span class="op">,</span> <span class="dt">disabled</span><span class="op">:</span> <span class="kw">false</span> }</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;button</span> <span class="va">{</span><span class="op">...</span>buttonProps<span class="va">}</span><span class="kw">&gt;</span>Click<span class="kw">&lt;/button&gt;</span></span></code></pre></div>
+<hr />
+<h2 id="state-usestate">state (useState)</h2>
+<p>state is data that can change over time. when state changes, React
+re-renders the component.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useState } <span class="im">from</span> <span class="st">&#39;react&#39;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">Counter</span>() {</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// [currentValue, setterFunction] = useState(initialValue)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [count<span class="op">,</span> setCount] <span class="op">=</span> <span class="fu">useState</span>(<span class="dv">0</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;div&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;p&gt;</span>Count: <span class="va">{</span>count<span class="va">}</span><span class="kw">&lt;/p&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;button</span> <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>() <span class="kw">=&gt;</span> <span class="fu">setCount</span>(count <span class="op">+</span> <span class="dv">1</span>)<span class="va">}</span><span class="kw">&gt;</span>+<span class="kw">&lt;/button&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;button</span> <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>() <span class="kw">=&gt;</span> <span class="fu">setCount</span>(count <span class="op">-</span> <span class="dv">1</span>)<span class="va">}</span><span class="kw">&gt;</span>-<span class="kw">&lt;/button&gt;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;button</span> <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>() <span class="kw">=&gt;</span> <span class="fu">setCount</span>(<span class="dv">0</span>)<span class="va">}</span><span class="kw">&gt;</span>Reset<span class="kw">&lt;/button&gt;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>state rules:</strong></p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// NEVER mutate state directly</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>state<span class="op">.</span><span class="at">name</span> <span class="op">=</span> <span class="st">&#39;new&#39;</span>        <span class="co">// WRONG — React won&#39;t re-render</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">setName</span>(<span class="st">&#39;new&#39;</span>)            <span class="co">// CORRECT</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">// for objects, spread and update</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [user<span class="op">,</span> setUser] <span class="op">=</span> <span class="fu">useState</span>({ <span class="dt">name</span><span class="op">:</span> <span class="st">&#39;Abhi&#39;</span><span class="op">,</span> <span class="dt">age</span><span class="op">:</span> <span class="dv">20</span> })</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">setUser</span>({ <span class="op">...</span>user<span class="op">,</span> <span class="dt">age</span><span class="op">:</span> <span class="dv">21</span> })      <span class="co">// update one field</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">setUser</span>(prev <span class="kw">=&gt;</span> ({ <span class="op">...</span>prev<span class="op">,</span> <span class="dt">age</span><span class="op">:</span> prev<span class="op">.</span><span class="at">age</span> <span class="op">+</span> <span class="dv">1</span> }))  <span class="co">// based on previous</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">// for arrays, return new array</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [items<span class="op">,</span> setItems] <span class="op">=</span> <span class="fu">useState</span>([])</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">setItems</span>([<span class="op">...</span>items<span class="op">,</span> newItem])               <span class="co">// add</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="fu">setItems</span>(items<span class="op">.</span><span class="fu">filter</span>(i <span class="kw">=&gt;</span> i<span class="op">.</span><span class="at">id</span> <span class="op">!==</span> id))   <span class="co">// remove</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="fu">setItems</span>(items<span class="op">.</span><span class="fu">map</span>(i <span class="kw">=&gt;</span> i<span class="op">.</span><span class="at">id</span> <span class="op">===</span> id <span class="op">?</span> { <span class="op">...</span>i<span class="op">,</span> <span class="dt">done</span><span class="op">:</span> <span class="kw">true</span> } <span class="op">:</span> i))  <span class="co">// update</span></span></code></pre></div>
+<p><strong>functional updates</strong> — when new state depends on
+previous state, use function form:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// risky (stale state in async code)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setCount</span>(count <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">// safe (always gets latest state)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">setCount</span>(prev <span class="kw">=&gt;</span> prev <span class="op">+</span> <span class="dv">1</span>)</span></code></pre></div>
+<hr />
+<h2 id="side-effects-useeffect">side effects (useEffect)</h2>
+<p>useEffect runs code after a component renders. used for: fetching
+data, subscriptions, timers, DOM manipulation.</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useEffect } <span class="im">from</span> <span class="st">&#39;react&#39;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">// runs after EVERY render</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;rendered&#39;</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">// runs ONCE after first render (component mounted)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fetchData</span>()</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [])  <span class="co">// empty dependency array</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">// runs when &#39;userId&#39; changes</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fetchUser</span>(userId)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [userId])</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">// cleanup function (runs before next effect or when component unmounts)</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> timer <span class="op">=</span> <span class="pp">setInterval</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setTime</span>(<span class="kw">new</span> <span class="bu">Date</span>())</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> <span class="dv">1000</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> () <span class="kw">=&gt;</span> <span class="pp">clearInterval</span>(timer)  <span class="co">// cleanup</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [])</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">// fetching data pattern</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> cancelled <span class="op">=</span> <span class="kw">false</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fetchData <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setLoading</span>(<span class="kw">true</span>)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> {</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> data <span class="op">=</span> <span class="cf">await</span> <span class="fu">getUsers</span>()</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (<span class="op">!</span>cancelled) {</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>                <span class="fu">setUsers</span>(data)</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">catch</span> (err) {</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (<span class="op">!</span>cancelled) <span class="fu">setError</span>(err<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">finally</span> {</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (<span class="op">!</span>cancelled) <span class="fu">setLoading</span>(<span class="kw">false</span>)</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fetchData</span>()</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> () <span class="kw">=&gt;</span> { cancelled <span class="op">=</span> <span class="kw">true</span> }  <span class="co">// prevent state update on unmounted component</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [])</span></code></pre></div>
+<p><strong>dependency array rules:</strong> - no array: runs after every
+render - empty array <code>[]</code>: runs once on mount -
+<code>[a, b]</code>: runs when a or b changes - include every value from
+component scope that the effect uses</p>
+<hr />
+<h2 id="derived-state-and-memoization">derived state and
+memoization</h2>
+<p>some values don’t need useState — they can be calculated from
+existing state.</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// bad — unnecessary state</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [users<span class="op">,</span> setUsers] <span class="op">=</span> <span class="fu">useState</span>([])</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [filteredUsers<span class="op">,</span> setFilteredUsers] <span class="op">=</span> <span class="fu">useState</span>([])</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setFilteredUsers</span>(users<span class="op">.</span><span class="fu">filter</span>(u <span class="kw">=&gt;</span> u<span class="op">.</span><span class="at">active</span>))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [users])</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">// good — derived value</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> [users<span class="op">,</span> setUsers] <span class="op">=</span> <span class="fu">useState</span>([])</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> filteredUsers <span class="op">=</span> users<span class="op">.</span><span class="fu">filter</span>(u <span class="kw">=&gt;</span> u<span class="op">.</span><span class="at">active</span>)  <span class="co">// calculated on every render</span></span></code></pre></div>
+<p><strong>useMemo</strong> — memoize expensive calculations
+(recalculate only when deps change):</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useMemo } <span class="im">from</span> <span class="st">&#39;react&#39;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> expensiveResult <span class="op">=</span> <span class="fu">useMemo</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">processLargeDataset</span>(data)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [data])  <span class="co">// only recalculates when data changes</span></span></code></pre></div>
+<p><strong>useCallback</strong> — memoize functions (prevent child
+re-renders):</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useCallback } <span class="im">from</span> <span class="st">&#39;react&#39;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> handleClick <span class="op">=</span> <span class="fu">useCallback</span>((id) <span class="kw">=&gt;</span> {</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">deleteItem</span>(id)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [])  <span class="co">// stable function reference</span></span></code></pre></div>
+<hr />
+<h2 id="context-usecontext">context (useContext)</h2>
+<p>context shares data without passing props through every level. use
+for: current user, theme, language.</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { createContext<span class="op">,</span> useContext<span class="op">,</span> useState } <span class="im">from</span> <span class="st">&#39;react&#39;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. create context</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> AuthContext <span class="op">=</span> <span class="fu">createContext</span>(<span class="kw">null</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. create provider component</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">AuthProvider</span>({ children }) {</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [user<span class="op">,</span> setUser] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">null</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [loading<span class="op">,</span> setLoading] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">true</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> login <span class="op">=</span> <span class="kw">async</span> (email<span class="op">,</span> password) <span class="kw">=&gt;</span> {</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> user <span class="op">=</span> <span class="cf">await</span> <span class="fu">signIn</span>(email<span class="op">,</span> password)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setUser</span>(user)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> logout <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> <span class="fu">signOut</span>()</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setUser</span>(<span class="kw">null</span>)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">&lt;AuthContext.Provider</span> <span class="ot">value</span><span class="op">=</span><span class="va">{</span>{ user<span class="op">,</span> loading<span class="op">,</span> login<span class="op">,</span> logout }<span class="va">}</span><span class="fu">&gt;</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span>children<span class="va">}</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">&lt;/AuthContext.Provider&gt;</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co">// 3. create custom hook</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">useAuth</span>() {</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> context <span class="op">=</span> <span class="fu">useContext</span>(AuthContext)</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>context) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(<span class="st">&#39;useAuth must be used within AuthProvider&#39;</span>)</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> context</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co">// 4. wrap app with provider</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">App</span>() {</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>        <span class="fu">&lt;AuthProvider&gt;</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>            <span class="fu">&lt;Router&gt;</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>                <span class="fu">&lt;Routes&gt;</span>...<span class="fu">&lt;/Routes&gt;</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>            <span class="fu">&lt;/Router&gt;</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>        <span class="fu">&lt;/AuthProvider&gt;</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a><span class="co">// 5. use in any component</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">Navbar</span>() {</span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { user<span class="op">,</span> logout } <span class="op">=</span> <span class="fu">useAuth</span>()</span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;nav&gt;</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span>user <span class="op">?</span> (</span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>                <span class="kw">&lt;&gt;</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">&lt;span&gt;</span>Hello <span class="va">{</span>user<span class="op">.</span><span class="at">name</span><span class="va">}</span><span class="kw">&lt;/span&gt;</span></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">&lt;button</span> <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>logout<span class="va">}</span><span class="kw">&gt;</span>Logout<span class="kw">&lt;/button&gt;</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>                <span class="kw">&lt;/&gt;</span></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>            ) <span class="op">:</span> (</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>                <span class="kw">&lt;a</span> <span class="ot">href</span><span class="op">=</span><span class="st">&quot;/login&quot;</span><span class="kw">&gt;</span>Login<span class="kw">&lt;/a&gt;</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>            )<span class="va">}</span></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/nav&gt;</span></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+<h2 id="useref">useRef</h2>
+<p>useRef stores a mutable value that does NOT trigger re-render. used
+for: DOM references, storing previous values, timers.</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useRef<span class="op">,</span> useEffect } <span class="im">from</span> <span class="st">&#39;react&#39;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">// DOM reference</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">SearchBar</span>() {</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> inputRef <span class="op">=</span> <span class="fu">useRef</span>(<span class="kw">null</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        inputRef<span class="op">.</span><span class="at">current</span><span class="op">.</span><span class="fu">focus</span>()  <span class="co">// focus input on mount</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> [])</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return </span><span class="kw">&lt;input</span> <span class="ot">ref</span><span class="op">=</span><span class="va">{</span>inputRef<span class="va">}</span> <span class="ot">type</span><span class="op">=</span><span class="st">&quot;text&quot;</span> <span class="kw">/&gt;</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">// store mutable value without re-render</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">Timer</span>() {</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> intervalRef <span class="op">=</span> <span class="fu">useRef</span>(<span class="kw">null</span>)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [count<span class="op">,</span> setCount] <span class="op">=</span> <span class="fu">useState</span>(<span class="dv">0</span>)</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> start <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        intervalRef<span class="op">.</span><span class="at">current</span> <span class="op">=</span> <span class="pp">setInterval</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setCount</span>(prev <span class="kw">=&gt;</span> prev <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>        }<span class="op">,</span> <span class="dv">1000</span>)</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> stop <span class="op">=</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>        <span class="pp">clearInterval</span>(intervalRef<span class="op">.</span><span class="at">current</span>)</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;div&gt;</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;p&gt;</span><span class="va">{</span>count<span class="va">}</span><span class="kw">&lt;/p&gt;</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;button</span> <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>start<span class="va">}</span><span class="kw">&gt;</span>Start<span class="kw">&lt;/button&gt;</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;button</span> <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>stop<span class="va">}</span><span class="kw">&gt;</span>Stop<span class="kw">&lt;/button&gt;</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a><span class="co">// store previous value</span></span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">Component</span>({ value }) {</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> prevValue <span class="op">=</span> <span class="fu">useRef</span>(value)</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>        prevValue<span class="op">.</span><span class="at">current</span> <span class="op">=</span> value</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> [value])</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return </span><span class="kw">&lt;p&gt;</span>Current: <span class="va">{</span>value<span class="va">}</span>, Previous: <span class="va">{</span>prevValue<span class="op">.</span><span class="at">current</span><span class="va">}</span><span class="kw">&lt;/p&gt;</span></span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+<h2 id="custom-hooks">custom hooks</h2>
+<p>extract reusable logic into custom hooks. a custom hook is a function
+starting with <code>use</code> that calls other hooks.</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// useFetch — reusable data fetching</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">useFetch</span>(url) {</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [data<span class="op">,</span> setData] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">null</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [loading<span class="op">,</span> setLoading] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">true</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [error<span class="op">,</span> setError] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">null</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> cancelled <span class="op">=</span> <span class="kw">false</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> fetchData <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setLoading</span>(<span class="kw">true</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setError</span>(<span class="kw">null</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> {</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>                <span class="kw">const</span> res <span class="op">=</span> <span class="cf">await</span> <span class="fu">fetch</span>(url)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>                <span class="kw">const</span> json <span class="op">=</span> <span class="cf">await</span> res<span class="op">.</span><span class="fu">json</span>()</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> (<span class="op">!</span>cancelled) <span class="fu">setData</span>(json)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>            } <span class="cf">catch</span> (err) {</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> (<span class="op">!</span>cancelled) <span class="fu">setError</span>(err<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>            } <span class="cf">finally</span> {</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> (<span class="op">!</span>cancelled) <span class="fu">setLoading</span>(<span class="kw">false</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">fetchData</span>()</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> () <span class="kw">=&gt;</span> { cancelled <span class="op">=</span> <span class="kw">true</span> }</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> [url])</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> { data<span class="op">,</span> loading<span class="op">,</span> error }</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="co">// usage</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">UserList</span>() {</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { <span class="dt">data</span><span class="op">:</span> users<span class="op">,</span> loading<span class="op">,</span> error } <span class="op">=</span> <span class="fu">useFetch</span>(<span class="st">&#39;/api/users&#39;</span>)</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loading) <span class="cf">return </span><span class="fu">&lt;Spinner</span> <span class="fu">/&gt;</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error) <span class="cf">return </span><span class="fu">&lt;Error</span> <span class="ot">message</span><span class="op">=</span><span class="va">{</span>error<span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return </span><span class="kw">&lt;ul&gt;</span><span class="va">{</span>users<span class="op">.</span><span class="fu">map</span>(u <span class="kw">=&gt; &lt;li</span> <span class="ot">key</span><span class="op">=</span><span class="va">{</span>u<span class="op">.</span><span class="at">id</span><span class="va">}</span><span class="kw">&gt;</span><span class="va">{</span>u<span class="op">.</span><span class="at">name</span><span class="va">}</span><span class="kw">&lt;/li&gt;</span>)<span class="va">}</span><span class="kw">&lt;/ul&gt;</span></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a><span class="co">// useLocalStorage</span></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">useLocalStorage</span>(key<span class="op">,</span> initialValue) {</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [value<span class="op">,</span> setValue] <span class="op">=</span> <span class="fu">useState</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> {</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> item <span class="op">=</span> localStorage<span class="op">.</span><span class="fu">getItem</span>(key)</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> item <span class="op">?</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">parse</span>(item) <span class="op">:</span> initialValue</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">catch</span> {</span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> initialValue</span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> setStoredValue <span class="op">=</span> (newValue) <span class="kw">=&gt;</span> {</span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setValue</span>(newValue)</span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>        localStorage<span class="op">.</span><span class="fu">setItem</span>(key<span class="op">,</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(newValue))</span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [value<span class="op">,</span> setStoredValue]</span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a><span class="co">// useDebounce — delay value update</span></span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">useDebounce</span>(value<span class="op">,</span> delay <span class="op">=</span> <span class="dv">500</span>) {</span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [debouncedValue<span class="op">,</span> setDebouncedValue] <span class="op">=</span> <span class="fu">useState</span>(value)</span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a>    <span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> timer <span class="op">=</span> <span class="pp">setTimeout</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setDebouncedValue</span>(value)</span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a>        }<span class="op">,</span> delay)</span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> () <span class="kw">=&gt;</span> <span class="pp">clearTimeout</span>(timer)</span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> [value<span class="op">,</span> delay])</span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> debouncedValue</span>
+<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a><span class="co">// useToggle</span></span>
+<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">useToggle</span>(initial <span class="op">=</span> <span class="kw">false</span>) {</span>
+<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [value<span class="op">,</span> setValue] <span class="op">=</span> <span class="fu">useState</span>(initial)</span>
+<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> toggle <span class="op">=</span> <span class="fu">useCallback</span>(() <span class="kw">=&gt;</span> <span class="fu">setValue</span>(v <span class="kw">=&gt;</span> <span class="op">!</span>v)<span class="op">,</span> [])</span>
+<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [value<span class="op">,</span> toggle]</span>
+<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+<h2 id="rendering-patterns">rendering patterns</h2>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// conditional rendering</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">Component</span>({ isLoggedIn<span class="op">,</span> data }) {</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// if/else</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>isLoggedIn) <span class="cf">return </span><span class="fu">&lt;Login</span> <span class="fu">/&gt;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ternary</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;div&gt;</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span>isLoggedIn <span class="op">? </span><span class="fu">&lt;Dashboard</span> <span class="fu">/&gt;</span> <span class="op">: </span><span class="fu">&lt;Login</span> <span class="fu">/&gt;</span><span class="va">}</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span><span class="co">/* &amp;&amp; short circuit — renders only if true */</span><span class="va">}</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span>data <span class="op">&amp;&amp; </span><span class="fu">&lt;DataTable</span> <span class="ot">data</span><span class="op">=</span><span class="va">{</span>data<span class="va">}</span> <span class="fu">/&gt;</span><span class="va">}</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span><span class="co">/* null renders nothing */</span><span class="va">}</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span><span class="kw">false</span> <span class="op">&amp;&amp; </span><span class="kw">&lt;p&gt;</span>this never renders<span class="kw">&lt;/p&gt;</span><span class="va">}</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co">// list rendering — always add key</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">UserList</span>({ users }) {</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;ul&gt;</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span>users<span class="op">.</span><span class="fu">map</span>(user <span class="kw">=&gt;</span> (</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>                <span class="fu">&lt;UserItem</span> <span class="ot">key</span><span class="op">=</span><span class="va">{</span>user<span class="op">.</span><span class="at">id</span><span class="va">}</span> <span class="ot">user</span><span class="op">=</span><span class="va">{</span>user<span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>            ))<span class="va">}</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/ul&gt;</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a><span class="co">// key must be unique and stable (don&#39;t use array index if list can reorder)</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a><span class="co">// loading/error/empty pattern</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">DataComponent</span>() {</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { data<span class="op">,</span> loading<span class="op">,</span> error } <span class="op">=</span> <span class="fu">useFetch</span>(<span class="st">&#39;/api/data&#39;</span>)</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loading) <span class="cf">return </span><span class="fu">&lt;LoadingSpinner</span> <span class="fu">/&gt;</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error) <span class="cf">return </span><span class="fu">&lt;ErrorMessage</span> <span class="ot">message</span><span class="op">=</span><span class="va">{</span>error<span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>data <span class="op">||</span> data<span class="op">.</span><span class="at">length</span> <span class="op">===</span> <span class="dv">0</span>) <span class="cf">return </span><span class="fu">&lt;EmptyState</span> <span class="fu">/&gt;</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return </span><span class="fu">&lt;DataGrid</span> <span class="ot">data</span><span class="op">=</span><span class="va">{</span>data<span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+<h2 id="forms-in-react">forms in React</h2>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// controlled input — React controls the value</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">LoginForm</span>() {</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [email<span class="op">,</span> setEmail] <span class="op">=</span> <span class="fu">useState</span>(<span class="st">&#39;&#39;</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [password<span class="op">,</span> setPassword] <span class="op">=</span> <span class="fu">useState</span>(<span class="st">&#39;&#39;</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [error<span class="op">,</span> setError] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">null</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [loading<span class="op">,</span> setLoading] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">false</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> handleSubmit <span class="op">=</span> <span class="kw">async</span> (e) <span class="kw">=&gt;</span> {</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        e<span class="op">.</span><span class="fu">preventDefault</span>()  <span class="co">// prevent page reload</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setLoading</span>(<span class="kw">true</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setError</span>(<span class="kw">null</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> {</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">await</span> <span class="fu">login</span>(email<span class="op">,</span> password)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">catch</span> (err) {</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setError</span>(err<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">finally</span> {</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setLoading</span>(<span class="kw">false</span>)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;form</span> <span class="ot">onSubmit</span><span class="op">=</span><span class="va">{</span>handleSubmit<span class="va">}</span><span class="kw">&gt;</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;input</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>                <span class="ot">type</span><span class="op">=</span><span class="st">&quot;email&quot;</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>                <span class="ot">value</span><span class="op">=</span><span class="va">{</span>email<span class="va">}</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>                <span class="ot">onChange</span><span class="op">=</span><span class="va">{</span>(e) <span class="kw">=&gt;</span> <span class="fu">setEmail</span>(e<span class="op">.</span><span class="at">target</span><span class="op">.</span><span class="at">value</span>)<span class="va">}</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>                <span class="ot">placeholder</span><span class="op">=</span><span class="st">&quot;Email&quot;</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>                <span class="ot">required</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>            <span class="kw">/&gt;</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;input</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>                <span class="ot">type</span><span class="op">=</span><span class="st">&quot;password&quot;</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>                <span class="ot">value</span><span class="op">=</span><span class="va">{</span>password<span class="va">}</span></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>                <span class="ot">onChange</span><span class="op">=</span><span class="va">{</span>(e) <span class="kw">=&gt;</span> <span class="fu">setPassword</span>(e<span class="op">.</span><span class="at">target</span><span class="op">.</span><span class="at">value</span>)<span class="va">}</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>                <span class="ot">placeholder</span><span class="op">=</span><span class="st">&quot;Password&quot;</span></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>                <span class="ot">minLength</span><span class="op">=</span><span class="va">{</span><span class="dv">8</span><span class="va">}</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>            <span class="kw">/&gt;</span></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>            <span class="va">{</span>error <span class="op">&amp;&amp; </span><span class="kw">&lt;p</span> <span class="ot">className</span><span class="op">=</span><span class="st">&quot;error&quot;</span><span class="kw">&gt;</span><span class="va">{</span>error<span class="va">}</span><span class="kw">&lt;/p&gt;</span><span class="va">}</span></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;button</span> <span class="ot">type</span><span class="op">=</span><span class="st">&quot;submit&quot;</span> <span class="ot">disabled</span><span class="op">=</span><span class="va">{</span>loading<span class="va">}</span><span class="kw">&gt;</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>                <span class="va">{</span>loading <span class="op">?</span> <span class="st">&#39;Logging in...&#39;</span> <span class="op">:</span> <span class="st">&#39;Login&#39;</span><span class="va">}</span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;/button&gt;</span></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/form&gt;</span></span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a><span class="co">// form with single state object</span></span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">ProfileForm</span>({ user }) {</span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [form<span class="op">,</span> setForm] <span class="op">=</span> <span class="fu">useState</span>({</span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>        <span class="dt">name</span><span class="op">:</span> user<span class="op">.</span><span class="at">name</span> <span class="op">||</span> <span class="st">&#39;&#39;</span><span class="op">,</span></span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bio</span><span class="op">:</span> user<span class="op">.</span><span class="at">bio</span> <span class="op">||</span> <span class="st">&#39;&#39;</span><span class="op">,</span></span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>        <span class="dt">college</span><span class="op">:</span> user<span class="op">.</span><span class="at">college</span> <span class="op">||</span> <span class="st">&#39;&#39;</span></span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> handleChange <span class="op">=</span> (e) <span class="kw">=&gt;</span> {</span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>        <span class="kw">const</span> { name<span class="op">,</span> value } <span class="op">=</span> e<span class="op">.</span><span class="at">target</span></span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>        <span class="fu">setForm</span>(prev <span class="kw">=&gt;</span> ({ <span class="op">...</span>prev<span class="op">,</span> [name]<span class="op">:</span> value }))</span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;form&gt;</span></span>
+<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;input</span> <span class="ot">name</span><span class="op">=</span><span class="st">&quot;name&quot;</span> <span class="ot">value</span><span class="op">=</span><span class="va">{</span>form<span class="op">.</span><span class="at">name</span><span class="va">}</span> <span class="ot">onChange</span><span class="op">=</span><span class="va">{</span>handleChange<span class="va">}</span> <span class="kw">/&gt;</span></span>
+<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;input</span> <span class="ot">name</span><span class="op">=</span><span class="st">&quot;bio&quot;</span> <span class="ot">value</span><span class="op">=</span><span class="va">{</span>form<span class="op">.</span><span class="at">bio</span><span class="va">}</span> <span class="ot">onChange</span><span class="op">=</span><span class="va">{</span>handleChange<span class="va">}</span> <span class="kw">/&gt;</span></span>
+<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;input</span> <span class="ot">name</span><span class="op">=</span><span class="st">&quot;college&quot;</span> <span class="ot">value</span><span class="op">=</span><span class="va">{</span>form<span class="op">.</span><span class="at">college</span><span class="va">}</span> <span class="ot">onChange</span><span class="op">=</span><span class="va">{</span>handleChange<span class="va">}</span> <span class="kw">/&gt;</span></span>
+<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/form&gt;</span></span>
+<span id="cb17-65"><a href="#cb17-65" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb17-66"><a href="#cb17-66" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+<h2 id="performance-optimization">performance optimization</h2>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// React.memo — skip re-render if props haven&#39;t changed</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> UserCard <span class="op">=</span> React<span class="op">.</span><span class="fu">memo</span>(<span class="kw">function</span> <span class="fu">UserCard</span>({ user }) {</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return </span><span class="kw">&lt;div&gt;</span><span class="va">{</span>user<span class="op">.</span><span class="at">name</span><span class="va">}</span><span class="kw">&lt;/div&gt;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">// useMemo — memoize expensive computation</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> sortedUsers <span class="op">=</span> <span class="fu">useMemo</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="op">...</span>users]<span class="op">.</span><span class="fu">sort</span>((a<span class="op">,</span> b) <span class="kw">=&gt;</span> a<span class="op">.</span><span class="at">name</span><span class="op">.</span><span class="fu">localeCompare</span>(b<span class="op">.</span><span class="at">name</span>))</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [users])</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="co">// useCallback — stable function reference for child components</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> handleDelete <span class="op">=</span> <span class="fu">useCallback</span>((id) <span class="kw">=&gt;</span> {</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setItems</span>(prev <span class="kw">=&gt;</span> prev<span class="op">.</span><span class="fu">filter</span>(item <span class="kw">=&gt;</span> item<span class="op">.</span><span class="at">id</span> <span class="op">!==</span> id))</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>}<span class="op">,</span> [])</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="co">// lazy loading — load component only when needed</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> HeavyComponent <span class="op">=</span> <span class="fu">lazy</span>(() <span class="kw">=&gt;</span> <span class="im">import</span>(<span class="st">&#39;./HeavyComponent&#39;</span>))</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">App</span>() {</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">&lt;Suspense</span> <span class="ot">fallback</span><span class="op">=</span><span class="va">{</span><span class="fu">&lt;Spinner</span> <span class="fu">/&gt;</span><span class="va">}</span><span class="fu">&gt;</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>            <span class="fu">&lt;HeavyComponent</span> <span class="fu">/&gt;</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">&lt;/Suspense&gt;</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>when to optimize:</strong> don’t optimize prematurely. only
+use memo/useMemo/useCallback when you can measure a performance problem.
+they add complexity.</p>
+<hr />
+<h2 id="project-structure-patterns">project structure patterns</h2>
+<pre><code>src/
+├── components/          → reusable UI components
+│   ├── ui/              → basic building blocks (Button, Input, Card)
+│   └── features/        → feature-specific components
+│       └── auth/
+│           ├── LoginForm.jsx
+│           └── SignupForm.jsx
+├── pages/               → route-level components
+│   ├── Home.jsx
+│   ├── Dashboard.jsx
+│   └── Profile.jsx
+├── hooks/               → custom hooks
+│   ├── useAuth.js
+│   ├── useFetch.js
+│   └── useLocalStorage.js
+├── lib/                 → utilities, API clients, config
+│   ├── supabase.js
+│   ├── api.js
+│   └── utils.js
+├── context/             → React context providers
+│   └── AuthContext.jsx
+├── App.jsx
+├── main.jsx
+└── index.css</code></pre>
+<hr />
+<pre><code>=^._.^= think in components. think in state.</code></pre>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
