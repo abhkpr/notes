@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Build a Project | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="how-to-build.html" class="active">How to Build a Project</a><a href="linux.html">Linux</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="C++.html">C++ for Competitive Programming — Complete Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="py.html">Python</a><a href="kt.html">Kotlin</a><a href="vocab.html">Dev Vocabulary</a><a href="cs.html">Computer Science Fundamentals</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="system-design.html">System Design</a><a href="warbird.html">warbird site — documentation</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="how-to-build-a-project">How to Build a Project</h1>
+<blockquote>
+<p>from raw idea to deployed product. the complete mental model.</p>
+</blockquote>
+<hr />
+<h2 id="the-mindset-shift">the mindset shift</h2>
+<p>most beginners ask “how do I code this?” a senior developer asks
+“should I build this at all, and if yes, what is the simplest version
+that works?”</p>
+<p>senior developers are not smarter. they have seen more failure. they
+know what questions to ask before writing a single line of code. they
+know that the most expensive bugs are the ones built into the
+architecture on day one.</p>
+<p><strong>the most important skill is not coding. it is
+thinking.</strong></p>
+<hr />
+<h2 id="phase-1-understand-the-problem">phase 1: understand the
+problem</h2>
+<p>before touching a keyboard, you must deeply understand what you are
+building and why.</p>
+<h3 id="ask-these-questions">ask these questions</h3>
+<p><strong>what problem does this actually solve?</strong> be brutally
+honest. “I want to build a social network” is not a problem statement.
+“students at my college have no way to find study partners for specific
+subjects” is a problem statement.</p>
+<p><strong>who is the user?</strong> not “everyone”. be specific. a
+19-year-old CS student at a tier-2 college with a mid-range Android
+phone and slow internet is a very specific user. design for that
+person.</p>
+<p><strong>what does the user currently do without your
+product?</strong> if students find study partners through WhatsApp
+groups, that is your competition. you must be meaningfully better, not
+just different.</p>
+<p><strong>what is the ONE core thing this product must do
+well?</strong> everything else is secondary. a notes app must make it
+fast to take and find notes. a chat app must deliver messages reliably.
+know your north star.</p>
+<p><strong>what does success look like in 3 months?</strong> “10 active
+daily users who come back every day” is better than “1000 downloads”.
+retention beats acquisition.</p>
+<h3 id="write-it-down">write it down</h3>
+<p>write a one-paragraph description of the product:</p>
+<pre><code>[Product name] helps [specific user] to [solve specific problem]
+by [core mechanism]. unlike [current alternative], we [key difference].</code></pre>
+<p>example:</p>
+<pre><code>StudyMatch helps CS students at tier-2 colleges find study partners
+for specific subjects and exams by matching based on topic, level,
+and schedule. unlike WhatsApp groups, we surface relevant people
+automatically instead of requiring you to ask publicly.</code></pre>
+<p>this paragraph becomes your compass. every feature decision gets
+measured against it.</p>
+<hr />
+<h2 id="phase-2-define-features">phase 2: define features</h2>
+<h3 id="mvp-first">MVP first</h3>
+<p>MVP (Minimum Viable Product) is the smallest version that: - actually
+solves the core problem - is usable by real users - can validate whether
+your idea is right</p>
+<p><strong>not</strong> the version with every feature you imagined.</p>
+<h3 id="the-feature-list-exercise">the feature list exercise</h3>
+<p>write down every feature you want. every single one. then:</p>
+<p><strong>must have (MVP)</strong> — without this, the product does not
+work at all <strong>should have</strong> — makes the product
+significantly better, build after MVP <strong>nice to have</strong> —
+polish and extra features, build much later <strong>do not
+build</strong> — sounds good but adds complexity without proportional
+value</p>
+<p>example for a private chat app:</p>
+<pre><code>must have:
+- send and receive text messages
+- end-to-end encryption
+- user accounts
+
+should have:
+- message status (sent/delivered/read)
+- push notifications
+- local message storage
+
+nice to have:
+- message reactions
+- voice messages
+- profile photos
+
+do not build yet:
+- video calls
+- stories
+- groups (unless core to your idea)</code></pre>
+<h3 id="prioritize-ruthlessly">prioritize ruthlessly</h3>
+<p>every feature has a cost: time to build, complexity to maintain,
+surface area for bugs. ask for every feature: “if we never build this,
+does the product still work?” if yes, it is not MVP.</p>
+<hr />
+<h2 id="phase-3-system-design-and-architecture">phase 3: system design
+and architecture</h2>
+<p>now you think about how to build it, not what to build.</p>
+<h3 id="draw-it-on-paper-first">draw it on paper first</h3>
+<p>before any code, draw the high-level architecture:</p>
+<pre><code>[Mobile App / Web Browser]
+         |
+         | HTTP requests
+         |
+    [API Server]
+         |
+    ┌────┴────┐
+    |         |
+[Database] [Cache]</code></pre>
+<p>or more complex:</p>
+<pre><code>[React Frontend]  [Android App]
+        \              /
+         \            /
+        [API Gateway]
+         /    |            /     |     [Users  ] [Posts ] [Notifs ]
+[Service] [Service] [Service]
+    |         |         |
+[User DB] [Post DB] [Redis]</code></pre>
+<p>draw it simple. the purpose is to understand: what components exist,
+how they talk to each other, where data lives, what happens when a
+request comes in.</p>
+<h3 id="choose-your-architecture">choose your architecture</h3>
+<p><strong>monolith</strong> — one application handles everything. right
+choice for almost all beginners and small teams.</p>
+<pre><code>one codebase → one database → one server</code></pre>
+<p><strong>microservices</strong> — separate services for separate
+features. only choose this if you have a large team, clear boundaries,
+and real scaling needs. do not start here.</p>
+<p><strong>rule:</strong> start with monolith. split only when you have
+a proven reason.</p>
+<h3 id="define-the-data-flow">define the data flow</h3>
+<p>pick one core user action and trace it completely:</p>
+<p>example — user sends a message in chat app:</p>
+<pre><code>1. user types message, hits send
+2. app validates: not empty, under 4000 chars
+3. app encrypts message on device
+4. POST /api/messages with encrypted payload
+5. server validates auth token
+6. server saves to database
+7. server triggers notification to recipient
+8. server returns 201 Created with message id
+9. app shows message as &quot;sent&quot;
+10. recipient receives push notification
+11. recipient opens app, fetches new messages
+12. app decrypts messages on device
+13. message shows as delivered/read</code></pre>
+<p>if you can trace the data flow before building, you understand the
+system.</p>
+<hr />
+<h2 id="phase-4-database-design">phase 4: database design</h2>
+<p>the database is the most important decision you make. it is the
+hardest to change later. think carefully.</p>
+<h3 id="identify-your-entities">identify your entities</h3>
+<p>entities are the things your app cares about. for a chat app: - users
+- messages - conversations - devices (for push notifications)</p>
+<p>for a student productivity app: - users - goals - daily logs - study
+sessions</p>
+<h3 id="design-the-schema">design the schema</h3>
+<p>for each entity, define its fields and their types:</p>
+<pre><code>users
+├── id           uuid, primary key
+├── username     text, unique, not null
+├── email        text, unique, not null
+├── password     text (hashed), not null
+├── created_at   timestamp
+└── last_seen    timestamp
+
+messages
+├── id           uuid, primary key
+├── sender_id    uuid, foreign key → users.id
+├── receiver_id  uuid, foreign key → users.id
+├── content      text (encrypted)
+├── sent_at      timestamp
+└── read_at      timestamp, nullable</code></pre>
+<h3 id="define-relationships">define relationships</h3>
+<p><strong>one-to-many</strong> — one user has many messages. user is on
+the “one” side. use foreign key on the “many” side.</p>
+<p><strong>many-to-many</strong> — users can be in many groups, groups
+have many users. use a junction table:</p>
+<pre><code>users (id, name)
+groups (id, name)
+user_groups (user_id, group_id, joined_at)  ← junction table</code></pre>
+<p><strong>one-to-one</strong> — user has one profile. can be in same
+table or separate.</p>
+<h3 id="normalization-rule-of-thumb">normalization rule of thumb</h3>
+<p>do not store the same data in two places. if user’s name changes, you
+should update it in ONE place and it reflects everywhere.</p>
+<h3 id="choose-sql-or-nosql">choose SQL or NoSQL</h3>
+<p><strong>use SQL (PostgreSQL) when:</strong> - data has clear
+structure and relationships - you need transactions (financial data,
+bookings) - you need complex queries and joins - data integrity is
+critical</p>
+<p><strong>use NoSQL (MongoDB) when:</strong> - data structure varies
+per record - you are storing documents, JSON blobs - you need to scale
+writes horizontally - relationships between data are minimal</p>
+<p><strong>use Redis when:</strong> - caching (temporary fast storage) -
+sessions and auth tokens - real-time features (pub/sub) - rate limiting
+counters</p>
+<p><strong>default choice: PostgreSQL.</strong> it handles almost
+everything. add Redis for caching when needed.</p>
+<hr />
+<h2 id="phase-5-api-design">phase 5: API design</h2>
+<p>define your API before building it. this is the contract between
+frontend and backend.</p>
+<h3 id="rest-conventions">REST conventions</h3>
+<pre><code>GET    /api/users              list all users
+GET    /api/users/:id          get specific user
+POST   /api/users              create user
+PUT    /api/users/:id          replace user
+PATCH  /api/users/:id          update fields
+DELETE /api/users/:id          delete user
+
+GET    /api/users/:id/posts    get user&#39;s posts
+POST   /api/conversations/:id/messages   send message</code></pre>
+<h3 id="define-each-endpoint">define each endpoint</h3>
+<p>for every endpoint, define: - method and path - request body (for
+POST/PUT/PATCH) - response shape - possible errors</p>
+<p>example:</p>
+<pre><code>POST /api/auth/login
+
+request body:
+{
+    &quot;email&quot;: &quot;a@b.com&quot;,
+    &quot;password&quot;: &quot;secret&quot;
+}
+
+success response (200):
+{
+    &quot;token&quot;: &quot;eyJ...&quot;,
+    &quot;user&quot;: {
+        &quot;id&quot;: &quot;uuid&quot;,
+        &quot;name&quot;: &quot;Abhishek&quot;,
+        &quot;email&quot;: &quot;a@b.com&quot;
+    }
+}
+
+error responses:
+400 — missing email or password
+401 — wrong password
+404 — user not found
+429 — too many login attempts
+500 — server error</code></pre>
+<p>write this before building. it forces you to think about edge cases
+early.</p>
+<hr />
+<h2 id="phase-6-tech-stack-selection">phase 6: tech stack selection</h2>
+<p>choose boring, proven technology. the goal is to ship, not to use the
+newest thing.</p>
+<h3 id="questions-to-ask">questions to ask</h3>
+<p><strong>do I already know this?</strong> using familiar tech is 10x
+faster than learning while building.</p>
+<p><strong>does it have good documentation and community?</strong> you
+will get stuck. you need to find answers.</p>
+<p><strong>is it appropriate for the scale?</strong> don’t use
+Kubernetes for an app with 10 users.</p>
+<p><strong>will it cost money?</strong> calculate hosting costs before
+deciding.</p>
+<h3 id="a-sensible-stack-for-most-projects">a sensible stack for most
+projects</h3>
+<pre><code>web frontend:  React + Tailwind CSS + Vite
+mobile:        Kotlin + Jetpack Compose (Android)
+backend:       FastAPI (Python) or Express (Node.js)
+database:      PostgreSQL (Supabase for free managed)
+cache:         Redis (if needed)
+auth:          Supabase Auth or JWT
+file storage:  Supabase Storage or Cloudinary
+hosting:       Vercel (frontend), Railway (backend), Supabase (db)
+cost:          $0 for small projects</code></pre>
+<h3 id="the-golden-rule">the golden rule</h3>
+<p>use the stack that gets you to a working product fastest. optimize
+later.</p>
+<hr />
+<h2 id="phase-7-project-setup">phase 7: project setup</h2>
+<p>now you actually start. setup once, correctly, and you save hours
+later.</p>
+<h3 id="folder-structure">folder structure</h3>
+<p><strong>web project (React):</strong></p>
+<pre><code>my-project/
+├── src/
+│   ├── components/       shared reusable components
+│   │   ├── ui/           basic: Button, Input, Card, Modal
+│   │   └── layout/       Navbar, Sidebar, Footer
+│   ├── pages/            one file per page/route
+│   ├── hooks/            custom React hooks
+│   ├── lib/              utilities, API client, helpers
+│   ├── store/            state management (Zustand/Redux)
+│   ├── types/            TypeScript types
+│   └── assets/           images, fonts, icons
+├── public/               static files
+├── .env                  environment variables
+├── .env.example          template for env vars (commit this)
+├── .gitignore
+├── package.json
+└── README.md</code></pre>
+<p><strong>backend project (FastAPI/Python):</strong></p>
+<pre><code>backend/
+├── app/
+│   ├── api/              route handlers
+│   │   ├── auth.py
+│   │   ├── users.py
+│   │   └── messages.py
+│   ├── models/           database models
+│   ├── schemas/          Pydantic validation schemas
+│   ├── services/         business logic
+│   ├── db/               database connection, migrations
+│   └── main.py           app entry point
+├── tests/
+├── .env
+├── requirements.txt
+└── README.md</code></pre>
+<p><strong>Android project (default structure):</strong></p>
+<pre><code>app/src/main/
+├── java/com/yourpackage/
+│   ├── ui/               screens and composables
+│   │   ├── home/
+│   │   ├── chat/
+│   │   └── profile/
+│   ├── data/             repository, database, API
+│   ├── domain/           use cases and business logic
+│   └── di/               dependency injection
+├── res/                  layouts, strings, drawables
+└── AndroidManifest.xml</code></pre>
+<h3 id="git-setup">git setup</h3>
+<p>do this on day one, before any code:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin git@github.com:username/project.git</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create .gitignore immediately</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;node_modules/</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="st">.env</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="st">dist/</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="st">.DS_Store</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="st">__pycache__/</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="st">*.pyc</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="st">.venv/</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span> <span class="op">&gt;</span> .gitignore</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;init: project setup&quot;</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code></pre></div>
+<h3 id="environment-variables">environment variables</h3>
+<p>never hardcode secrets. always use environment variables:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .env (never commit this)</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="va">DATABASE_URL</span><span class="op">=</span>postgresql://user:pass@host/db</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="va">JWT_SECRET</span><span class="op">=</span>your-secret-key</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="va">GROQ_API_KEY</span><span class="op">=</span>your-key</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="va">SUPABASE_URL</span><span class="op">=</span>https://xxx.supabase.co</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># .env.example (always commit this — template with no values)</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="va">DATABASE_URL</span><span class="op">=</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="va">JWT_SECRET</span><span class="op">=</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="va">GROQ_API_KEY</span><span class="op">=</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="va">SUPABASE_URL</span><span class="op">=</span></span></code></pre></div>
+<h3 id="readme-on-day-one">README on day one</h3>
+<p>write a minimal README before starting:</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Project Name</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>one sentence description.</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## setup</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>git clone ...</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>cd project</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>npm install</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>cp .env.example .env</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="fu"># fill in .env values</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>npm run dev</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="fu">## stack</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>React + Tailwind</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>FastAPI</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>PostgreSQL</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a><span class="fu">## features</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> user auth</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> core feature 1</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> core feature 2</span></code></pre></div>
+<hr />
+<h2 id="phase-8-development-order">phase 8: development order</h2>
+<p>what to build first matters enormously. wrong order = wasted
+work.</p>
+<h3 id="the-rule-build-vertically-not-horizontally">the rule: build
+vertically, not horizontally</h3>
+<p><strong>horizontal (wrong):</strong> build all UI first → then all
+API → then all database</p>
+<p><strong>vertical (right):</strong> build one complete feature end to
+end → then next feature</p>
+<p>a complete feature means: UI + API + database working together for
+that one thing.</p>
+<h3 id="the-order-for-most-projects">the order for most projects</h3>
+<p><strong>1. authentication first</strong> everything depends on
+knowing who the user is. build login/signup/logout before anything
+else.</p>
+<p><strong>2. data models and database</strong> set up your tables. you
+can always add columns but redesigning the core schema is painful.</p>
+<p><strong>3. core feature — read path</strong> the thing that shows
+data to the user. list of messages, list of goals, feed. build the
+display first.</p>
+<p><strong>4. core feature — write path</strong> creating new data. send
+message, add goal, create post.</p>
+<p><strong>5. core feature — update and delete</strong> edit and delete
+operations.</p>
+<p><strong>6. error states and loading states</strong> every async
+operation needs: loading indicator, error message, empty state. do this
+per feature, not at the end.</p>
+<p><strong>7. navigation and routing</strong> connect pages together.
+back button works. links work.</p>
+<p><strong>8. secondary features</strong> notifications, search,
+filters, profile settings.</p>
+<p><strong>9. polish</strong> animations, empty states, onboarding flow,
+edge cases.</p>
+<p><strong>10. performance</strong> optimize only what is actually slow.
+do not prematurely optimize.</p>
+<h3 id="commit-strategy">commit strategy</h3>
+<p>commit often, in small pieces:</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># good commits (small, specific, clear)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;feat: add login form with validation&quot;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;feat: POST /api/auth/login endpoint&quot;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;fix: login redirects to dashboard on success&quot;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;feat: persist auth token in localStorage&quot;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># bad commits</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;stuff&quot;</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;fixed things&quot;</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;working on auth&quot;</span></span></code></pre></div>
+<p><strong>conventional commits format:</strong></p>
+<pre><code>feat:     new feature
+fix:      bug fix
+docs:     documentation only
+style:    formatting, no logic change
+refactor: code change that is not a fix or feature
+test:     adding tests
+chore:    build process, dependencies</code></pre>
+<h3 id="branch-strategy-simple-version">branch strategy (simple
+version)</h3>
+<pre><code>main         → always deployable, production code
+dev          → integration branch, work in progress
+feature/xxx  → one branch per feature
+fix/xxx      → one branch per bug fix</code></pre>
+<p>for solo projects: just commit to main. branches are for teams.</p>
+<hr />
+<h2 id="phase-9-coding-principles">phase 9: coding principles</h2>
+<h3
+id="write-code-for-the-person-who-maintains-it-thats-you-in-6-months">write
+code for the person who maintains it (that’s you in 6 months)</h3>
+<p><strong>naming:</strong> names should explain intent, not
+implementation:</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">// bad</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> d <span class="op">=</span> <span class="kw">new</span> <span class="bu">Date</span>()</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> arr2 <span class="op">=</span> users<span class="op">.</span><span class="fu">filter</span>(u <span class="kw">=&gt;</span> u<span class="op">.</span><span class="at">a</span> <span class="op">===</span> <span class="kw">true</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">proc</span>(x) { }</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">// good</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> currentDate <span class="op">=</span> <span class="kw">new</span> <span class="bu">Date</span>()</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> activeUsers <span class="op">=</span> users<span class="op">.</span><span class="fu">filter</span>(user <span class="kw">=&gt;</span> user<span class="op">.</span><span class="at">isActive</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">processPayment</span>(order) { }</span></code></pre></div>
+<p><strong>functions:</strong> one function = one job. if you can’t
+describe what a function does in one sentence without using “and”, it
+does too much:</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// bad</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">registerUserAndSendEmailAndCreateProfile</span>(data) { }</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co">// good</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">createUser</span>(data) { }</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">sendWelcomeEmail</span>(user) { }</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">createProfile</span>(userId) { }</span></code></pre></div>
+<p><strong>DRY (Don’t Repeat Yourself):</strong> if you write the same
+code twice, make it a function. if you use the same value in multiple
+places, make it a constant or variable.</p>
+<p><strong>YAGNI (You Aren’t Gonna Need It):</strong> don’t build for
+imaginary future requirements. solve today’s problem.</p>
+<p><strong>handle errors:</strong> every operation that can fail must
+have error handling. network requests, database queries, file
+operations.</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">// bad</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> user <span class="op">=</span> <span class="cf">await</span> <span class="fu">getUser</span>(id)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">displayUser</span>(user)  <span class="co">// crashes if user is null</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co">// good</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> user <span class="op">=</span> <span class="cf">await</span> <span class="fu">getUser</span>(id)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="op">!</span>user) {</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">showError</span>(<span class="st">&quot;User not found&quot;</span>)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="fu">displayUser</span>(user)</span></code></pre></div>
+<h3 id="the-review-checklist-before-committing">the review checklist
+before committing</h3>
+<p>ask yourself for every piece of code: - does it work for the happy
+path? - what happens if the input is empty/null/wrong type? - what
+happens if the network request fails? - what happens if the database is
+slow? - is there anything hardcoded that should be a variable? - can I
+understand this code in 6 months without comments?</p>
+<hr />
+<h2 id="phase-10-testing">phase 10: testing</h2>
+<h3 id="types-of-tests">types of tests</h3>
+<p><strong>manual testing</strong> — you use the app yourself. always do
+this. not enough alone.</p>
+<p><strong>unit tests</strong> — test one function in isolation. fast,
+catch regressions:</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_calculate_streak():</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    logs <span class="op">=</span> [date(<span class="dv">2026</span>,<span class="dv">3</span>,<span class="dv">1</span>), date(<span class="dv">2026</span>,<span class="dv">3</span>,<span class="dv">2</span>), date(<span class="dv">2026</span>,<span class="dv">3</span>,<span class="dv">3</span>)]</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> calculate_streak(logs) <span class="op">==</span> <span class="dv">3</span></span></code></pre></div>
+<p><strong>integration tests</strong> — test multiple parts working
+together. API endpoint tests:</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_login_success():</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.post(<span class="st">&quot;/api/auth/login&quot;</span>, json<span class="op">=</span>{</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;email&quot;</span>: <span class="st">&quot;test@test.com&quot;</span>,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;password&quot;</span>: <span class="st">&quot;correct&quot;</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> response.status_code <span class="op">==</span> <span class="dv">200</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">&quot;token&quot;</span> <span class="kw">in</span> response.json()</span></code></pre></div>
+<p><strong>end-to-end tests</strong> — test the whole flow in a browser.
+Playwright, Cypress.</p>
+<h3 id="test-what-matters">test what matters</h3>
+<p>for small projects: manually test every feature before shipping.
+write automated tests for: - authentication flows (login, logout, wrong
+password) - core business logic (the calculation in your app that must
+be correct) - any function you have had to fix a bug in</p>
+<h3 id="testing-checklist-per-feature">testing checklist per
+feature</h3>
+<p>before marking a feature done:</p>
+<pre><code>happy path         → works correctly with valid input
+empty input        → handles blank fields gracefully
+invalid input      → shows clear error message
+network failure    → shows error, doesn&#39;t crash
+slow network       → shows loading state
+duplicate action   → double-click submit doesn&#39;t send twice
+unauthorized       → unauthenticated user gets redirected
+mobile screen      → looks good on small screen</code></pre>
+<hr />
+<h2 id="phase-11-deployment">phase 11: deployment</h2>
+<h3 id="before-deploying">before deploying</h3>
+<pre><code>[ ] all environment variables set in hosting platform
+[ ] .env not committed to git
+[ ] database migrations run
+[ ] build succeeds locally (npm run build)
+[ ] no console.log with sensitive data
+[ ] 404 page exists
+[ ] error pages exist
+[ ] favicon set
+[ ] page titles are correct
+[ ] OG tags for social sharing</code></pre>
+<h3 id="deployment-pipeline">deployment pipeline</h3>
+<pre><code>code pushed to git
+        ↓
+CI runs tests (GitHub Actions)
+        ↓
+if tests pass → deploy automatically
+        ↓
+    frontend → Vercel
+    backend → Railway
+    database → Supabase</code></pre>
+<h3 id="simple-github-actions-for-deployment">simple GitHub Actions for
+deployment</h3>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .github/workflows/deploy.yml</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> Deploy</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">push</span><span class="kw">:</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">main</span><span class="kw">]</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">deploy</span><span class="kw">:</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">runs-on</span><span class="kw">:</span><span class="at"> ubuntu-latest</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v3</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/setup-node@v3</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">node-version</span><span class="kw">:</span><span class="at"> </span><span class="dv">20</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">run</span><span class="kw">:</span><span class="at"> npm install</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">run</span><span class="kw">:</span><span class="at"> npm run build</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">run</span><span class="kw">:</span><span class="at"> npm test</span></span></code></pre></div>
+<p>Vercel and Railway auto-deploy when you push to main. GitHub Actions
+adds a test step first.</p>
+<h3 id="the-deployment-commands-to-know">the deployment commands to
+know</h3>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check build works before deploying</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run build</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># check for TypeScript errors</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="ex">npx</span> tsc <span class="at">--noEmit</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co"># check for unused dependencies</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="ex">npx</span> depcheck</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co"># run tests</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> test</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co"># check bundle size</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run build <span class="at">--</span> <span class="at">--analyze</span></span></code></pre></div>
+<hr />
+<h2 id="phase-12-monitoring-and-maintenance">phase 12: monitoring and
+maintenance</h2>
+<p>your work does not end at deployment.</p>
+<h3 id="what-to-monitor">what to monitor</h3>
+<p><strong>errors</strong> — know when something breaks before users
+tell you: - Sentry (free tier) for frontend and backend error tracking -
+Vercel Analytics for frontend performance</p>
+<p><strong>uptime</strong> — know if your server goes down: -
+UptimeRobot (free) pings your server every 5 minutes</p>
+<p><strong>performance</strong> — know if your app is slow: - Lighthouse
+in Chrome DevTools - Core Web Vitals in Google Search Console</p>
+<h3 id="logging">logging</h3>
+<p>log the right things:</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># log these</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>logger.info(<span class="ss">f&quot;User </span><span class="sc">{</span>user_id<span class="sc">}</span><span class="ss"> logged in&quot;</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>logger.error(<span class="ss">f&quot;Payment failed for order </span><span class="sc">{</span>order_id<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>error<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>logger.warning(<span class="ss">f&quot;Rate limit hit for IP </span><span class="sc">{</span>ip_address<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co"># don&#39;t log these</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>logger.info(<span class="ss">f&quot;Password: </span><span class="sc">{</span>password<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>logger.info(<span class="ss">f&quot;Token: </span><span class="sc">{</span>token<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<h3 id="maintenance-checklist-monthly">maintenance checklist
+(monthly)</h3>
+<pre><code>[ ] update dependencies (npm update / pip list --outdated)
+[ ] check error logs for recurring issues
+[ ] check database for unused data / cleanup
+[ ] review security advisories for your stack
+[ ] backup database
+[ ] renew SSL certificate (Let&#39;s Encrypt auto-renews)
+[ ] check if any API keys are expiring</code></pre>
+<h3 id="handling-bugs-in-production">handling bugs in production</h3>
+<pre><code>1. reproduce it — understand exactly what causes it
+2. isolate it — find the specific code causing it
+3. fix it — write the fix in a branch
+4. test the fix — make sure it actually fixes it
+5. deploy — push the fix
+6. verify — confirm it is fixed in production
+7. post-mortem — understand why it happened, prevent recurrence</code></pre>
+<hr />
+<h2 id="putting-it-all-together">putting it all together</h2>
+<p>here is the complete checklist for any project from idea to deployed
+product:</p>
+<h3 id="week-1-foundation">week 1: foundation</h3>
+<pre><code>[ ] write the problem statement
+[ ] define MVP features
+[ ] design database schema on paper
+[ ] design API endpoints
+[ ] choose tech stack
+[ ] set up git repo
+[ ] set up project folder structure
+[ ] set up .env and .gitignore
+[ ] write minimal README</code></pre>
+<h3 id="week-2-3-core">week 2-3: core</h3>
+<pre><code>[ ] set up database
+[ ] implement authentication
+[ ] build core read feature (display data)
+[ ] build core write feature (create data)
+[ ] connect frontend to backend
+[ ] handle loading states
+[ ] handle error states
+[ ] handle empty states</code></pre>
+<h3 id="week-4-complete">week 4: complete</h3>
+<pre><code>[ ] implement secondary features
+[ ] mobile responsive
+[ ] test all user flows manually
+[ ] fix bugs found in testing
+[ ] write .env.example
+[ ] write complete README</code></pre>
+<h3 id="week-5-deploy">week 5: deploy</h3>
+<pre><code>[ ] set up hosting (Vercel, Railway)
+[ ] configure environment variables
+[ ] run database migrations
+[ ] deploy and test in production
+[ ] set up error monitoring
+[ ] set up uptime monitoring
+[ ] share with first real users</code></pre>
+<hr />
+<h2 id="the-senior-developer-mindset-summarized">the senior developer
+mindset summarized</h2>
+<p><strong>1. understand before building.</strong> spend 20% of time
+understanding the problem deeply. it saves 80% of wasted
+implementation.</p>
+<p><strong>2. simple is better.</strong> the best code is code you don’t
+have to write. the best feature is the one that solves the problem with
+least complexity.</p>
+<p><strong>3. iterate, don’t perfect.</strong> ship something that
+works, learn from real users, improve. a perfect product that never
+ships helps no one.</p>
+<p><strong>4. design for failure.</strong> everything will fail.
+networks drop. databases go down. users do unexpected things. handle
+failures gracefully.</p>
+<p><strong>5. future-you is your user.</strong> write code, commit
+messages, and documentation as if a stranger who knows the stack will
+need to understand it in 6 months. that stranger is you.</p>
+<p><strong>6. know when to stop.</strong> a feature is done when it
+works, handles errors, and is tested. not when it is perfect.</p>
+<p><strong>7. the problem is almost never the technology.</strong> it is
+almost always the requirements, the design, or the communication.</p>
+<hr />
+<pre><code>=^._.^= think first. code second. ship always.</code></pre>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
