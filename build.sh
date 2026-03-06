@@ -27,6 +27,7 @@ ORDER=(
     "database"
     "network"
     "system-design"
+    "web"
     "warbird"
 )
 
