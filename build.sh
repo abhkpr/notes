@@ -12,6 +12,8 @@ ORDER=(
 
     # foundations
     "linux"
+    "bash"
+    "alacritty"
     "vim"
     "mds"
     "git"
@@ -51,6 +53,7 @@ ORDER=(
     # putting it all together
     "fullstack"
     "how-to-build"
+    "design"
     "web"
     "vocab"
 
