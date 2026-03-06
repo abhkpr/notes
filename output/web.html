@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Websites and Web Applications | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="how-to-build.html">How to Build a Project</a><a href="linux.html">Linux</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="C++.html">C++ for Competitive Programming — Complete Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="py.html">Python</a><a href="kt.html">Kotlin</a><a href="vocab.html">Dev Vocabulary</a><a href="cs.html">Computer Science Fundamentals</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="system-design.html">System Design</a><a href="web.html" class="active">Building Websites and Web Applications</a><a href="warbird.html">warbird site — documentation</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="building-websites-and-web-applications">Building Websites and
+Web Applications</h1>
+<blockquote>
+<p>the complete process from idea to live product.</p>
+</blockquote>
+<hr />
+<h2 id="the-difference-website-vs-web-application">the difference:
+website vs web application</h2>
+<p>before you start building, know what you are building.</p>
+<p><strong>website</strong> — primarily informational. user reads
+content, clicks links, fills a contact form. mostly static. your
+portfolio, a blog, a company landing page, a documentation site.</p>
+<p><strong>web application</strong> — user does things. creates
+accounts, saves data, interacts with other users, processes payments.
+the data changes based on user. Gmail, StudentOS, Notion, Twitter.</p>
+<p>the line blurs but the distinction matters because they require
+different architecture. a website can be just HTML/CSS/JS files. a web
+application needs a backend, a database, authentication.</p>
+<p><strong>rule of thumb:</strong> if users log in and their data is
+saved, it is a web application.</p>
+<hr />
+<h2 id="phase-1-define-the-idea">phase 1: define the idea</h2>
+<p>the biggest mistake beginners make is opening VS Code before they
+understand what they are building.</p>
+<h3 id="what-problem-does-it-solve">what problem does it solve</h3>
+<p>every good product solves a real problem. write it in one
+sentence:</p>
+<pre><code>[target user] can [do something] without [pain point]
+
+example:
+&quot;Students can track their daily goals and get AI feedback
+without switching between five different apps&quot;</code></pre>
+<p>if you cannot write this sentence clearly, your idea is not clear
+enough yet.</p>
+<h3 id="who-is-it-for">who is it for</h3>
+<p>define your user specifically. not “everyone”. real users have real
+constraints: - what device do they use (mobile or desktop) - what is
+their tech level (can they figure out complex UI) - when do they use it
+(on the go, at a desk) - what do they already use instead</p>
+<h3 id="what-are-the-core-features">what are the core features</h3>
+<p>list everything you want to build. then cut it in half. then cut it
+in half again.</p>
+<p><strong>MVC — Minimum Viable Core:</strong> what is the absolute
+minimum that makes the product useful?</p>
+<pre><code>example: StudentOS
+
+want to build:
+- day planner
+- goal tracking
+- daily logs
+- AI coach
+- contribution graph
+- social features
+- export to PDF
+- calendar view
+- analytics dashboard
+- gamification
+
+MVP (what actually ships first):
+- goal tracking
+- daily logs
+- AI feedback
+
+everything else is v2</code></pre>
+<p>this is called an <strong>MVP — Minimum Viable Product</strong>. ship
+the core fast, learn from real users, then add features.</p>
+<h3 id="what-does-success-look-like">what does success look like</h3>
+<p>define metrics before you build: - how many users do you want in 3
+months - what does a user do every day in your app - what makes someone
+come back tomorrow</p>
+<hr />
+<h2 id="phase-2-plan-the-product">phase 2: plan the product</h2>
+<h3 id="user-flows">user flows</h3>
+<p>a user flow maps every path a user can take through your app. draw it
+before you write one line of code.</p>
+<pre><code>new user flow:
+lands on homepage
+       ↓
+clicks &quot;Get Started&quot;
+       ↓
+signup page → fills form → submits
+       ↓
+email verification (or skip)
+       ↓
+onboarding (set up profile)
+       ↓
+dashboard (main app)
+
+returning user flow:
+lands on homepage → already logged in → redirect to dashboard
+OR
+lands on login page → fills credentials → dashboard</code></pre>
+<p>draw this with pen and paper or on paper. every screen should be
+mapped.</p>
+<h3 id="information-architecture">information architecture</h3>
+<p>IA is about organizing your content and features in a logical
+hierarchy. what pages exist, how they connect.</p>
+<pre><code>/ (home/landing)
+├── /login
+├── /signup
+├── /dashboard
+│   ├── /goals
+│   ├── /log
+│   └── /analytics
+├── /profile
+│   └── /profile/edit
+└── /settings</code></pre>
+<h3 id="data-modeling">data modeling</h3>
+<p>figure out what data you need to store BEFORE you build anything.
+this saves massive refactoring later.</p>
+<p>for each piece of data, ask: what fields does it have? how does it
+relate to other data?</p>
+<pre><code>users
+  id, name, email, password_hash, avatar, created_at
+
+goals
+  id, user_id, title, completed, date, created_at
+
+logs
+  id, user_id, content, mood, date, created_at
+
+sessions
+  id, user_id, token, expires_at</code></pre>
+<p>the <code>user_id</code> in goals and logs is a <strong>foreign
+key</strong> — it connects that record to a specific user.</p>
+<h3 id="feature-list-with-priority">feature list with priority</h3>
+<p>use MoSCoW prioritization:</p>
+<pre><code>MUST have (app does not work without this)
+SHOULD have (important but not critical)
+COULD have (nice to have if time allows)
+WON&#39;T have (not in this version)</code></pre>
+<hr />
+<h2 id="phase-3-design-the-ui">phase 3: design the UI</h2>
+<h3 id="design-principles-to-internalize">design principles to
+internalize</h3>
+<p><strong>hierarchy</strong> — most important things are biggest and
+highest contrast. user’s eye should go: main headline → subheadline →
+content → action.</p>
+<p><strong>consistency</strong> — same button style everywhere. same
+spacing pattern. same font sizes. users build a mental model and
+consistency reinforces it.</p>
+<p><strong>whitespace</strong> — empty space is not wasted space. it
+creates breathing room, separates content, and signals quality. more
+whitespace = more premium.</p>
+<p><strong>contrast</strong> — text must be readable against its
+background. minimum contrast ratio 4.5:1 for normal text.</p>
+<p><strong>feedback</strong> — every action should have a visible
+response. button click → visual change. form submit → loading state →
+success/error. never leave user wondering if something worked.</p>
+<p><strong>simplicity</strong> — if a user has to think about how to use
+it, you have failed. interfaces should be obvious.</p>
+<h3 id="design-tokens-decide-before-you-design">design tokens: decide
+before you design</h3>
+<p>before designing any screen, define your system:</p>
+<pre><code>colors:
+  background:    #0d1117
+  surface:       #161b22  (cards, elevated elements)
+  border:        #30363d
+  text-primary:  #e6edf3
+  text-muted:    #7d8590
+  accent:        #6cb6ff  (primary actions)
+  success:       #3fb950
+  warning:       #d29922
+  error:         #f85149
+
+typography:
+  font: Inter, system-ui, sans-serif
+  sizes: 12 14 16 18 20 24 32 48px
+  weights: 400 (regular) 500 (medium) 600 (semibold) 700 (bold)
+
+spacing: 4 8 12 16 20 24 32 40 48 64px
+  (multiples of 4 — everything aligns)
+
+border-radius: 4 6 8 12 16px
+  (consistent rounding across all elements)
+
+shadows:
+  sm: 0 1px 3px rgba(0,0,0,0.3)
+  md: 0 4px 6px rgba(0,0,0,0.3)
+  lg: 0 10px 15px rgba(0,0,0,0.3)</code></pre>
+<h3 id="wireframing">wireframing</h3>
+<p>wireframes are low-fidelity sketches. no color, no real content. just
+boxes showing layout and structure.</p>
+<p><strong>do this with pen and paper first.</strong> it is 100x faster
+than designing in code.</p>
+<pre><code>┌──────────────────────────────────┐
+│ [LOGO]          [nav] [nav] [CTA]│  ← navbar
+├──────────────────────────────────┤
+│                                  │
+│   Big Headline Text              │  ← hero
+│   Subheadline                    │
+│   [Primary CTA] [Secondary CTA]  │
+│                                  │
+├──────────────────────────────────┤
+│ Feature 1  │ Feature 2  │ Feature│  ← features
+│ icon+text  │ icon+text  │ icon+  │
+│            │            │ text   │
+├──────────────────────────────────┤
+│         [Final CTA]              │  ← footer CTA
+└──────────────────────────────────┘</code></pre>
+<p>sketch every page. every state (empty, loading, error, success). then
+move to high-fidelity.</p>
+<h3 id="responsive-design-from-the-start">responsive design from the
+start</h3>
+<p>design for mobile first. 60%+ of web traffic is mobile.</p>
+<pre><code>mobile (320-480px):  single column, stacked elements
+tablet (768px):      two columns possible
+desktop (1024px+):   full layout with sidebar etc</code></pre>
+<p>think about how each component changes at each breakpoint before you
+code.</p>
+<hr />
+<h2 id="phase-4-choose-your-tech-stack">phase 4: choose your tech
+stack</h2>
+<p>your stack choice depends on: what are you building, how fast do you
+need to ship, what do you already know.</p>
+<h3 id="for-a-website-no-backend-needed">for a website (no backend
+needed)</h3>
+<pre><code>HTML + CSS + vanilla JS
+just files, no framework needed
+deploy: GitHub Pages, Netlify, Vercel (free)</code></pre>
+<p>or if you want a blog/content site:</p>
+<pre><code>Hugo (what you use) — markdown files → HTML
+Astro — modern static site generator
+11ty — flexible static site generator</code></pre>
+<h3 id="for-a-web-application">for a web application</h3>
+<p><strong>frontend:</strong></p>
+<pre><code>React  — most popular, huge ecosystem
+Vue    — simpler learning curve
+Svelte — smaller, faster, less code</code></pre>
+<p><strong>backend (choose one):</strong></p>
+<pre><code>FastAPI (Python) — fast, modern, automatic docs
+Express (Node.js) — simple, huge ecosystem
+Hono (Node.js)   — modern, very fast
+Django (Python)  — batteries included, great for complex apps</code></pre>
+<p><strong>database (choose one):</strong></p>
+<pre><code>PostgreSQL — relational, ACID, best for most apps
+SQLite    — file-based, great for small apps
+MongoDB   — document, flexible schema
+Supabase  — PostgreSQL + auth + real-time + storage (what you use)
+PlanetScale — serverless MySQL</code></pre>
+<p><strong>hosting (free tiers):</strong></p>
+<pre><code>Vercel   — frontend, serverless functions
+Railway  — backend + database
+Render   — backend
+Supabase — database + auth + storage
+Cloudflare Pages — frontend + edge functions</code></pre>
+<h3 id="tech-stack-decision-framework">tech stack decision
+framework</h3>
+<pre><code>building a portfolio/blog?
+→ Hugo or Astro. No backend.
+
+building an app with user accounts?
+→ React + Supabase. Simple and fast to ship.
+
+building something complex (real-time, payments, heavy backend)?
+→ React + FastAPI + PostgreSQL
+
+need to learn fundamentals?
+→ vanilla HTML/CSS/JS first, then a framework</code></pre>
+<hr />
+<h2 id="phase-5-set-up-the-project">phase 5: set up the project</h2>
+<h3 id="folder-structure-matters">folder structure matters</h3>
+<p>good structure = less confusion when the project grows.</p>
+<p><strong>static website:</strong></p>
+<pre><code>my-website/
+├── index.html
+├── about.html
+├── css/
+│   ├── style.css
+│   └── components.css
+├── js/
+│   └── main.js
+├── images/
+└── fonts/</code></pre>
+<p><strong>React application:</strong></p>
+<pre><code>my-app/
+├── public/
+│   └── favicon.ico
+├── src/
+│   ├── components/     → reusable UI components
+│   │   ├── Button.jsx
+│   │   ├── Card.jsx
+│   │   └── Navbar.jsx
+│   ├── pages/          → full page components
+│   │   ├── Home.jsx
+│   │   ├── Dashboard.jsx
+│   │   └── Profile.jsx
+│   ├── hooks/          → custom React hooks
+│   │   └── useAuth.js
+│   ├── lib/            → utilities, API clients
+│   │   ├── supabase.js
+│   │   └── api.js
+│   ├── context/        → global state
+│   │   └── AuthContext.jsx
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+├── .env                → environment variables (never commit)
+├── .gitignore
+├── package.json
+└── vite.config.js</code></pre>
+<h3 id="environment-setup">environment setup</h3>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create React app with Vite</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> create vite@latest my-app <span class="at">--</span> <span class="at">--template</span> react</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> my-app</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># install common dependencies</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install react-router-dom    <span class="co"># routing</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install tailwindcss         <span class="co"># styling</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install @supabase/supabase-js <span class="co"># database</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install lucide-react        <span class="co"># icons</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co"># start dev server</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run dev</span></code></pre></div>
+<h3 id="git-from-day-one">git from day one</h3>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;node_modules
+.env
+dist&quot;</span> <span class="op">&gt;</span> .gitignore</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">&quot;initial project setup&quot;</span></span></code></pre></div>
+<p>create a GitHub repo and push. every feature you build = a commit.
+this gives you a history you can revert to.</p>
+<hr />
+<h2 id="phase-6-build-the-frontend">phase 6: build the frontend</h2>
+<h3 id="component-thinking">component thinking</h3>
+<p>break your UI into components before coding. a component is a
+reusable, self-contained piece of UI.</p>
+<pre><code>every page → break into sections
+every section → break into components
+every component → break into smaller components
+
+dashboard page
+├── Navbar
+├── Sidebar
+└── MainContent
+    ├── StatsRow
+    │   ├── StatCard
+    │   ├── StatCard
+    │   └── StatCard
+    ├── GoalsList
+    │   └── GoalItem (repeated)
+    └── RecentActivity
+        └── ActivityItem (repeated)</code></pre>
+<p>build bottom up — small components first, then compose them into
+pages.</p>
+<h3 id="building-a-component">building a component</h3>
+<p>think about every component in three ways:</p>
+<p><strong>1. what data does it need?</strong> (props) <strong>2. what
+state does it manage internally?</strong> (useState) <strong>3. what
+does it render?</strong></p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">// GoalItem component</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">// data it needs: goal object, onToggle function, onDelete function</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">// state: none (controlled by parent)</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">GoalItem</span>({ goal<span class="op">,</span> onToggle<span class="op">,</span> onDelete }) {</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;div</span> <span class="ot">className</span><span class="op">=</span><span class="st">&quot;goal-item&quot;</span><span class="kw">&gt;</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;input</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>                <span class="ot">type</span><span class="op">=</span><span class="st">&quot;checkbox&quot;</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>                <span class="ot">checked</span><span class="op">=</span><span class="va">{</span>goal<span class="op">.</span><span class="at">completed</span><span class="va">}</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                <span class="ot">onChange</span><span class="op">=</span><span class="va">{</span>() <span class="kw">=&gt;</span> <span class="fu">onToggle</span>(goal<span class="op">.</span><span class="at">id</span>)<span class="va">}</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>            <span class="kw">/&gt;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;span</span> <span class="ot">className</span><span class="op">=</span><span class="va">{</span>goal<span class="op">.</span><span class="at">completed</span> <span class="op">?</span> <span class="st">&quot;completed&quot;</span> <span class="op">:</span> <span class="st">&quot;&quot;</span><span class="va">}</span><span class="kw">&gt;</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>                <span class="va">{</span>goal<span class="op">.</span><span class="at">title</span><span class="va">}</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;/span&gt;</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>            <span class="kw">&lt;button</span> <span class="ot">onClick</span><span class="op">=</span><span class="va">{</span>() <span class="kw">=&gt;</span> <span class="fu">onDelete</span>(goal<span class="op">.</span><span class="at">id</span>)<span class="va">}</span><span class="kw">&gt;</span>delete<span class="kw">&lt;/button&gt;</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="state-management">state management</h3>
+<p><strong>local state</strong> — state that only one component needs.
+use <code>useState</code>.</p>
+<p><strong>shared state</strong> — state multiple components need. lift
+it to their common parent.</p>
+<p><strong>global state</strong> — state the whole app needs (current
+user, theme). use React Context or Zustand.</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// simple rule:</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co">// start with useState</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">// if two sibling components need the same state → lift to parent</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co">// if the whole app needs it → Context</span></span></code></pre></div>
+<h3 id="building-pages">building pages</h3>
+<p>a page is just a component that represents a full screen. it: 1.
+fetches its data on mount (useEffect) 2. manages loading and error
+states 3. renders the data via smaller components</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">Dashboard</span>() {</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [goals<span class="op">,</span> setGoals] <span class="op">=</span> <span class="fu">useState</span>([])</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [loading<span class="op">,</span> setLoading] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">true</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> [error<span class="op">,</span> setError] <span class="op">=</span> <span class="fu">useState</span>(<span class="kw">null</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">useEffect</span>(() <span class="kw">=&gt;</span> {</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">fetchGoals</span>()</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span> [])</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> fetchGoals <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> {</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setLoading</span>(<span class="kw">true</span>)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>            <span class="kw">const</span> data <span class="op">=</span> <span class="cf">await</span> <span class="fu">getGoals</span>()</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setGoals</span>(data)</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">catch</span> (err) {</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setError</span>(err<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">finally</span> {</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">setLoading</span>(<span class="kw">false</span>)</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (loading) <span class="cf">return </span><span class="fu">&lt;Spinner</span> <span class="fu">/&gt;</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error) <span class="cf">return </span><span class="fu">&lt;ErrorMessage</span> <span class="ot">message</span><span class="op">=</span><span class="va">{</span>error<span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;div&gt;</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>            <span class="fu">&lt;GoalsList</span> <span class="ot">goals</span><span class="op">=</span><span class="va">{</span>goals<span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;/div&gt;</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>always handle three states: loading, error, and success. never show
+nothing while waiting.</p>
+<h3 id="routing">routing</h3>
+<p>routing lets you have multiple “pages” in a SPA without
+reloading.</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">// App.jsx</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { BrowserRouter<span class="op">,</span> Routes<span class="op">,</span> Route<span class="op">,</span> Navigate } <span class="im">from</span> <span class="st">&#39;react-router-dom&#39;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">App</span>() {</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">&lt;BrowserRouter&gt;</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">&lt;Routes&gt;</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>                <span class="fu">&lt;Route</span> <span class="ot">path</span><span class="op">=</span><span class="st">&quot;/&quot;</span> <span class="ot">element</span><span class="op">=</span><span class="va">{</span><span class="fu">&lt;Home</span> <span class="fu">/&gt;</span><span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>                <span class="fu">&lt;Route</span> <span class="ot">path</span><span class="op">=</span><span class="st">&quot;/login&quot;</span> <span class="ot">element</span><span class="op">=</span><span class="va">{</span><span class="fu">&lt;Login</span> <span class="fu">/&gt;</span><span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">&lt;Route</span> <span class="ot">path</span><span class="op">=</span><span class="st">&quot;/dashboard&quot;</span> <span class="ot">element</span><span class="op">=</span><span class="va">{</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">&lt;ProtectedRoute&gt;</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">&lt;Dashboard</span> <span class="fu">/&gt;</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">&lt;/ProtectedRoute&gt;</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>                <span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>                <span class="fu">&lt;Route</span> <span class="ot">path</span><span class="op">=</span><span class="st">&quot;/profile/:id&quot;</span> <span class="ot">element</span><span class="op">=</span><span class="va">{</span><span class="fu">&lt;Profile</span> <span class="fu">/&gt;</span><span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>                <span class="fu">&lt;Route</span> <span class="ot">path</span><span class="op">=</span><span class="st">&quot;*&quot;</span> <span class="ot">element</span><span class="op">=</span><span class="va">{</span><span class="fu">&lt;NotFound</span> <span class="fu">/&gt;</span><span class="va">}</span> <span class="fu">/&gt;</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>            <span class="fu">&lt;/Routes&gt;</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">&lt;/BrowserRouter&gt;</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="co">// protected route — redirect to login if not authenticated</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">ProtectedRoute</span>({ children }) {</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { user } <span class="op">=</span> <span class="fu">useAuth</span>()</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> user <span class="op">?</span> children <span class="op">:</span> <span class="op">&lt;</span>Navigate to<span class="op">=</span><span class="st">&quot;/login&quot;</span> <span class="op">/&gt;</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="connecting-to-backend-database">connecting to backend /
+database</h3>
+<p>never put database calls directly in components. create a separate
+API layer.</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">// lib/api.js — all API calls in one place</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> getGoals <span class="op">=</span> <span class="kw">async</span> (userId) <span class="kw">=&gt;</span> {</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { data<span class="op">,</span> error } <span class="op">=</span> <span class="cf">await</span> supabase</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">from</span>(<span class="st">&#39;goals&#39;</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">select</span>(<span class="st">&#39;*&#39;</span>)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">eq</span>(<span class="st">&#39;user_id&#39;</span><span class="op">,</span> userId)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">order</span>(<span class="st">&#39;created_at&#39;</span><span class="op">,</span> { <span class="dt">ascending</span><span class="op">:</span> <span class="kw">false</span> })</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error) <span class="cf">throw</span> error</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> data</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> createGoal <span class="op">=</span> <span class="kw">async</span> (goal) <span class="kw">=&gt;</span> {</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> { data<span class="op">,</span> error } <span class="op">=</span> <span class="cf">await</span> supabase</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">from</span>(<span class="st">&#39;goals&#39;</span>)</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">insert</span>(goal)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">select</span>()</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span><span class="fu">single</span>()</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (error) <span class="cf">throw</span> error</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> data</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>then in your component, just call these functions. if you switch
+databases, you only change one file.</p>
+<hr />
+<h2 id="phase-7-build-the-backend">phase 7: build the backend</h2>
+<p>you need a backend when: - you have business logic that must run
+securely on the server - you need to call third-party APIs with secret
+keys - you have complex data processing - you need to send emails,
+process payments, etc</p>
+<p>with Supabase, many apps don’t need a separate backend. Supabase
+handles auth, database, storage, and edge functions.</p>
+<h3 id="api-design">API design</h3>
+<pre><code>name your endpoints clearly:
+
+GET    /api/goals           → get all goals for current user
+GET    /api/goals/:id       → get specific goal
+POST   /api/goals           → create goal
+PATCH  /api/goals/:id       → update goal
+DELETE /api/goals/:id       → delete goal
+
+GET    /api/logs            → get all logs
+POST   /api/logs            → create log</code></pre>
+<h3 id="fastapi-example">FastAPI example</h3>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastapi <span class="im">import</span> FastAPI, HTTPException, Depends</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> date</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> FastAPI()</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Goal(BaseModel):</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    title: <span class="bu">str</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    date: date</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    completed: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="at">@app.get</span>(<span class="st">&quot;/api/goals&quot;</span>)</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> get_goals(user_id: <span class="bu">str</span>):</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># get from database</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>    goals <span class="op">=</span> <span class="cf">await</span> db.fetch_goals(user_id)</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> goals</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="at">@app.post</span>(<span class="st">&quot;/api/goals&quot;</span>)</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> create_goal(goal: Goal, user_id: <span class="bu">str</span>):</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>    created <span class="op">=</span> <span class="cf">await</span> db.create_goal(goal, user_id)</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> created</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="at">@app.patch</span>(<span class="st">&quot;/api/goals/</span><span class="sc">{goal_id}</span><span class="st">&quot;</span>)</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> update_goal(goal_id: <span class="bu">str</span>, updates: <span class="bu">dict</span>):</span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>    goal <span class="op">=</span> <span class="cf">await</span> db.update_goal(goal_id, updates)</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> goal:</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> HTTPException(status_code<span class="op">=</span><span class="dv">404</span>, detail<span class="op">=</span><span class="st">&quot;Goal not found&quot;</span>)</span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> goal</span></code></pre></div>
+<h3 id="authentication-flow">authentication flow</h3>
+<pre><code>signup:
+1. user submits email + password
+2. server validates input
+3. server hashes password (never store plain text)
+4. server saves user to database
+5. server creates session or returns JWT
+6. client stores token, redirects to dashboard
+
+login:
+1. user submits email + password
+2. server finds user by email
+3. server compares password with stored hash
+4. if match → create session/JWT → return token
+5. if no match → return 401 Unauthorized
+
+protected endpoint:
+1. client sends request with token in Authorization header
+2. server validates token
+3. if valid → process request
+4. if invalid → return 401</code></pre>
+<hr />
+<h2 id="phase-8-styling-strategy">phase 8: styling strategy</h2>
+<h3 id="css-architecture">CSS architecture</h3>
+<p>as your app grows, CSS becomes chaos without structure. use a naming
+convention.</p>
+<p><strong>BEM (Block Element Modifier):</strong></p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">.card</span> { }                 <span class="co">/* block */</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">.card__title</span> { }          <span class="co">/* element */</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">.card__title--large</span> { }   <span class="co">/* modifier */</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">.card--featured</span> { }       <span class="co">/* block modifier */</span></span></code></pre></div>
+<p><strong>utility-first (Tailwind):</strong></p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode jsx"><code class="sourceCode javascriptreact"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;div</span> <span class="ot">className</span><span class="op">=</span><span class="st">&quot;bg-gray-900 rounded-xl p-6 shadow-lg hover:shadow-xl transition&quot;</span><span class="kw">&gt;</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;h2</span> <span class="ot">className</span><span class="op">=</span><span class="st">&quot;text-xl font-semibold text-white mb-2&quot;</span><span class="kw">&gt;</span><span class="va">{</span>title<span class="va">}</span><span class="kw">&lt;/h2&gt;</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;p</span> <span class="ot">className</span><span class="op">=</span><span class="st">&quot;text-gray-400 text-sm&quot;</span><span class="kw">&gt;</span><span class="va">{</span>description<span class="va">}</span><span class="kw">&lt;/p&gt;</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/div&gt;</span></span></code></pre></div>
+<h3 id="design-a-component-in-css">design a component in CSS</h3>
+<p>always think about every state:</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode css"><code class="sourceCode css"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* default state */</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">.button</span> {</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">padding</span>: <span class="dv">8</span><span class="dt">px</span> <span class="dv">16</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">background</span>: <span class="fu">var(</span><span class="va">--accent</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">border-radius</span>: <span class="dv">6</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">cursor</span>: <span class="dv">pointer</span><span class="op">;</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">transition</span>: <span class="dv">all</span> <span class="dv">0.2</span><span class="dt">s</span> <span class="dv">ease</span><span class="op">;</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co">/* hover state */</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="fu">.button</span><span class="in">:hover</span> {</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">background</span>: <span class="fu">var(</span><span class="va">--accent-dark</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">transform</span>: translateY(<span class="dv">-1</span><span class="dt">px</span>)<span class="op">;</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a><span class="co">/* active/pressed state */</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a><span class="fu">.button</span><span class="in">:active</span> {</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">transform</span>: translateY(<span class="dv">0</span>)<span class="op">;</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a><span class="co">/* focus state — MUST have for accessibility */</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a><span class="fu">.button</span><span class="in">:focus-visible</span> {</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">outline</span>: <span class="dv">2</span><span class="dt">px</span> <span class="dv">solid</span> <span class="fu">var(</span><span class="va">--accent</span><span class="fu">)</span><span class="op">;</span></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">outline-offset</span>: <span class="dv">2</span><span class="dt">px</span><span class="op">;</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a><span class="co">/* disabled state */</span></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a><span class="fu">.button</span><span class="in">:disabled</span> {</span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">opacity</span>: <span class="dv">0.5</span><span class="op">;</span></span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">cursor</span>: <span class="dv">not-allowed</span><span class="op">;</span></span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">transform</span>: <span class="dv">none</span><span class="op">;</span></span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a><span class="co">/* loading state */</span></span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a><span class="fu">.button.loading</span> {</span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pointer-events</span>: <span class="dv">none</span><span class="op">;</span></span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+<h2 id="phase-9-testing">phase 9: testing</h2>
+<p>you don’t need a testing framework for every project. but you must
+test manually, systematically.</p>
+<h3 id="manual-testing-checklist">manual testing checklist</h3>
+<p>for every feature you build:</p>
+<pre><code>functionality:
+  does it do what it&#39;s supposed to do?
+  does it work on mobile?
+  does it work on different browsers? (Chrome, Firefox, Safari)
+
+edge cases:
+  what happens with empty state?
+  what happens with very long text?
+  what happens with bad/missing data?
+  what happens if network is slow or fails?
+
+error handling:
+  does it show an error message when something fails?
+  can the user recover from the error?
+
+accessibility:
+  can you navigate with keyboard only?
+  do images have alt text?
+  is there enough color contrast?</code></pre>
+<h3 id="testing-with-real-data">testing with real data</h3>
+<p>test with real-world scenarios: - create 100 items and see if list
+still works - use a very long name and see if it breaks UI - submit
+empty form and check validation - disconnect internet and see how app
+handles it</p>
+<hr />
+<h2 id="phase-10-deployment">phase 10: deployment</h2>
+<h3 id="pre-deployment-checklist">pre-deployment checklist</h3>
+<p>before you deploy:</p>
+<pre><code>code:
+  no console.log left in production code
+  no hardcoded API keys (use environment variables)
+  no sensitive data in client-side code
+  error handling everywhere
+
+performance:
+  images are optimized (compressed, right format)
+  unused dependencies removed
+  code minified (build tool handles this)
+
+SEO (for websites):
+  all pages have title and meta description
+  images have alt text
+  page loads fast
+
+security:
+  HTTPS enforced
+  user input validated and sanitized
+  authentication works correctly
+  rate limiting on forms</code></pre>
+<h3 id="deployment-process">deployment process</h3>
+<p><strong>frontend to Vercel:</strong></p>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># option 1: connect GitHub repo (recommended)</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># push to GitHub → Vercel auto-deploys on every push</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># option 2: CLI</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install <span class="at">-g</span> vercel</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="ex">vercel</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="ex">vercel</span> <span class="at">--prod</span></span></code></pre></div>
+<p><strong>environment variables:</strong></p>
+<pre><code>in Vercel dashboard:
+Settings → Environment Variables → Add
+
+VITE_SUPABASE_URL = https://...
+VITE_SUPABASE_ANON_KEY = eyJ...
+VITE_GROQ_API_KEY = gsk_...</code></pre>
+<p><strong>custom domain:</strong></p>
+<pre><code>Vercel dashboard → project → Settings → Domains → add domain
+DNS provider → add CNAME record pointing to cname.vercel-dns.com
+wait 10-30 minutes for propagation</code></pre>
+<h3 id="deployment-pipeline">deployment pipeline</h3>
+<pre><code>you write code
+       ↓
+git commit + push to GitHub
+       ↓
+CI runs (if set up): tests, lint checks
+       ↓
+Vercel detects push → builds automatically
+       ↓
+if build passes → deploys to production
+       ↓
+site is live</code></pre>
+<hr />
+<h2 id="phase-11-after-launch">phase 11: after launch</h2>
+<p>launching is not the end. it is the beginning.</p>
+<h3 id="monitor">monitor</h3>
+<ul>
+<li>check error logs regularly (Vercel, Supabase dashboards)</li>
+<li>watch for performance issues</li>
+<li>monitor database usage (don’t exceed free tier)</li>
+</ul>
+<h3 id="gather-feedback">gather feedback</h3>
+<ul>
+<li>share with friends, ask them to break it</li>
+<li>watch someone use it without explaining anything (user testing)</li>
+<li>note every moment of confusion</li>
+</ul>
+<h3 id="iterate">iterate</h3>
+<pre><code>the loop:
+  build → ship → measure → learn → build again</code></pre>
+<p>most successful products look nothing like their v1. the initial
+version teaches you what people actually want.</p>
+<hr />
+<h2 id="the-complete-mental-model">the complete mental model</h2>
+<pre><code>1. DEFINE
+   what problem? who is it for? what is the MVP?
+
+2. PLAN
+   user flows → IA → data model → feature priority
+
+3. DESIGN
+   design tokens → wireframes → responsive layouts
+
+4. STACK
+   website (HTML/CSS) or app (React + backend)?
+
+5. BUILD FRONTEND
+   components → pages → routing → API calls
+
+6. BUILD BACKEND (if needed)
+   API design → endpoints → auth → database
+
+7. STYLE
+   CSS architecture → all component states
+
+8. TEST
+   functionality → edge cases → error states → mobile
+
+9. DEPLOY
+   environment variables → build → deploy → domain
+
+10. ITERATE
+    monitor → feedback → improve → repeat</code></pre>
+<hr />
+<h2 id="mistakes-everyone-makes">mistakes everyone makes</h2>
+<p><strong>building before defining</strong> — writing code before
+knowing what you are building. wastes weeks.</p>
+<p><strong>perfectionism before shipping</strong> — spending 3 weeks on
+pixel-perfect design before anyone has used it. ship ugly, make it
+pretty after you know it works.</p>
+<p><strong>no error handling</strong> — assuming everything goes right.
+network always fails sometimes. always handle errors.</p>
+<p><strong>ignoring mobile</strong> — building only for desktop, then
+trying to make it responsive. mobile first always.</p>
+<p><strong>over-engineering</strong> — using microservices, Kubernetes,
+and Redis for an app with 5 users. start simple.</p>
+<p><strong>not using version control</strong> — one bad change and you
+cannot go back.</p>
+<p><strong>storing secrets in code</strong> — API keys committed to
+GitHub. services get hacked this way.</p>
+<p><strong>not testing on real devices</strong> — browser DevTools
+mobile mode is not the same as a real phone.</p>
+<p><strong>building alone in silence</strong> — not showing anyone until
+it is “done”. share early, get feedback early.</p>
+<hr />
+<h2 id="starter-project-ideas-to-practice">starter project ideas to
+practice</h2>
+<p>start small, ship something:</p>
+<p><strong>website projects:</strong> - personal portfolio (your
+projects, bio, contact) - documentation site for something you learned -
+blog with markdown posts (like your notes site)</p>
+<p><strong>web app projects:</strong> - URL shortener (short → redirect
+to long URL) - expense tracker (add expenses, see totals by category) -
+habit tracker (mark habits done each day) - bookmark manager (save and
+tag URLs) - simple notes app (create, edit, delete notes)</p>
+<p><strong>once you are comfortable:</strong> - developer knowledge hub
+(your actual project) - real-time chat app - project management
+board</p>
+<hr />
+<pre><code>=^._.^= ship it. learn from it. build again.</code></pre>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
