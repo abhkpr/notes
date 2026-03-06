@@ -20,13 +20,19 @@ ORDER=(
 
     # math and cs theory
     "arithmetic"
+    "dsa"
     "cs"
     "system-design"
+    "design-pattern"
+
+    #CP
+    "Cpp"
 
     # web frontend
     "html"
     "css"
     "js"
+    "ts"
     "react"
 
     # backend and data
@@ -36,6 +42,8 @@ ORDER=(
     "database"
     "network"
     "security"
+    "docker"
+    "testing"
 
     # mobile
     "kt"
