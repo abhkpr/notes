@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Design | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="C++.html">C++ for Competitive Programming — Complete Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript & TypeScript</a><a href="py.html">Python</a><a href="kt.html">Kotlin</a><a href="cs.html">Computer Science Fundamentals</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="system-design.html" class="active">System Design</a><a href="warbird.html">warbird site — documentation</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="system-design">System Design</h1>
+<blockquote>
+<p>how to build systems that scale to millions of users.</p>
+</blockquote>
+<hr />
+<h2 id="what-is-system-design">what is system design</h2>
+<p>system design is the process of defining the architecture,
+components, and data flow of a system to satisfy given requirements.
+it’s about making the right tradeoffs between performance, scalability,
+reliability, and cost.</p>
+<p><strong>two types:</strong> - <strong>high level design
+(HLD)</strong> → architecture, components, how they connect -
+<strong>low level design (LLD)</strong> → classes, databases, APIs, data
+structures</p>
+<hr />
+<h2 id="key-concepts-before-anything-else">key concepts before anything
+else</h2>
+<h3 id="latency-vs-throughput">latency vs throughput</h3>
+<ul>
+<li><strong>latency</strong> → time to complete one operation (ms)</li>
+<li><strong>throughput</strong> → operations per unit time
+(req/sec)</li>
+<li>goal: low latency AND high throughput</li>
+</ul>
+<h3 id="availability-vs-consistency">availability vs consistency</h3>
+<ul>
+<li><strong>availability</strong> → system is always responding</li>
+<li><strong>consistency</strong> → all users see the same data at the
+same time</li>
+<li>you often can’t have both perfectly — this is the CAP theorem</li>
+</ul>
+<h3 id="scalability">scalability</h3>
+<ul>
+<li><strong>vertical scaling (scale up)</strong> → bigger machine, more
+RAM/CPU</li>
+<li><strong>horizontal scaling (scale out)</strong> → more machines</li>
+</ul>
+<hr />
+<h2 id="cap-theorem">CAP theorem</h2>
+<p>a distributed system can only guarantee 2 of these 3:</p>
+<pre><code>         Consistency
+              /             /              /               /                /________    Availability  Partition
+                  Tolerance</code></pre>
+<ul>
+<li><strong>CA</strong> → consistent + available (single node, no
+partitions)</li>
+<li><strong>CP</strong> → consistent + partition tolerant (MongoDB,
+HBase)</li>
+<li><strong>AP</strong> → available + partition tolerant (Cassandra,
+DynamoDB)</li>
+</ul>
+<p>in real distributed systems, network partitions WILL happen, so you
+choose between CP or AP.</p>
+<hr />
+<h2 id="acid-vs-base">ACID vs BASE</h2>
+<p><strong>ACID (relational databases)</strong> -
+<strong>Atomicity</strong> → transaction is all or nothing -
+<strong>Consistency</strong> → data is always valid -
+<strong>Isolation</strong> → transactions don’t interfere -
+<strong>Durability</strong> → committed data survives crashes</p>
+<p><strong>BASE (NoSQL databases)</strong> - <strong>Basically
+Available</strong> → always responds - <strong>Soft state</strong> →
+data may change over time - <strong>Eventually consistent</strong> → all
+nodes will agree eventually</p>
+<hr />
+<h2 id="dns-domain-name-system">DNS (Domain Name System)</h2>
+<p>how a URL becomes an IP address:</p>
+<pre><code>user types google.com
+       ↓
+browser checks local cache
+       ↓
+OS checks /etc/hosts
+       ↓
+recursive DNS resolver (your ISP)
+       ↓
+root nameserver → .com nameserver → google&#39;s nameserver
+       ↓
+returns IP: 142.250.80.46
+       ↓
+browser connects to IP</code></pre>
+<p><strong>DNS record types:</strong> - <code>A</code> → domain to IPv4
+- <code>AAAA</code> → domain to IPv6 - <code>CNAME</code> → alias to
+another domain - <code>MX</code> → mail server - <code>TXT</code> → text
+(used for verification, SPF) - <code>NS</code> → nameserver for
+domain</p>
+<hr />
+<h2 id="load-balancing">load balancing</h2>
+<p>distributes traffic across multiple servers so no single server gets
+overwhelmed.</p>
+<pre><code>                    ┌─────────┐
+                    │  Load   │
+users ─────────────▶│Balancer │
+                    └────┬────┘
+              ┌──────────┼──────────┐
+              ▼          ▼          ▼
+         ┌─────────┐┌─────────┐┌─────────┐
+         │Server 1 ││Server 2 ││Server 3 │
+         └─────────┘└─────────┘└─────────┘</code></pre>
+<p><strong>algorithms:</strong> - <strong>round robin</strong> →
+requests go to each server in order - <strong>least connections</strong>
+→ send to server with fewest connections - <strong>IP hash</strong> →
+same user always goes to same server - <strong>weighted round
+robin</strong> → servers get different proportions -
+<strong>random</strong> → random server each time</p>
+<p><strong>types:</strong> - <strong>L4 (transport layer)</strong> →
+routes based on IP/TCP, fast - <strong>L7 (application layer)</strong> →
+routes based on HTTP content, smarter</p>
+<p><strong>tools:</strong> Nginx, HAProxy, AWS ALB, Cloudflare</p>
+<hr />
+<h2 id="caching">caching</h2>
+<p>storing data in fast storage (memory) to avoid slow operations
+(database, network).</p>
+<pre><code>request comes in
+      ↓
+check cache → HIT → return cached data (fast)
+      ↓ MISS
+fetch from database
+      ↓
+store in cache
+      ↓
+return data</code></pre>
+<p><strong>cache strategies:</strong></p>
+<p><strong>cache aside (lazy loading)</strong></p>
+<pre><code>app checks cache
+if miss → app fetches DB → app writes to cache</code></pre>
+<p>good for read-heavy workloads</p>
+<p><strong>write through</strong></p>
+<pre><code>app writes to cache → cache writes to DB</code></pre>
+<p>data is always consistent, but write latency is higher</p>
+<p><strong>write back (write behind)</strong></p>
+<pre><code>app writes to cache → cache writes to DB asynchronously</code></pre>
+<p>fast writes, risk of data loss if cache fails</p>
+<p><strong>read through</strong></p>
+<pre><code>app reads from cache → if miss, cache fetches DB automatically</code></pre>
+<p><strong>cache eviction policies:</strong> - <strong>LRU</strong>
+(Least Recently Used) → remove least recently accessed -
+<strong>LFU</strong> (Least Frequently Used) → remove least accessed
+overall - <strong>TTL</strong> → expire after time period -
+<strong>FIFO</strong> → remove oldest entry</p>
+<p><strong>where to cache:</strong> - browser cache - CDN - reverse
+proxy (Nginx) - application cache (in memory) - distributed cache
+(Redis, Memcached)</p>
+<p><strong>Redis vs Memcached:</strong> - Redis → persistent, data
+structures, pub/sub, more features - Memcached → simpler, pure caching,
+multi-threaded</p>
+<hr />
+<h2 id="cdn-content-delivery-network">CDN (Content Delivery
+Network)</h2>
+<p>network of servers around the world that serve static content from
+the nearest location to the user.</p>
+<pre><code>user in India
+      ↓
+CDN edge server in Mumbai (200ms away)
+instead of
+origin server in USA (300ms away)</code></pre>
+<p><strong>what to put on CDN:</strong> - images, videos, audio - CSS,
+JavaScript files - HTML pages (static sites) - fonts</p>
+<p><strong>CDN providers:</strong> Cloudflare, AWS CloudFront, Fastly,
+Akamai</p>
+<p><strong>push vs pull CDN:</strong> - <strong>push</strong> → you
+upload files to CDN manually - <strong>pull</strong> → CDN fetches from
+origin on first request, caches it</p>
+<hr />
+<h2 id="databases">databases</h2>
+<h3 id="relational-sql">relational (SQL)</h3>
+<p>structured data, ACID, joins, schema required</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- good for: financial data, user accounts, inventory</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- PostgreSQL, MySQL, SQLite</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- normalized tables</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>users (<span class="kw">id</span>, name, email)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>posts (<span class="kw">id</span>, user_id, title, content)</span></code></pre></div>
+<h3 id="nosql-types">NoSQL types</h3>
+<p><strong>document (MongoDB)</strong></p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;_id&quot;</span><span class="fu">:</span> <span class="st">&quot;123&quot;</span><span class="fu">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;abhishek&quot;</span><span class="fu">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;posts&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;first post&quot;</span><span class="fu">,</span> <span class="dt">&quot;likes&quot;</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">}</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>good for: flexible schema, nested data, content management</p>
+<p><strong>key-value (Redis, DynamoDB)</strong></p>
+<pre><code>&quot;user:123&quot; → { name: &quot;abhishek&quot; }
+&quot;session:abc&quot; → { userId: 123, expires: ... }</code></pre>
+<p>good for: caching, sessions, leaderboards, real-time features</p>
+<p><strong>column-family (Cassandra, HBase)</strong></p>
+<pre><code>row_key → column_family → column → value</code></pre>
+<p>good for: time-series data, analytics, write-heavy workloads</p>
+<p><strong>graph (Neo4j)</strong></p>
+<pre><code>(Abhishek) -[FOLLOWS]-&gt; (Rahul)
+(Abhishek) -[LIKES]-&gt; (Post)</code></pre>
+<p>good for: social networks, recommendation engines, fraud
+detection</p>
+<h3 id="when-to-use-what">when to use what</h3>
+<table>
+<thead>
+<tr class="header">
+<th>use case</th>
+<th>database</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>user accounts, orders</td>
+<td>PostgreSQL</td>
+</tr>
+<tr class="even">
+<td>caching, sessions</td>
+<td>Redis</td>
+</tr>
+<tr class="odd">
+<td>product catalog</td>
+<td>MongoDB</td>
+</tr>
+<tr class="even">
+<td>social graph</td>
+<td>Neo4j</td>
+</tr>
+<tr class="odd">
+<td>analytics, logs</td>
+<td>Cassandra</td>
+</tr>
+<tr class="even">
+<td>search</td>
+<td>Elasticsearch</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="database-scaling">database scaling</h2>
+<h3 id="replication">replication</h3>
+<p>copies of database on multiple machines</p>
+<pre><code>           ┌──────────┐
+writes ───▶│  Master  │
+           └────┬─────┘
+                │ replicates
+       ┌────────┼────────┐
+       ▼        ▼        ▼
+  ┌────────┐┌────────┐┌────────┐
+  │Replica ││Replica ││Replica │
+  └────────┘└────────┘└────────┘
+       reads go to replicas</code></pre>
+<ul>
+<li><strong>master-slave</strong> → one write node, multiple read
+nodes</li>
+<li><strong>multi-master</strong> → multiple write nodes (complex,
+conflict resolution needed)</li>
+</ul>
+<h3 id="sharding-partitioning">sharding (partitioning)</h3>
+<p>split data across multiple databases</p>
+<pre><code>users with id 1-1000    → shard 1
+users with id 1001-2000 → shard 2
+users with id 2001-3000 → shard 3</code></pre>
+<p><strong>shard strategies:</strong> - <strong>range based</strong> →
+by value range (easy but hot spots) - <strong>hash based</strong> →
+hash(key) % num_shards (even distribution) - <strong>directory
+based</strong> → lookup table for shard location</p>
+<p><strong>problems with sharding:</strong> - joins across shards are
+hard - re-sharding is painful - hot shards (one shard gets all
+traffic)</p>
+<h3 id="indexing">indexing</h3>
+<p>speeds up reads by creating a sorted data structure</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- without index: scan every row</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> users <span class="kw">WHERE</span> email <span class="op">=</span> <span class="st">&#39;a@b.com&#39;</span>;</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- with index: jump directly to row</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_email <span class="kw">ON</span> users(email);</span></code></pre></div>
+<ul>
+<li><strong>B-tree index</strong> → good for range queries,
+equality</li>
+<li><strong>Hash index</strong> → only equality queries, very fast</li>
+<li><strong>Composite index</strong> → multiple columns, order
+matters</li>
+<li>indexes slow down writes, speed up reads</li>
+</ul>
+<hr />
+<h2 id="message-queues">message queues</h2>
+<p>decouple services so they don’t need to talk directly.</p>
+<pre><code>producer → [queue] → consumer
+
+instead of:
+service A calls service B directly (tight coupling)</code></pre>
+<p><strong>use cases:</strong> - send email after signup (async) -
+process payment in background - handle traffic spikes (queue absorbs
+burst) - ensure message delivery even if consumer is down</p>
+<p><strong>tools:</strong> RabbitMQ, Apache Kafka, AWS SQS, Redis
+Streams</p>
+<p><strong>Kafka vs RabbitMQ:</strong> - Kafka → high throughput, event
+streaming, replay messages, log - RabbitMQ → traditional queue, complex
+routing, lower throughput</p>
+<p><strong>patterns:</strong> - <strong>pub/sub</strong> → one producer,
+many consumers get the message - <strong>point to point</strong> → one
+producer, one consumer gets the message - <strong>fan out</strong> → one
+message goes to multiple queues</p>
+<hr />
+<h2 id="microservices-vs-monolith">microservices vs monolith</h2>
+<p><strong>monolith</strong></p>
+<pre><code>┌─────────────────────────────┐
+│   Single Application        │
+│  ┌──────┐ ┌──────┐ ┌──────┐│
+│  │Users ││Posts ││Notify ││
+│  └──────┘ └──────┘ └──────┘│
+│      Single Database        │
+└─────────────────────────────┘</code></pre>
+<p>pros: simple, easy to develop initially, easy to test cons: hard to
+scale specific parts, one bug can crash everything</p>
+<p><strong>microservices</strong></p>
+<pre><code>┌────────┐  ┌────────┐  ┌────────┐
+│ Users  │  │ Posts  │  │Notify  │
+│Service │  │Service │  │Service │
+└────┬───┘  └────┬───┘  └────┬───┘
+     │            │            │
+  ┌──┴──┐     ┌──┴──┐     ┌──┴──┐
+  │ DB  │     │ DB  │     │ DB  │
+  └─────┘     └─────┘     └─────┘</code></pre>
+<p>pros: scale each service independently, independent deployments,
+different tech stacks cons: complex, network latency, harder to test,
+distributed system problems</p>
+<p><strong>when to use what:</strong> - start with monolith, split when
+you have clear boundaries and scale needs - microservices if you have
+large team, clear domain boundaries, different scaling needs</p>
+<hr />
+<h2 id="api-design">API design</h2>
+<h3 id="rest">REST</h3>
+<pre><code>GET    /users          → get all users
+GET    /users/:id      → get user by id
+POST   /users          → create user
+PUT    /users/:id      → replace user
+PATCH  /users/:id      → update fields
+DELETE /users/:id      → delete user
+
+GET    /users/:id/posts → nested resource</code></pre>
+<p><strong>HTTP status codes:</strong> - 200 OK, 201 Created, 204 No
+Content - 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not
+Found - 429 Too Many Requests, 500 Server Error, 503 Service
+Unavailable</p>
+<h3 id="graphql">GraphQL</h3>
+<p>client requests exactly what it needs</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode graphql"><code class="sourceCode graphql"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">query</span> {</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  user(id: <span class="st">&quot;123&quot;</span>) {</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    name</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    email</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    posts {</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>      title</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>      likes</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>pros: no over/under fetching, one endpoint, strongly typed cons:
+complex caching, harder to optimize on server</p>
+<h3 id="grpc">gRPC</h3>
+<p>binary protocol, uses protocol buffers, very fast</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode protobuf"><code class="sourceCode protobuf"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>service UserService {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  rpc GetUser (UserRequest) returns (UserResponse);</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>pros: very fast, strongly typed, streaming support cons: not human
+readable, harder to debug</p>
+<p><strong>when to use:</strong> - REST → public APIs, web apps, simple
+CRUD - GraphQL → complex data requirements, multiple clients - gRPC →
+internal microservices, low latency needed</p>
+<hr />
+<h2 id="rate-limiting">rate limiting</h2>
+<p>prevent abuse and ensure fair usage</p>
+<p><strong>algorithms:</strong></p>
+<p><strong>token bucket</strong></p>
+<pre><code>bucket has N tokens
+each request uses 1 token
+tokens refill at rate R per second
+if no tokens → reject request</code></pre>
+<p>allows bursts up to bucket size</p>
+<p><strong>leaky bucket</strong></p>
+<pre><code>requests enter bucket at any rate
+bucket leaks at constant rate
+if full → reject</code></pre>
+<p>smooth output, no bursts</p>
+<p><strong>fixed window</strong></p>
+<pre><code>count requests in current window (e.g. per minute)
+if count &gt; limit → reject
+reset count each window</code></pre>
+<p>simple but has edge case at window boundaries</p>
+<p><strong>sliding window log</strong></p>
+<pre><code>store timestamp of each request
+count requests in last 60 seconds</code></pre>
+<p>accurate but memory intensive</p>
+<p><strong>where to implement:</strong> - API gateway - reverse proxy
+(Nginx) - application code - Redis (distributed rate limiting)</p>
+<hr />
+<h2 id="consistent-hashing">consistent hashing</h2>
+<p>used in distributed caches and load balancers to minimize
+re-distribution when nodes are added/removed.</p>
+<pre><code>servers and keys are placed on a &quot;ring&quot;
+each key is served by the next server clockwise
+
+ring: 0 ──────────────────────── 360
+
+   server A (at 90)
+   server B (at 180)
+   server C (at 270)
+
+key1 hashes to 50  → served by server A (next clockwise)
+key2 hashes to 140 → served by server B
+key3 hashes to 220 → served by server C</code></pre>
+<p>when a server is added/removed, only keys on that segment are
+remapped, not all keys.</p>
+<p><strong>virtual nodes:</strong> each server has multiple points on
+the ring for better distribution.</p>
+<hr />
+<h2 id="real-time-communication">real-time communication</h2>
+<p><strong>polling</strong></p>
+<pre><code>client asks server every N seconds: &quot;any updates?&quot;
+simple but wasteful, high latency</code></pre>
+<p><strong>long polling</strong></p>
+<pre><code>client asks server, server holds connection open
+server responds when data is available
+client immediately makes new request
+less wasteful, but still has latency</code></pre>
+<p><strong>WebSockets</strong></p>
+<pre><code>persistent bidirectional connection
+server can push to client anytime
+great for: chat, live feeds, games, notifications</code></pre>
+<p><strong>Server-Sent Events (SSE)</strong></p>
+<pre><code>one-way: server pushes to client
+client can&#39;t send back on same connection
+good for: notifications, live scores, stock prices</code></pre>
+<hr />
+<h2 id="proxies">proxies</h2>
+<p><strong>forward proxy</strong></p>
+<pre><code>client → forward proxy → internet</code></pre>
+<p>hides client, used for: VPN, bypass restrictions, caching</p>
+<p><strong>reverse proxy</strong></p>
+<pre><code>internet → reverse proxy → servers</code></pre>
+<p>hides servers, used for: load balancing, SSL termination, caching,
+security</p>
+<p><strong>API gateway</strong></p>
+<pre><code>clients → API gateway → microservices</code></pre>
+<p>single entry point, handles: auth, rate limiting, routing, logging,
+protocol translation</p>
+<p>tools: Nginx, Kong, AWS API Gateway</p>
+<hr />
+<h2 id="storage-types">storage types</h2>
+<p><strong>block storage</strong> raw storage, like a hard drive use
+for: databases, VMs, OS example: AWS EBS</p>
+<p><strong>file storage</strong> files in directories (NFS, SMB) use
+for: shared files, home directories example: AWS EFS</p>
+<p><strong>object storage</strong> stores objects with metadata and URL
+infinite scale, cheap use for: images, videos, backups, static files
+example: AWS S3, MinIO</p>
+<hr />
+<h2 id="numbers-every-engineer-should-know">numbers every engineer
+should know</h2>
+<table>
+<thead>
+<tr class="header">
+<th>operation</th>
+<th>latency</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>L1 cache reference</td>
+<td>1 ns</td>
+</tr>
+<tr class="even">
+<td>L2 cache reference</td>
+<td>4 ns</td>
+</tr>
+<tr class="odd">
+<td>RAM access</td>
+<td>100 ns</td>
+</tr>
+<tr class="even">
+<td>SSD read</td>
+<td>100 μs</td>
+</tr>
+<tr class="odd">
+<td>HDD seek</td>
+<td>10 ms</td>
+</tr>
+<tr class="even">
+<td>Same datacenter</td>
+<td>500 μs</td>
+</tr>
+<tr class="odd">
+<td>Cross-continent</td>
+<td>150 ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>scale intuition:</strong> - 1 million seconds ≈ 11.5 days - 1
+billion seconds ≈ 31.7 years - 1 server handles ≈ 1000 req/sec - MySQL ≈
+1000 writes/sec, 10000 reads/sec - Redis ≈ 100,000 ops/sec - Kafka ≈
+millions of messages/sec</p>
+<hr />
+<h2 id="system-design-interview-framework">system design interview
+framework</h2>
+<p>when asked to design a system, follow this order:</p>
+<p><strong>1. clarify requirements (5 min)</strong> - what features are
+needed? - how many users? (read/write ratio) - what scale? (requests per
+second, data size) - consistency or availability?</p>
+<p><strong>2. estimate scale (5 min)</strong> - daily active users -
+requests per second = DAU × requests/day / 86400 - storage = users ×
+data per user × time - bandwidth = requests/sec × data per request</p>
+<p><strong>3. high level design (15 min)</strong> - draw main
+components: clients, servers, DB, cache, CDN - explain data flow</p>
+<p><strong>4. deep dive (20 min)</strong> - focus on most important
+parts - discuss tradeoffs - handle edge cases</p>
+<p><strong>5. wrap up (5 min)</strong> - bottlenecks - future
+improvements - monitoring</p>
+<hr />
+<h2 id="example-design-url-shortener">example: design URL shortener</h2>
+<p><strong>requirements:</strong> - shorten long URL to short URL
+(bit.ly/xyz) - redirect short URL to long URL - 100M URLs/day, read
+heavy (100:1 read to write)</p>
+<p><strong>estimation:</strong> - writes: 100M/day = 1200/sec - reads:
+12000/sec - storage: 100M × 500 bytes = 50GB/day</p>
+<p><strong>design:</strong></p>
+<pre><code>client → API gateway → app servers → cache (Redis)
+                                   → database (PostgreSQL)</code></pre>
+<p><strong>short URL generation:</strong> - base62 encoding (a-z, A-Z,
+0-9) = 62 chars - 7 characters = 62^7 = 3.5 trillion URLs - hash long
+URL → take first 7 chars - or: auto increment ID → base62 encode</p>
+<p><strong>database schema:</strong></p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>urls (</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">id</span>          bigint <span class="kw">primary</span> <span class="kw">key</span>,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  short_code  <span class="dt">varchar</span>(<span class="dv">10</span>) <span class="kw">unique</span>,</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  long_url    text,</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  user_id     bigint,</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  created_at  <span class="dt">timestamp</span>,</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  expires_at  <span class="dt">timestamp</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p><strong>caching:</strong> - cache short_code → long_url in Redis -
+80/20 rule: 20% of URLs get 80% of traffic - cache those 20% (hot
+URLs)</p>
+<hr />
+<pre><code>=^._.^= design for failure. everything fails.</code></pre>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

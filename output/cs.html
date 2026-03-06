@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Science Fundamentals | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+
+        p { margin-bottom: 14px; color: var(--fg); }
+
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li { margin-bottom: 4px; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="C++.html">C++ for Competitive Programming — Complete Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript & TypeScript</a><a href="py.html">Python</a><a href="kt.html">Kotlin</a><a href="cs.html" class="active">Computer Science Fundamentals</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="system-design.html">System Design</a><a href="warbird.html">warbird site — documentation</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="computer-science-fundamentals">Computer Science
+Fundamentals</h1>
+<blockquote>
+<p>how computers actually work, from bottom to top.</p>
+</blockquote>
+<hr />
+<h2 id="the-big-picture">the big picture</h2>
+<p>a computer is a machine that processes information. here is the full
+stack from hardware to your app:</p>
+<pre><code>your code (Python, JavaScript, C++)
+        ↓
+compiler / interpreter
+        ↓
+machine code (binary instructions)
+        ↓
+operating system
+        ↓
+CPU + RAM + Storage (hardware)
+        ↓
+transistors (billions of tiny switches)
+        ↓
+electricity</code></pre>
+<p>understanding each layer makes you a better programmer.</p>
+<hr />
+<h2 id="number-systems">number systems</h2>
+<p>computers only understand 0 and 1 (binary). everything else is built
+on top.</p>
+<h3 id="binary-base-2">binary (base 2)</h3>
+<pre><code>decimal  binary
+0     =  0000
+1     =  0001
+2     =  0010
+3     =  0011
+4     =  0100
+5     =  0101
+6     =  0110
+7     =  0111
+8     =  1000
+9     =  1001
+10    =  1010</code></pre>
+<p><strong>converting decimal to binary:</strong></p>
+<pre><code>13 in binary:
+13 / 2 = 6 remainder 1
+6  / 2 = 3 remainder 0
+3  / 2 = 1 remainder 1
+1  / 2 = 0 remainder 1
+read remainders bottom to top: 1101
+
+1×8 + 1×4 + 0×2 + 1×1 = 8+4+0+1 = 13 ✓</code></pre>
+<h3 id="hexadecimal-base-16">hexadecimal (base 16)</h3>
+<pre><code>0-9 then A=10, B=11, C=12, D=13, E=14, F=15
+
+#FF0000 (red in CSS):
+FF = 255 (red)
+00 = 0   (green)
+00 = 0   (blue)
+
+memory address: 0x1A2F3B</code></pre>
+<h3 id="bits-and-bytes">bits and bytes</h3>
+<pre><code>1 bit      = 0 or 1
+8 bits     = 1 byte
+1024 bytes = 1 KB
+1024 KB    = 1 MB
+1024 MB    = 1 GB
+1024 GB    = 1 TB</code></pre>
+<hr />
+<h2 id="how-hardware-works">how hardware works</h2>
+<h3 id="transistors">transistors</h3>
+<p>the fundamental building block of modern computers. a transistor is a
+tiny switch: - off = 0 - on = 1</p>
+<p>a modern CPU has billions of transistors. the more transistors, the
+more powerful.</p>
+<h3 id="logic-gates">logic gates</h3>
+<p>transistors are combined to make logic gates:</p>
+<pre><code>AND gate:  both inputs must be 1 → output is 1
+  A=0, B=0 → 0
+  A=1, B=0 → 0
+  A=0, B=1 → 0
+  A=1, B=1 → 1
+
+OR gate:   at least one input must be 1
+  A=0, B=0 → 0
+  A=1, B=0 → 1
+  A=0, B=1 → 1
+  A=1, B=1 → 1
+
+NOT gate:  flips the input
+  A=0 → 1
+  A=1 → 0
+
+NAND, NOR, XOR, XNOR built from these</code></pre>
+<p>logic gates → arithmetic circuits (adders) → ALU → CPU</p>
+<h3 id="cpu-central-processing-unit">CPU (Central Processing Unit)</h3>
+<p>the brain of the computer. executes instructions.</p>
+<p><strong>main components:</strong> - <strong>ALU</strong> (Arithmetic
+Logic Unit) — does math and logic - <strong>Control Unit</strong> —
+fetches and decodes instructions - <strong>Registers</strong> — tiny
+fast storage inside CPU (8-64 bytes) - <strong>Cache</strong> — fast
+memory close to CPU (L1, L2, L3) - <strong>Clock</strong> — synchronizes
+everything (3GHz = 3 billion cycles/sec)</p>
+<p><strong>fetch-decode-execute cycle:</strong></p>
+<pre><code>1. FETCH: get next instruction from memory
+2. DECODE: figure out what instruction means
+3. EXECUTE: do it (add, store, jump, etc.)
+4. repeat billions of times per second</code></pre>
+<h3 id="cpu-registers">CPU registers</h3>
+<pre><code>PC  (Program Counter)    → address of next instruction
+SP  (Stack Pointer)      → top of current stack
+IR  (Instruction Register) → current instruction
+ACC (Accumulator)        → result of last operation
+general purpose: R0-R15  → temporary values</code></pre>
+<h3 id="memory-hierarchy">memory hierarchy</h3>
+<p>from fastest/smallest to slowest/biggest:</p>
+<pre><code>CPU Registers     ~1ns       bytes
+L1 Cache          ~2ns       32-64 KB
+L2 Cache          ~5ns       256 KB - 1 MB
+L3 Cache          ~20ns      4-32 MB
+RAM               ~100ns     4-64 GB
+SSD               ~0.1ms     500 GB - 4 TB
+HDD               ~10ms      1-20 TB
+Network           ~100ms     unlimited</code></pre>
+<p>rule: data moves up hierarchy when needed, stays if frequently used
+(locality of reference)</p>
+<h3 id="ram-random-access-memory">RAM (Random Access Memory)</h3>
+<ul>
+<li>temporary storage while computer is running</li>
+<li>every byte has an address</li>
+<li>CPU reads/writes via memory bus</li>
+<li>data lost when power off (volatile)</li>
+</ul>
+<pre><code>address  value
+0x0000   10100101
+0x0001   11001010
+0x0002   00110011
+...</code></pre>
+<hr />
+<h2 id="how-software-works">how software works</h2>
+<h3 id="machine-code">machine code</h3>
+<p>the only thing CPU actually understands — binary instructions</p>
+<pre><code>10110000 01100001   -- MOV AL, 97 (put 97 in register AL)
+11101000 00000101   -- ADD AL, 5  (add 5 to AL)</code></pre>
+<p>nobody writes machine code directly.</p>
+<h3 id="assembly-language">assembly language</h3>
+<p>human-readable machine code, one-to-one mapping</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode asm"><code class="sourceCode fasm"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">MOV</span> <span class="kw">AX</span><span class="op">,</span> <span class="dv">5</span>      <span class="co">; put 5 in register AX</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">MOV</span> <span class="kw">BX</span><span class="op">,</span> <span class="dv">3</span>      <span class="co">; put 3 in register BX</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">ADD</span> <span class="kw">AX</span><span class="op">,</span> <span class="kw">BX</span>     <span class="co">; AX = AX + BX = 8</span></span></code></pre></div>
+<h3 id="compiled-languages-c-c-rust">compiled languages (C, C++,
+Rust)</h3>
+<pre><code>source code (.c)
+      ↓ compiler (gcc, clang)
+machine code (.exe, binary)
+      ↓ run directly
+CPU executes</code></pre>
+<p>very fast because code is already in machine language at runtime.</p>
+<h3 id="interpreted-languages-python-javascript">interpreted languages
+(Python, JavaScript)</h3>
+<pre><code>source code (.py)
+      ↓ interpreter reads line by line
+      ↓ translates to machine code on the fly
+CPU executes</code></pre>
+<p>more flexible but slower (unless JIT compiled).</p>
+<h3 id="jit-just-in-time-compilation">JIT (Just-in-Time)
+compilation</h3>
+<p>JVM (Java), V8 (JavaScript/Node.js), PyPy (Python): - starts as
+interpreter - profiles which code runs most - compiles hot paths to
+machine code - gets close to compiled performance</p>
+<hr />
+<h2 id="operating-system">operating system</h2>
+<p>the OS manages hardware resources and provides services to
+programs.</p>
+<h3 id="what-an-os-does">what an OS does</h3>
+<pre><code>programs
+    ↓ system calls
+OS kernel
+    ↓
+hardware (CPU, RAM, disk, network)</code></pre>
+<ul>
+<li><strong>process management</strong> — run multiple programs,
+schedule CPU time</li>
+<li><strong>memory management</strong> — give each program its own
+memory space</li>
+<li><strong>file system</strong> — organize data on disk</li>
+<li><strong>device drivers</strong> — talk to hardware</li>
+<li><strong>networking</strong> — TCP/IP stack</li>
+<li><strong>security</strong> — permissions, isolation</li>
+</ul>
+<h3 id="process-vs-thread">process vs thread</h3>
+<p><strong>process:</strong> - independent program running in memory -
+has its own memory space - isolated from other processes - more overhead
+to create - if one crashes, others unaffected</p>
+<p><strong>thread:</strong> - unit of execution inside a process -
+shares memory with other threads in same process - lighter weight than
+process - if one thread crashes, whole process can crash</p>
+<pre><code>Process A                    Process B
+┌─────────────────────┐      ┌──────────────┐
+│  Thread 1           │      │  Thread 1    │
+│  Thread 2           │      └──────────────┘
+│  Shared memory      │
+└─────────────────────┘</code></pre>
+<h3 id="cpu-scheduling">CPU scheduling</h3>
+<p>OS decides which process runs when:</p>
+<ul>
+<li><strong>Round Robin</strong> — each process gets a time slice
+(default)</li>
+<li><strong>Priority</strong> — higher priority runs first</li>
+<li><strong>Shortest Job First</strong> — shortest task runs first</li>
+<li><strong>Multi-level Queue</strong> — different queues for different
+types</li>
+</ul>
+<p><strong>context switch:</strong> saving one process state, loading
+another. has overhead.</p>
+<h3 id="virtual-memory">virtual memory</h3>
+<p>each process thinks it has its own address space:</p>
+<pre><code>Process A sees:    Process B sees:
+0x0000 - 0xFFFF   0x0000 - 0xFFFF
+     ↓                  ↓
+OS maps to different physical RAM addresses</code></pre>
+<p><strong>benefits:</strong> - isolation between processes - can run
+more processes than RAM allows (swapping to disk) - shared libraries
+loaded once, mapped to multiple processes</p>
+<p><strong>page fault:</strong> process accesses memory not in RAM → OS
+loads it from disk (slow)</p>
+<h3 id="system-calls">system calls</h3>
+<p>how programs talk to the OS:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// in your Python/C code:</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>open<span class="op">(</span><span class="st">&quot;file.txt&quot;</span><span class="op">)</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">// becomes a system call to OS kernel:</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>sys_open<span class="op">(</span>filename<span class="op">,</span> flags<span class="op">,</span> mode<span class="op">)</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">// kernel does the work, returns result</span></span></code></pre></div>
+<p>common syscalls: open, read, write, close, fork, exec, kill, socket,
+connect</p>
+<hr />
+<h2 id="data-structures">data structures</h2>
+<p>the building blocks of algorithms. choosing the right one is
+everything.</p>
+<h3 id="array">array</h3>
+<pre><code>[10, 20, 30, 40, 50]
+  ↑   ↑   ↑   ↑   ↑
+  0   1   2   3   4   (indices)
+
+fixed size, elements stored contiguously in memory</code></pre>
+<pre><code>access by index: O(1) ← constant time, any element
+insert at end:   O(1)
+insert at middle: O(n) ← shift all elements after
+delete at middle: O(n)
+search:           O(n) ← scan each element</code></pre>
+<h3 id="linked-list">linked list</h3>
+<pre><code>[10] → [20] → [30] → [40] → null
+head                   tail</code></pre>
+<p>each node stores data + pointer to next node. not contiguous in
+memory.</p>
+<pre><code>access by index:  O(n) ← must traverse from head
+insert at head:   O(1)
+insert at tail:   O(1) if we track tail
+insert at middle: O(n) to find it, then O(1) to insert
+delete:           O(n) to find it</code></pre>
+<p><strong>doubly linked list</strong> — each node has next AND previous
+pointer</p>
+<h3 id="stack">stack</h3>
+<pre><code>push 10  push 20  push 30  pop
+[]    →  [10] →  [10,20] → [10,20,30] → [10,20]
+                             top=30</code></pre>
+<p>LIFO — Last In First Out</p>
+<pre><code>push: O(1)
+pop:  O(1)
+peek: O(1)</code></pre>
+<p>uses: function call stack, undo operations, parsing expressions,
+DFS</p>
+<h3 id="queue">queue</h3>
+<pre><code>enqueue 10  enqueue 20  enqueue 30  dequeue
+[]    →     [10]   →   [10,20]  →  [10,20,30]  →  [20,30]
+front=back=10            front=10                   front=20</code></pre>
+<p>FIFO — First In First Out</p>
+<pre><code>enqueue: O(1)
+dequeue: O(1)</code></pre>
+<p>uses: BFS, task queues, print queues, request handling</p>
+<h3 id="hash-table-dictionarymap">hash table (dictionary/map)</h3>
+<pre><code>key → hash function → index → value
+
+&quot;name&quot; → hash(&quot;name&quot;) = 42 → arr[42] = &quot;abhishek&quot;
+&quot;age&quot;  → hash(&quot;age&quot;)  = 17 → arr[17] = 20</code></pre>
+<pre><code>insert: O(1) average
+lookup: O(1) average
+delete: O(1) average
+worst case O(n) when many collisions</code></pre>
+<p><strong>collision handling:</strong> - <strong>chaining</strong> —
+linked list at each slot - <strong>open addressing</strong> — probe next
+slot</p>
+<p>uses: caches, databases, counting, grouping</p>
+<h3 id="tree">tree</h3>
+<pre><code>          root
+         /          node    node
+      /     leaf  leaf</code></pre>
+<p><strong>binary tree</strong> — each node has max 2 children</p>
+<p><strong>binary search tree (BST):</strong></p>
+<pre><code>left child &lt; parent &lt; right child
+
+       10
+      /       5    15
+    / \        3   7    20</code></pre>
+<pre><code>search: O(log n) average, O(n) worst (unbalanced)
+insert: O(log n) average
+delete: O(log n) average</code></pre>
+<p><strong>balanced BST (AVL, Red-Black):</strong> auto-balances to
+ensure O(log n) always</p>
+<p><strong>heap:</strong></p>
+<pre><code>max-heap: parent always ≥ children
+       50
+      /      30    40
+   /    10  20</code></pre>
+<pre><code>insert: O(log n)
+get max/min: O(1)
+extract max/min: O(log n)</code></pre>
+<p>uses: priority queues, scheduling, heap sort</p>
+<h3 id="graph">graph</h3>
+<pre><code>vertices (nodes) connected by edges
+
+undirected:    directed:
+A - B          A → B
+|   |          ↓   ↓
+C - D          C → D</code></pre>
+<p><strong>representation:</strong></p>
+<p>adjacency matrix:</p>
+<pre><code>  A B C D
+A 0 1 1 0
+B 1 0 0 1
+C 1 0 0 1
+D 0 1 1 0</code></pre>
+<p>adjacency list (more common):</p>
+<pre><code>A: [B, C]
+B: [A, D]
+C: [A, D]
+D: [B, C]</code></pre>
+<p>uses: social networks, maps, dependencies, web links</p>
+<hr />
+<h2 id="algorithms">algorithms</h2>
+<h3 id="big-o-notation">Big O notation</h3>
+<p>measures how runtime/space scales with input size n.</p>
+<pre><code>O(1)       constant  — doesn&#39;t depend on n (hash lookup)
+O(log n)   logarithmic — halves problem each step (binary search)
+O(n)       linear — proportional to n (linear search)
+O(n log n) — sorting algorithms (merge sort, quick sort)
+O(n²)      quadratic — nested loops (bubble sort)
+O(2ⁿ)      exponential — recursive combinations
+O(n!)      factorial — all permutations</code></pre>
+<pre><code>n=10:   O(n²)=100      O(n log n)=33    O(n)=10
+n=100:  O(n²)=10,000   O(n log n)=664   O(n)=100
+n=1000: O(n²)=1M       O(n log n)=9966  O(n)=1000</code></pre>
+<h3 id="sorting-algorithms">sorting algorithms</h3>
+<p><strong>bubble sort O(n²)</strong> — compare adjacent, swap if wrong
+order. slow. don’t use.</p>
+<p><strong>selection sort O(n²)</strong> — find min, put at front,
+repeat.</p>
+<p><strong>insertion sort O(n²)</strong> — good for nearly sorted data,
+simple.</p>
+<p><strong>merge sort O(n log n)</strong> — divide in half, sort each
+half, merge.</p>
+<pre><code>[5,2,8,1,9,3]
+[5,2,8] [1,9,3]
+[5,2] [8] [1,9] [3]
+[5] [2] [8] [1] [9] [3]
+[2,5] [8] [1,9] [3]
+[2,5,8] [1,3,9]
+[1,2,3,5,8,9]</code></pre>
+<p><strong>quick sort O(n log n) avg</strong> — pick pivot, partition,
+recurse. fast in practice.</p>
+<p><strong>heap sort O(n log n)</strong> — build heap, extract max
+repeatedly.</p>
+<p><strong>language built-in sorts</strong> (timsort) are almost always
+good enough — use them.</p>
+<h3 id="searching-algorithms">searching algorithms</h3>
+<p><strong>linear search O(n)</strong> — check each element. works on
+any array.</p>
+<p><strong>binary search O(log n)</strong> — only on sorted array. halve
+search space each step.</p>
+<pre><code>find 7 in [1,3,5,7,9,11,13]
+             ↑ mid = 7 → found!
+
+find 5 in [1,3,5,7,9,11,13]
+              ↑ mid = 7
+             left half: [1,3,5]
+                          ↑ mid = 3
+                         right: [5]
+                                 ↑ found!</code></pre>
+<h3 id="graph-algorithms">graph algorithms</h3>
+<p><strong>BFS (Breadth First Search)</strong> — explore level by level
+using queue</p>
+<pre><code>find shortest path
+explore neighbors before going deeper
+
+uses: shortest path, web crawling, social connections</code></pre>
+<p><strong>DFS (Depth First Search)</strong> — go deep using
+stack/recursion</p>
+<pre><code>explore one path completely before backtracking
+
+uses: cycle detection, topological sort, maze solving</code></pre>
+<p><strong>Dijkstra’s algorithm</strong> — shortest path in weighted
+graph (no negative weights)</p>
+<p><strong>dynamic programming</strong> — solve by breaking into
+subproblems, cache results</p>
+<pre><code>fibonacci without DP: O(2ⁿ)
+with DP (memoization): O(n)
+
+fib(5) = fib(4) + fib(3)
+fib(4) = fib(3) + fib(2)    ← fib(3) computed twice without DP
+with cache: compute fib(3) once, reuse</code></pre>
+<hr />
+<h2 id="memory-management">memory management</h2>
+<h3 id="stack-vs-heap-in-programs">stack vs heap (in programs)</h3>
+<p><strong>stack memory:</strong></p>
+<pre><code>fast, automatically managed
+stores: local variables, function parameters, return addresses
+limited size (~1-8 MB)
+allocated/freed automatically when function enters/exits</code></pre>
+<p><strong>heap memory:</strong></p>
+<pre><code>slower, manually managed (or garbage collected)
+stores: dynamically allocated objects
+limited by available RAM
+in C: malloc/free manually
+in Python/Java/JavaScript: garbage collector frees automatically</code></pre>
+<p><strong>stack overflow:</strong> too many nested function calls,
+stack runs out</p>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> infinite():</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> infinite()  <span class="co"># recursion with no base case</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>infinite()  <span class="co"># RecursionError: maximum recursion depth exceeded</span></span></code></pre></div>
+<h3 id="garbage-collection">garbage collection</h3>
+<p>automatically frees memory that’s no longer referenced.</p>
+<p><strong>reference counting:</strong></p>
+<pre><code>each object counts how many references point to it
+when count reaches 0 → free it
+
+problem: circular references
+A points to B, B points to A
+both have count=1 even if nothing else references them</code></pre>
+<p><strong>mark and sweep:</strong></p>
+<pre><code>1. mark all reachable objects (starting from roots)
+2. sweep — free everything not marked
+solves circular reference problem
+causes occasional pauses</code></pre>
+<p><strong>generational GC:</strong></p>
+<pre><code>most objects die young
+young generation: collected frequently, fast
+old generation: collected rarely, slow
+
+Python, Java, JavaScript all use this</code></pre>
+<hr />
+<h2 id="compilation-process">compilation process</h2>
+<p>how C code becomes machine code:</p>
+<pre><code>source.c
+   ↓ preprocessor (handle #include, #define)
+preprocessed.c
+   ↓ compiler (check syntax, generate assembly)
+source.asm
+   ↓ assembler (convert to machine code)
+source.o (object file)
+   ↓ linker (combine object files + libraries)
+executable binary</code></pre>
+<p><strong>static linking:</strong> libraries copied into executable
+(bigger file, no dependencies) <strong>dynamic linking:</strong>
+libraries loaded at runtime (smaller file, needs .so/.dll)</p>
+<hr />
+<h2 id="computer-encoding">computer encoding</h2>
+<h3 id="ascii">ASCII</h3>
+<p>maps numbers 0-127 to characters:</p>
+<pre><code>65 = A, 66 = B, 67 = C...
+97 = a, 98 = b, 99 = c...
+48 = 0, 49 = 1, 50 = 2...
+32 = space, 10 = newline, 0 = null</code></pre>
+<h3 id="unicode">Unicode</h3>
+<p>universal standard for all writing systems: - over 140,000 characters
+- every character has a code point: U+0041 = A, U+1F600 = 😀</p>
+<p><strong>UTF-8:</strong> - variable length encoding (1-4 bytes per
+character) - ASCII characters use 1 byte (backward compatible) - most
+common encoding on the web - Hindi: 3 bytes per character, emojis: 4
+bytes</p>
+<p><strong>UTF-16:</strong> 2 or 4 bytes per character (used internally
+in Java, JavaScript)</p>
+<hr />
+<h2 id="networking-fundamentals-cs-perspective">networking fundamentals
+(CS perspective)</h2>
+<h3 id="how-data-travels">how data travels</h3>
+<pre><code>you type: GET /users HTTP/1.1
+
+1. browser creates HTTP request (text)
+2. TLS encrypts it
+3. TCP breaks into segments, adds port numbers
+4. IP adds source/destination addresses
+5. ethernet adds MAC addresses
+6. converted to electrical/light signals
+7. travels through cables, routers, switches
+8. unwrapped in reverse at server</code></pre>
+<h3 id="tcp-reliability-mechanism">TCP reliability mechanism</h3>
+<pre><code>client sends: [segment 1] [segment 2] [segment 3]
+server replies: [ACK 1] [ACK 2] [ACK 3]
+
+if segment 2 lost:
+server sends: [ACK 1] [NAK 2]
+client resends: [segment 2]</code></pre>
+<p><strong>sliding window:</strong> send multiple segments without
+waiting for each ACK — improves throughput</p>
+<hr />
+<h2 id="concurrency-and-parallelism">concurrency and parallelism</h2>
+<p><strong>concurrency:</strong> multiple tasks making progress (not
+necessarily at same time) <strong>parallelism:</strong> multiple tasks
+literally running at the same time (multiple cores)</p>
+<pre><code>concurrency on 1 core:
+task A ──── task B ──── task A ──── task B
+(switching rapidly, appears simultaneous)
+
+parallelism on 2 cores:
+core 1: task A ────────────────
+core 2: task B ────────────────</code></pre>
+<h3 id="problems-with-concurrency">problems with concurrency</h3>
+<p><strong>race condition:</strong></p>
+<pre><code>thread 1: x = x + 1   (x=0, reads 0, adds 1, writes 1)
+thread 2: x = x + 1   (x=0, reads 0, adds 1, writes 1)
+result: x=1 (expected x=2)</code></pre>
+<p><strong>deadlock:</strong></p>
+<pre><code>thread 1 holds lock A, waiting for lock B
+thread 2 holds lock B, waiting for lock A
+both wait forever</code></pre>
+<p><strong>solutions:</strong> - <strong>mutex (lock)</strong> — only
+one thread can hold it at a time - <strong>semaphore</strong> — allows N
+threads at once - <strong>atomic operations</strong> — operations that
+complete without interruption - <strong>immutable data</strong> — data
+that never changes has no race conditions</p>
+<hr />
+<h2 id="boolean-logic-and-logic-design">boolean logic and logic
+design</h2>
+<h3 id="boolean-algebra">boolean algebra</h3>
+<pre><code>AND: A AND B = A × B
+OR:  A OR B  = A + B
+NOT: NOT A   = A&#39;
+
+De Morgan&#39;s laws:
+NOT(A AND B) = NOT(A) OR NOT(B)
+NOT(A OR B)  = NOT(A) AND NOT(B)</code></pre>
+<h3 id="half-adder-1-bit-addition">half adder (1-bit addition)</h3>
+<pre><code>inputs: A, B
+outputs: SUM, CARRY
+
+truth table:
+A B | SUM CARRY
+0 0 |  0    0
+0 1 |  1    0
+1 0 |  1    0
+1 1 |  0    1     ← 1+1=10 in binary (sum=0, carry=1)
+
+SUM   = A XOR B
+CARRY = A AND B</code></pre>
+<p>chain multiple half adders → full adder → ripple carry adder → add
+any number</p>
+<p>this is literally how your CPU does math.</p>
+<hr />
+<h2 id="programming-paradigms">programming paradigms</h2>
+<h3 id="imperative-procedural">imperative / procedural</h3>
+<p>how to do something, step by step</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">10</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">=</span> sum <span class="op">+</span> i<span class="op">;</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="object-oriented-oop">object-oriented (OOP)</h3>
+<p>organize code around objects with state and behavior</p>
+<div class="sourceCode" id="cb60"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BankAccount:</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, balance):</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.balance <span class="op">=</span> balance</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> deposit(<span class="va">self</span>, amount):</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.balance <span class="op">+=</span> amount</span></code></pre></div>
+<p><strong>four pillars:</strong> - <strong>encapsulation</strong> —
+hide internal state, expose interface - <strong>abstraction</strong> —
+hide complexity, show only what’s needed - <strong>inheritance</strong>
+— child class gets parent’s properties/methods -
+<strong>polymorphism</strong> — same interface, different behavior</p>
+<h3 id="functional">functional</h3>
+<p>functions are first-class, avoid state and mutation</p>
+<div class="sourceCode" id="cb61"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> nums <span class="op">=</span> [<span class="dv">1</span><span class="op">,</span><span class="dv">2</span><span class="op">,</span><span class="dv">3</span><span class="op">,</span><span class="dv">4</span><span class="op">,</span><span class="dv">5</span>]</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> result <span class="op">=</span> nums</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">filter</span>(x <span class="kw">=&gt;</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">===</span> <span class="dv">0</span>)</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">map</span>(x <span class="kw">=&gt;</span> x <span class="op">*</span> <span class="dv">2</span>)</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">reduce</span>((a<span class="op">,</span> b) <span class="kw">=&gt;</span> a <span class="op">+</span> b<span class="op">,</span> <span class="dv">0</span>)</span></code></pre></div>
+<p><strong>pure function</strong> — same input always gives same output,
+no side effects</p>
+<h3 id="declarative">declarative</h3>
+<p>describe WHAT you want, not HOW to do it</p>
+<div class="sourceCode" id="cb62"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> users <span class="kw">WHERE</span> age <span class="op">&gt;</span> <span class="dv">18</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre
+class="sourceCode html"><code class="sourceCode html"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="dt">&lt;</span><span class="kw">button</span><span class="dt">&gt;</span>Click me<span class="dt">&lt;/</span><span class="kw">button</span><span class="dt">&gt;</span></span></code></pre></div>
+<hr />
+<h2 id="key-computer-science-concepts">key computer science
+concepts</h2>
+<h3 id="recursion">recursion</h3>
+<p>function that calls itself. needs a base case to stop.</p>
+<div class="sourceCode" id="cb64"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> factorial(n):</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> n <span class="op">==</span> <span class="dv">0</span>:           <span class="co"># base case</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> n <span class="op">*</span> factorial(n <span class="op">-</span> <span class="dv">1</span>)  <span class="co"># recursive case</span></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>factorial(<span class="dv">5</span>)</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a><span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> factorial(<span class="dv">4</span>)</span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a><span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span> <span class="op">*</span> factorial(<span class="dv">3</span>)</span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a><span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span> <span class="op">*</span> <span class="dv">3</span> <span class="op">*</span> factorial(<span class="dv">2</span>)</span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a><span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span> <span class="op">*</span> <span class="dv">3</span> <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> factorial(<span class="dv">1</span>)</span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a><span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span> <span class="op">*</span> <span class="dv">3</span> <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> <span class="dv">1</span> <span class="op">*</span> factorial(<span class="dv">0</span>)</span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a><span class="op">=</span> <span class="dv">5</span> <span class="op">*</span> <span class="dv">4</span> <span class="op">*</span> <span class="dv">3</span> <span class="op">*</span> <span class="dv">2</span> <span class="op">*</span> <span class="dv">1</span> <span class="op">*</span> <span class="dv">1</span></span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a><span class="op">=</span> <span class="dv">120</span></span></code></pre></div>
+<h3 id="divide-and-conquer">divide and conquer</h3>
+<p>split problem in half, solve each half, combine binary search, merge
+sort, quicksort all use this</p>
+<h3 id="greedy-algorithms">greedy algorithms</h3>
+<p>make locally optimal choice at each step, hope it leads to global
+optimum works for: minimum spanning tree, Huffman encoding, scheduling
+doesn’t always work — sometimes need DP instead</p>
+<h3 id="abstraction-layers">abstraction layers</h3>
+<p>hiding complexity behind simple interfaces:</p>
+<pre><code>you write: print(&quot;hello&quot;)
+Python calls: sys.write()
+OS calls: write() syscall
+kernel calls: device driver
+driver talks to: screen hardware</code></pre>
+<p>each layer hides the complexity below it. this is how all software is
+built.</p>
+<hr />
+<pre><code>=^._.^= understanding the fundamentals makes everything else easier</code></pre>
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

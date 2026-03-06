@@ -4,58 +4,79 @@ SRC="$HOME/notes-site/src"
 OUT="$HOME/notes-site/output"
 TEMPLATE="$HOME/notes-site/theme/template.html"
 
-# clean output
 rm -rf "$OUT"
 mkdir -p "$OUT"
 
-# manual order
 ORDER=(
     "README"
+    "linux"
     "vim"
     "mds"
     "git"
     "i3"
     "C++"
     "arithmetic"
+    "html"
+    "css"
+    "js"
+    "py"
+    "kt"
+    "cs"
+    "database"
+    "network"
+    "system-design"
     "warbird"
 )
 
-# convert each markdown file in order
+# build nav links file
+NAV_FILE=$(mktemp)
+
 for name in "${ORDER[@]}"; do
     f="$SRC/$name.md"
-    
-    # skip if file doesn't exist
     [ -f "$f" ] || continue
-    
     title=$(head -1 "$f" | sed 's/# //')
-    
-    # convert markdown to HTML with pandoc
-    content=$(pandoc "$f" --from markdown --to html)
-    
-    # build active nav
-    ACTIVE_NAV=""
-    for n in "${ORDER[@]}"; do
-        fn="$SRC/$n.md"
-        [ -f "$fn" ] || continue
-        t=$(head -1 "$fn" | sed 's/# //')
-        if [ "$n" = "$name" ]; then
-            ACTIVE_NAV="$ACTIVE_NAV<a href=\"$n.html\" class=\"active\">$t</a>\n"
-        else
-            ACTIVE_NAV="$ACTIVE_NAV<a href=\"$n.html\">$t</a>\n"
-        fi
-    done
-    
-    # inject into template
-    html=$(cat "$TEMPLATE")
-    html="${html/TITLE_PLACEHOLDER/$title}"
-    html="${html/NAV_PLACEHOLDER/$ACTIVE_NAV}"
-    html="${html/CONTENT_PLACEHOLDER/$content}"
-    
-    echo "$html" > "$OUT/$name.html"
-    echo "built: $name.html"
+    echo "$name|$title" >> "$NAV_FILE"
 done
 
-# set index
-cp "$OUT/README.html" "$OUT/index.html"
+# convert each file
+for name in "${ORDER[@]}"; do
+    f="$SRC/$name.md"
+    [ -f "$f" ] || continue
 
-echo "done. output in $OUT/"
+    title=$(head -1 "$f" | sed 's/# //')
+    content=$(pandoc "$f" --from markdown --to html)
+
+    # build nav html
+    nav=""
+    while IFS='|' read -r n t; do
+        if [ "$n" = "$name" ]; then
+            nav="$nav<a href=\"$n.html\" class=\"active\">$t</a>"
+        else
+            nav="$nav<a href=\"$n.html\">$t</a>"
+        fi
+    done < "$NAV_FILE"
+
+    # use python for safe substitution
+    python3 - <<EOF
+with open("$TEMPLATE", "r") as f:
+    html = f.read()
+
+title = """$title"""
+nav = """$nav"""
+content = """$content"""
+
+html = html.replace("TITLE_PLACEHOLDER", title)
+html = html.replace("NAV_PLACEHOLDER", nav)
+html = html.replace("CONTENT_PLACEHOLDER", content)
+
+with open("$OUT/$name.html", "w") as f:
+    f.write(html)
+
+print("built: $name.html")
+EOF
+
+done
+
+rm "$NAV_FILE"
+cp "$OUT/README.html" "$OUT/index.html"
+echo "done."
