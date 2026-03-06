@@ -9,25 +9,44 @@ mkdir -p "$OUT"
 
 ORDER=(
     "README"
-    "how-to-build"
+
+    # foundations
     "linux"
     "vim"
     "mds"
     "git"
+    "git-workflow"
     "i3"
-    "C++"
+
+    # math and cs theory
     "arithmetic"
+    "cs"
+    "system-design"
+
+    # web frontend
     "html"
     "css"
     "js"
+    "react"
+
+    # backend and data
     "py"
-    "kt"
-    "vocab"
-    "cs"
+    "api"
+    "sql"
     "database"
     "network"
-    "system-design"
+    "security"
+
+    # mobile
+    "kt"
+
+    # putting it all together
+    "fullstack"
+    "how-to-build"
     "web"
+    "vocab"
+
+    # personal
     "warbird"
 )
 
