@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designing UI, Database and System Architecture | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        /* ── hamburger button ── */
+        .hamburger {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--green);
+            font-size: 1.2rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .hamburger:hover {
+            border-color: var(--green);
+        }
+        /* ── overlay ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+        .overlay.open { display: block; }
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar);
+            height: 100vh;
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .sidebar-title {
+            padding: 0 20px 16px;
+            color: var(--green);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+        }
+        .sidebar nav a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+        .sidebar nav a:hover {
+            color: var(--fg);
+            border-left-color: var(--green);
+            background: rgba(0,204,0,0.05);
+        }
+        .sidebar nav a.active {
+            color: var(--green);
+            border-left-color: var(--green);
+        }
+        /* ── main content ── */
+        .content {
+            max-width: 750px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+        /* ── typography ── */
+        h1, h2, h3, h4 {
+            color: var(--fg);
+            margin: 28px 0 12px;
+            letter-spacing: 1px;
+        }
+        h1 {
+            font-size: 1.6rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            color: var(--green);
+        }
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+        p { margin-bottom: 14px; color: var(--fg); }
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code {
+            background: var(--bg2);
+            color: var(--green);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        pre {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+            white-space: pre;
+        }
+        pre code {
+            border: none;
+            padding: 0;
+            background: none;
+            white-space: pre;
+            font-family: 'Share Tech Mono', monospace;
+            line-height: 1.4;
+        }
+        blockquote {
+            border-left: 3px solid var(--green);
+            padding: 10px 16px;
+            background: var(--bg2);
+            color: var(--muted);
+            margin: 16px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        td, th {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th {
+            background: var(--bg2);
+            color: var(--green);
+        }
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 14px;
+        }
+        li { margin-bottom: 4px; }
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 24px 0;
+        }
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+    </style>
+</head>
+<body>
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="bash.html">Bash and Shell Scripting</a><a href="alacritty.html">Alacritty</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="git-workflow.html">Git and GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="dsa.html">Data Structures and Algorithms</a><a href="cs.html">Computer Science Fundamentals</a><a href="system-design.html">System Design</a><a href="design-pattern.html">Design Patterns</a><a href="Cpp.html">C++ for Competitive Programming — Complete Notes</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="ts.html">TypeScript with React</a><a href="react.html">React</a><a href="py.html">Python</a><a href="api.html">API Design and REST</a><a href="sql.html">SQL and PostgreSQL</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="docker.html">Docker</a><a href="testing.html">Testing</a><a href="kt.html">Kotlin</a><a href="fullstack.html">Full Stack — Frontend and Backend Together</a><a href="how-to-build.html">How to Build a Project</a><a href="design.html" class="active">Designing UI, Database and System Architecture</a><a href="web.html">Building Websites and Web Applications</a><a href="vocab.html">Dev Vocabulary</a><a href="warbird.html">warbird site — documentation</a>
+    </nav>
+</div>
+<div class="content">
+    <h1 id="designing-ui-database-and-system-architecture">Designing UI,
+Database and System Architecture</h1>
+<blockquote>
+<p>think before you build. design saves you from rewriting
+everything.</p>
+</blockquote>
+<hr />
+<h2 id="the-order-of-design">the order of design</h2>
+<p>most beginners open VS Code immediately. professionals do this
+first:</p>
+<pre><code>1. understand the problem
+2. design the data (database)
+3. design the system (architecture)
+4. design the interface (UI/UX)
+5. then write code</code></pre>
+<p>data design first because everything else depends on it. your UI is
+just a window into your data. your architecture is just how data moves
+around.</p>
+<hr />
+<h1 id="part-1-ui-design">part 1: UI design</h1>
+<h2 id="the-design-process">the design process</h2>
+<pre><code>understand users
+      ↓
+information architecture
+      ↓
+wireframes (low fidelity)
+      ↓
+design system (colors, fonts, spacing)
+      ↓
+high fidelity mockups
+      ↓
+prototype (interactive)
+      ↓
+build
+      ↓
+test with real users
+      ↓
+iterate</code></pre>
+<hr />
+<h2 id="step-1-understand-your-users">step 1: understand your users</h2>
+<p>before drawing anything, answer these:</p>
+<p><strong>who uses this?</strong> - age, tech comfort level, device
+(mobile/desktop) - what do they want to accomplish - what frustrates
+them in current solutions</p>
+<p><strong>what are the core user goals?</strong></p>
+<pre><code>example: StudentOS
+user goal 1: track what i want to do today
+user goal 2: log what i actually did
+user goal 3: see my progress over time
+user goal 4: get motivation when stuck
+
+NOT a user goal: &quot;use the app&quot;</code></pre>
+<p><strong>what is the one thing a user does every single day?</strong>
+design your entire interface around that one thing. everything else is
+secondary.</p>
+<hr />
+<h2 id="step-2-information-architecture">step 2: information
+architecture</h2>
+<p>IA is the skeleton of your app. what pages exist, how they connect,
+what lives where.</p>
+<p><strong>site map — every page and its relationships:</strong></p>
+<pre><code>/ (home/landing)
+├── /login
+├── /signup
+│   └── /verify-email
+├── /dashboard          ← main page after login
+│   ├── /goals          ← daily goals
+│   ├── /log            ← daily learning log
+│   └── /stats          ← progress/analytics
+├── /profile
+│   └── /profile/edit
+└── /settings</code></pre>
+<p><strong>navigation structure:</strong></p>
+<pre><code>primary nav:   things users visit daily (dashboard, goals, log)
+secondary nav: things users visit occasionally (profile, settings)
+utility nav:   logout, help, notifications</code></pre>
+<p><strong>rule:</strong> if a user needs more than 3 clicks to reach
+something they use daily, it is buried too deep.</p>
+<hr />
+<h2 id="step-3-user-flows">step 3: user flows</h2>
+<p>map every path a user takes. draw this before wireframing.</p>
+<pre><code>new user flow:
+landing page → signup → onboarding → dashboard
+
+returning user flow:
+login page → dashboard
+
+create goal flow:
+dashboard → click &quot;add goal&quot; → type goal → press enter → goal appears
+
+complete goal flow:
+dashboard → see goal → click checkbox → goal marked done → confetti?
+
+error flow:
+login → wrong password → error message → try again OR forgot password</code></pre>
+<p>for every flow, also design the <strong>sad path</strong> — what
+happens when things go wrong. network error, empty state, validation
+failure.</p>
+<hr />
+<h2 id="step-4-wireframes">step 4: wireframes</h2>
+<p>wireframes are fast sketches. no color. no fonts. just boxes showing
+layout.</p>
+<p><strong>do this on paper first.</strong> a pencil sketch takes 2
+minutes. the same thing in Figma takes 20.</p>
+<pre><code>desktop wireframe:
+┌─────────────────────────────────────────────┐
+│  [logo]    [nav]  [nav]  [nav]    [avatar]  │ ← navbar
+├─────────────────────────────────────────────┤
+│          │                                  │
+│  sidebar │   main content area              │
+│          │                                  │
+│  [link]  │   ┌──────────────────────────┐   │
+│  [link]  │   │  card                    │   │
+│  [link]  │   └──────────────────────────┘   │
+│  [link]  │                                  │
+│          │   ┌──────────────────────────┐   │
+│          │   │  card                    │   │
+│          │   └──────────────────────────┘   │
+└─────────────────────────────────────────────┘
+
+mobile wireframe (same page):
+┌──────────────────┐
+│ [☰]    [logo]    │ ← navbar (sidebar hidden)
+├──────────────────┤
+│                  │
+│  ┌────────────┐  │
+│  │  card      │  │
+│  └────────────┘  │
+│                  │
+│  ┌────────────┐  │
+│  │  card      │  │
+│  └────────────┘  │
+│                  │
+└──────────────────┘</code></pre>
+<p><strong>wireframe every state:</strong> - default (has data) - empty
+state (no data yet) - loading state - error state - mobile view</p>
+<hr />
+<h2 id="step-5-design-system">step 5: design system</h2>
+<p>define your visual language before designing any screens. every
+decision made once, applied everywhere.</p>
+<h3 id="colors">colors</h3>
+<pre><code>3 color rule:
+  1 background color (and 1-2 surface variations)
+  1 text color (and 1-2 muted variations)
+  1 accent/brand color (and light/dark variations)
+
+plus semantic colors:
+  success: green
+  warning: yellow/orange
+  error:   red
+  info:    blue
+
+example dark theme:
+  --bg:           #0d1117   background
+  --surface:      #161b22   cards, elevated
+  --surface-2:    #21262d   modals, dropdowns
+  --border:       #30363d   all borders
+
+  --text:         #e6edf3   primary text
+  --text-muted:   #7d8590   secondary text
+  --text-faint:   #484f58   disabled, placeholder
+
+  --accent:       #6cb6ff   primary actions, links
+  --accent-hover: #79c0ff   hover state
+
+  --success:      #3fb950
+  --warning:      #d29922
+  --error:        #f85149</code></pre>
+<p><strong>contrast ratio:</strong> text must be readable. minimum 4.5:1
+for normal text, 3:1 for large text. test with a contrast checker.</p>
+<h3 id="typography">typography</h3>
+<pre><code>pick ONE font family. two at most (one for headings, one for body).
+for developer tools and terminals: monospace fonts work great (your notes site)
+for general apps: Inter, Geist, or system-ui
+
+type scale (stick to these sizes, nothing else):
+  12px  — captions, labels, tiny text
+  14px  — body text, secondary content
+  16px  — default body (base)
+  18px  — large body, subheadings
+  20px  — h3
+  24px  — h2
+  32px  — h1
+  48px  — hero headline
+
+font weights:
+  400  — regular (body text)
+  500  — medium (labels, emphasis)
+  600  — semibold (headings, buttons)
+  700  — bold (strong emphasis only)
+
+line height:
+  1.4  — headings (tight)
+  1.6  — body text (comfortable)
+  1.8  — long-form reading</code></pre>
+<h3 id="spacing">spacing</h3>
+<p>use a 4px base grid. every spacing value is a multiple of 4:</p>
+<pre><code>4px   — tight (between icon and label)
+8px   — small (between related elements)
+12px  — medium-small
+16px  — medium (default padding)
+20px  — medium-large
+24px  — large (between sections)
+32px  — xl (section padding)
+40px  — 2xl
+48px  — 3xl
+64px  — 4xl (hero padding)
+
+rule: never eyeball spacing. always pick from the scale.</code></pre>
+<h3 id="components">components</h3>
+<p>define each component and all its states before building:</p>
+<pre><code>button:
+  variants: primary, secondary, ghost, danger
+  sizes:    sm, md, lg
+  states:   default, hover, active, focus, disabled, loading
+
+input:
+  states: default, focus, error, disabled
+  types:  text, password, search, textarea
+
+card:
+  variants: default, interactive (hover effect), selected</code></pre>
+<hr />
+<h2 id="step-6-layout-principles">step 6: layout principles</h2>
+<p><strong>grid system:</strong></p>
+<pre><code>desktop: 12-column grid, 24px gutters, 1200px max-width
+tablet:  8-column grid,  16px gutters
+mobile:  4-column grid,  16px gutters, full width</code></pre>
+<p><strong>visual hierarchy — size and weight tells users what to look
+at first:</strong></p>
+<pre><code>most important  → biggest, highest contrast, most white space around it
+secondary       → medium size, slightly muted
+tertiary        → small, muted color
+least important → smallest, faintest</code></pre>
+<p><strong>white space is not wasted space:</strong> - increases
+perceived quality - improves readability - separates unrelated content -
+focuses attention</p>
+<p><strong>alignment:</strong></p>
+<pre><code>everything aligns to the grid
+text aligns left (for LTR languages)
+numbers align right (in tables)
+icons center-align with text</code></pre>
+<p><strong>proximity — related things are close, unrelated things are
+far:</strong></p>
+<pre><code>label
+[input field]
+
+                        ← big gap here separates sections
+
+another label
+[another input]</code></pre>
+<hr />
+<h2 id="common-layout-patterns">common layout patterns</h2>
+<p><strong>holy grail layout:</strong></p>
+<pre><code>┌─────────────────────────┐
+│         header          │
+├───────┬─────────┬───────┤
+│       │         │       │
+│ left  │  main   │ right │
+│ side  │ content │ side  │
+│       │         │       │
+├───────┴─────────┴───────┤
+│         footer          │
+└─────────────────────────┘</code></pre>
+<p><strong>dashboard layout:</strong></p>
+<pre><code>┌─────────────────────────┐
+│  navbar                 │
+├──────┬──────────────────┤
+│      │  stat  stat stat │
+│ side │──────────────────┤
+│ bar  │  main content    │
+│      │                  │
+│      │                  │
+└──────┴──────────────────┘</code></pre>
+<p><strong>card grid:</strong></p>
+<pre><code>┌──────┐ ┌──────┐ ┌──────┐
+│ card │ │ card │ │ card │
+└──────┘ └──────┘ └──────┘
+┌──────┐ ┌──────┐ ┌──────┐
+│ card │ │ card │ │ card │
+└──────┘ └──────┘ └──────┘</code></pre>
+<p><strong>master-detail:</strong></p>
+<pre><code>┌───────────────┬──────────────────┐
+│ list item     │                  │
+│ list item ←── │   detail view    │
+│ list item     │   of selected    │
+│ list item     │   item           │
+└───────────────┴──────────────────┘</code></pre>
+<hr />
+<h2 id="mobile-first-design">mobile-first design</h2>
+<p>design for smallest screen first. then enhance for larger
+screens.</p>
+<pre><code>ask for every element:
+  does this need to exist on mobile?
+  if yes: how does it adapt?
+  if no: can it be hidden or moved?
+
+desktop sidebar → mobile: bottom tab bar or hamburger menu
+desktop table → mobile: cards or horizontal scroll
+desktop multi-column form → mobile: single column
+desktop hover tooltips → mobile: tap to reveal</code></pre>
+<hr />
+<h1 id="part-2-database-design">part 2: database design</h1>
+<h2 id="the-design-process-1">the design process</h2>
+<pre><code>identify entities (what things exist)
+      ↓
+identify attributes (what properties each thing has)
+      ↓
+identify relationships (how things relate to each other)
+      ↓
+normalize (remove redundancy)
+      ↓
+add indexes (for performance)
+      ↓
+define constraints (for data integrity)</code></pre>
+<hr />
+<h2 id="step-1-identify-entities">step 1: identify entities</h2>
+<p>entities are the “nouns” of your system. the things you need to
+store.</p>
+<pre><code>StudentOS entities:
+  user
+  goal
+  log
+  session (auth)
+
+blog entities:
+  user
+  post
+  comment
+  tag
+  category
+
+e-commerce entities:
+  user
+  product
+  category
+  order
+  order_item
+  address
+  payment
+  review</code></pre>
+<p><strong>rule:</strong> if you find yourself storing a list of things
+inside a single field, that list should be its own table.</p>
+<hr />
+<h2 id="step-2-attributes-for-each-entity">step 2: attributes for each
+entity</h2>
+<p>for each entity, list every property it needs:</p>
+<pre><code>users:
+  id            UUID, primary key
+  email         TEXT, unique, not null
+  password_hash TEXT, not null
+  name          TEXT, not null
+  avatar_url    TEXT, nullable
+  bio           TEXT, nullable
+  created_at    TIMESTAMPTZ, default now()
+  updated_at    TIMESTAMPTZ, default now()
+  last_seen_at  TIMESTAMPTZ
+
+goals:
+  id            UUID, primary key
+  user_id       UUID, foreign key → users.id
+  title         TEXT, not null
+  completed     BOOLEAN, default false
+  date          DATE, not null
+  created_at    TIMESTAMPTZ, default now()
+
+logs:
+  id            UUID, primary key
+  user_id       UUID, foreign key → users.id
+  content       TEXT, not null
+  mood          INTEGER, 1-5
+  date          DATE, not null, default today
+  created_at    TIMESTAMPTZ, default now()</code></pre>
+<p><strong>for every attribute ask:</strong> - is it required (NOT NULL)
+or optional (NULL)? - what is the right data type? - does it need a
+default value? - does it need to be unique? - will it be
+searched/filtered often? (needs index)</p>
+<hr />
+<h2 id="step-3-relationships">step 3: relationships</h2>
+<p>relationships define how tables connect.</p>
+<p><strong>one-to-many</strong> — one user has many goals. most common
+relationship.</p>
+<pre><code>users ──────&lt; goals
+(one)          (many)
+
+users.id = goals.user_id</code></pre>
+<p><strong>many-to-many</strong> — one post has many tags. one tag has
+many posts. requires a junction table.</p>
+<pre><code>posts &gt;──────&lt; tags
+
+posts ──────&lt; post_tags &gt;────── tags
+posts.id = post_tags.post_id
+tags.id  = post_tags.tag_id</code></pre>
+<p><strong>one-to-one</strong> — one user has one profile. rare. often
+just means merge the tables.</p>
+<pre><code>users ────── profiles
+users.id = profiles.user_id</code></pre>
+<p><strong>draw an ER diagram:</strong></p>
+<pre><code>┌──────────┐         ┌──────────┐
+│  users   │         │  goals   │
+├──────────┤         ├──────────┤
+│ id  (PK) │────────&lt;│ id  (PK) │
+│ email    │         │ user_id  │ (FK)
+│ name     │         │ title    │
+│ ...      │         │ date     │
+└──────────┘         └──────────┘
+     │
+     │               ┌──────────┐
+     └──────────────&lt;│  logs    │
+                     ├──────────┤
+                     │ id  (PK) │
+                     │ user_id  │ (FK)
+                     │ content  │
+                     │ mood     │
+                     └──────────┘</code></pre>
+<hr />
+<h2 id="step-4-normalization">step 4: normalization</h2>
+<p>normalization removes redundancy and prevents update anomalies.</p>
+<p><strong>1NF — no repeating groups:</strong></p>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- bad: comma-separated values in a column</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>users: <span class="kw">id</span>, name, tags → <span class="ot">&quot;javascript,python,react&quot;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- good: separate table</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>user_tags: user_id, tag</span></code></pre></div>
+<p><strong>2NF — no partial dependencies:</strong></p>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- bad: order_items stores product_name (depends on product, not order_item)</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>order_items: order_id, product_id, product_name, quantity, price</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- good: get product_name by joining products table</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>order_items: order_id, product_id, quantity, price</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>products:    <span class="kw">id</span>, name, description</span></code></pre></div>
+<p><strong>3NF — no transitive dependencies:</strong></p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- bad: city_population depends on city, not on user</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>users: <span class="kw">id</span>, name, city, city_population</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- good: separate table</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>users:  <span class="kw">id</span>, name, city_id</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>cities: <span class="kw">id</span>, name, population</span></code></pre></div>
+<p><strong>when to denormalize:</strong> sometimes break these rules
+intentionally for performance. storing a <code>comment_count</code> on a
+<code>posts</code> table avoids expensive COUNT queries. trade off: you
+must keep it in sync.</p>
+<hr />
+<h2 id="step-5-indexes">step 5: indexes</h2>
+<p>indexes speed up queries. without them, every query scans every
+row.</p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- always index:</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- 1. foreign keys</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_goals_user_id <span class="kw">ON</span> goals(user_id);</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_logs_user_id  <span class="kw">ON</span> logs(user_id);</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- 2. columns used in WHERE clauses often</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_goals_date     <span class="kw">ON</span> goals(<span class="dt">date</span>);</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_users_email    <span class="kw">ON</span> users(email);</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- 3. columns used in ORDER BY</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_posts_created  <span class="kw">ON</span> posts(created_at <span class="kw">DESC</span>);</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">-- 4. composite indexes for common query patterns</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="co">-- &quot;get all goals for user on a specific date&quot;</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_goals_user_date <span class="kw">ON</span> goals(user_id, <span class="dt">date</span>);</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="co">-- 5. partial indexes (only index rows matching a condition)</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_published_posts <span class="kw">ON</span> posts(created_at)</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> published <span class="op">=</span> <span class="kw">true</span>;</span></code></pre></div>
+<p><strong>cost of indexes:</strong> they speed up reads but slow writes
+(index updated on every insert/update/delete). don’t index everything.
+index what you query.</p>
+<hr />
+<h2 id="step-6-constraints">step 6: constraints</h2>
+<p>constraints enforce data integrity at the database level:</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> goals (</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">id</span>         UUID <span class="kw">DEFAULT</span> gen_random_uuid() <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    user_id    UUID <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">REFERENCES</span> users(<span class="kw">id</span>) <span class="kw">ON</span> <span class="kw">DELETE</span> <span class="kw">CASCADE</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    title      TEXT <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">CHECK</span> (<span class="fu">length</span>(<span class="fu">trim</span>(title)) <span class="op">&gt;</span> <span class="dv">0</span>),</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    completed  <span class="dt">BOOLEAN</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="kw">false</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    mood       <span class="dt">INTEGER</span> <span class="kw">CHECK</span> (mood <span class="kw">BETWEEN</span> <span class="dv">1</span> <span class="kw">AND</span> <span class="dv">5</span>),</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">date</span>       <span class="dt">DATE</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="fu">CURRENT_DATE</span>,</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    created_at TIMESTAMPTZ <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> NOW(),</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- composite unique constraint</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">UNIQUE</span>(user_id, <span class="dt">date</span>, title)  <span class="co">-- no duplicate goals same day</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<p><strong>ON DELETE options:</strong></p>
+<pre><code>CASCADE    → delete child rows when parent deleted (delete goals when user deleted)
+RESTRICT   → prevent parent deletion if children exist
+SET NULL   → set foreign key to null when parent deleted
+SET DEFAULT→ set foreign key to default value</code></pre>
+<hr />
+<h2 id="schema-design-patterns">schema design patterns</h2>
+<p><strong>soft delete</strong> — don’t actually delete rows, mark them
+deleted:</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> users <span class="kw">ADD</span> <span class="kw">COLUMN</span> deleted_at TIMESTAMPTZ;</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- &quot;delete&quot; a user</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="kw">UPDATE</span> users <span class="kw">SET</span> deleted_at <span class="op">=</span> NOW() <span class="kw">WHERE</span> <span class="kw">id</span> <span class="op">=</span> $<span class="dv">1</span>;</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- query only active users</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> users <span class="kw">WHERE</span> deleted_at <span class="kw">IS</span> <span class="kw">NULL</span>;</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- partial index for performance</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">INDEX</span> idx_active_users <span class="kw">ON</span> users(<span class="kw">id</span>) <span class="kw">WHERE</span> deleted_at <span class="kw">IS</span> <span class="kw">NULL</span>;</span></code></pre></div>
+<p><strong>audit trail</strong> — track who changed what when:</p>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> audit_log (</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">id</span>          UUID <span class="kw">DEFAULT</span> gen_random_uuid() <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    table_name  TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    record_id   UUID <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    action      TEXT <span class="kw">NOT</span> <span class="kw">NULL</span>,  <span class="co">-- INSERT, UPDATE, DELETE</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    old_data    JSONB,</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    new_data    JSONB,</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    user_id     UUID,</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    created_at  TIMESTAMPTZ <span class="kw">DEFAULT</span> NOW()</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<p><strong>timestamps on everything:</strong></p>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- add to every table</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>created_at  TIMESTAMPTZ <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> NOW(),</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>updated_at  TIMESTAMPTZ <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> NOW()</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- auto-update updated_at with a trigger</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">OR</span> <span class="kw">REPLACE</span> <span class="kw">FUNCTION</span> update_updated_at()</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>RETURNS <span class="kw">TRIGGER</span> <span class="kw">AS</span> $$</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="cf">BEGIN</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">NEW</span>.updated_at <span class="op">=</span> NOW();</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">RETURN</span> <span class="kw">NEW</span>;</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="cf">END</span>;</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>$$ LANGUAGE plpgsql;</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TRIGGER</span> set_updated_at</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="kw">BEFORE</span> <span class="kw">UPDATE</span> <span class="kw">ON</span> goals</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a><span class="cf">FOR</span> <span class="kw">EACH</span> <span class="kw">ROW</span> <span class="kw">EXECUTE</span> <span class="kw">FUNCTION</span> update_updated_at();</span></code></pre></div>
+<p><strong>ULID / UUID for IDs:</strong></p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- UUID: random, globally unique, good default</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="kw">id</span> UUID <span class="kw">DEFAULT</span> gen_random_uuid() <span class="kw">PRIMARY</span> <span class="kw">KEY</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- BIGSERIAL: auto-increment integer, smaller, faster joins</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- but reveals record count (user id 1, 2, 3...)</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="kw">id</span> BIGSERIAL <span class="kw">PRIMARY</span> <span class="kw">KEY</span></span></code></pre></div>
+<hr />
+<h1 id="part-3-system-architecture">part 3: system architecture</h1>
+<h2 id="the-design-process-2">the design process</h2>
+<pre><code>understand scale requirements
+      ↓
+identify components (what services exist)
+      ↓
+define data flow (how data moves)
+      ↓
+choose deployment strategy
+      ↓
+plan for failure (what happens when things break)</code></pre>
+<hr />
+<h2 id="step-1-understand-your-scale">step 1: understand your scale</h2>
+<p>don’t over-engineer for scale you will never reach. but don’t
+under-engineer either.</p>
+<pre><code>tier 1: personal project / MVP
+  users: 0 - 1,000
+  requests: &lt; 100/day
+  data: &lt; 1GB
+  solution: single server, managed database, simple deployment
+  cost: $0-20/month
+
+tier 2: small product
+  users: 1,000 - 100,000
+  requests: thousands/day
+  data: 1GB - 100GB
+  solution: separate frontend/backend, CDN, managed database
+  cost: $20-200/month
+
+tier 3: growing product
+  users: 100,000 - 1,000,000
+  requests: millions/day
+  data: 100GB - 1TB
+  solution: load balancer, multiple backend instances, read replicas, caching
+  cost: $200-2000/month
+
+tier 4: large scale
+  users: 1M+
+  requests: billions/day
+  solution: microservices, multiple databases, global CDN, complex infra
+  cost: $2000+/month</code></pre>
+<p><strong>start at tier 1. move up only when you hit limits.</strong>
+most apps never leave tier 1.</p>
+<hr />
+<h2 id="step-2-components">step 2: components</h2>
+<p>every web application has these core components:</p>
+<pre><code>client                    your infrastructure
+┌───────────┐             ┌─────────────────────────────┐
+│           │             │                             │
+│  browser  │──HTTP/S────►│  CDN (static files)         │
+│           │             │                             │
+│  mobile   │──HTTP/S────►│  web server / API           │
+│   app     │             │                             │
+│           │             │  database                   │
+└───────────┘             │                             │
+                          │  file storage               │
+                          │                             │
+                          │  cache (Redis)              │
+                          │                             │
+                          │  queue (background jobs)    │
+                          │                             │
+                          └─────────────────────────────┘</code></pre>
+<p><strong>CDN (Content Delivery Network)</strong> - serves static files
+(HTML, CSS, JS, images) from servers near the user - Vercel and
+Cloudflare are CDNs - dramatically faster page loads globally</p>
+<p><strong>web server / API</strong> - processes requests, runs business
+logic - talks to database, calls external services - FastAPI, Express,
+Django</p>
+<p><strong>database</strong> - persists all application data -
+PostgreSQL for most apps</p>
+<p><strong>file storage</strong> - user uploads, images, documents -
+Supabase Storage, AWS S3, Cloudflare R2</p>
+<p><strong>cache</strong> - stores frequently accessed data in memory
+for fast retrieval - Redis is the standard - cache DB query results,
+session data, computed values</p>
+<p><strong>queue</strong> - background jobs that don’t need to happen
+synchronously - sending emails, processing images, generating reports -
+Celery + Redis, BullMQ</p>
+<hr />
+<h2 id="step-3-data-flow">step 3: data flow</h2>
+<p>trace how data moves through your system for each key operation.</p>
+<p><strong>user login:</strong></p>
+<pre><code>browser
+  → POST /api/auth/login {email, password}
+  → API server
+      → query database: SELECT * FROM users WHERE email = ?
+      → verify password hash
+      → create JWT token
+      → return {token, user}
+  → browser stores token
+  → browser redirects to dashboard</code></pre>
+<p><strong>load dashboard:</strong></p>
+<pre><code>browser
+  → GET /api/goals?date=today (with JWT in header)
+  → API server
+      → validate JWT → extract user_id
+      → check cache: &quot;goals:user_id:2026-03-06&quot;
+      → cache miss → query database
+      → store result in cache (TTL 60 seconds)
+      → return goals
+  → browser renders goals</code></pre>
+<p><strong>file upload:</strong></p>
+<pre><code>browser
+  → POST /api/upload (multipart form data)
+  → API server
+      → validate file type and size
+      → generate unique filename
+      → upload to Supabase Storage
+      → save file URL to database
+      → return {url}
+  → browser shows uploaded image</code></pre>
+<hr />
+<h2 id="step-4-architecture-patterns">step 4: architecture patterns</h2>
+<h3 id="monolith">monolith</h3>
+<p>everything in one codebase, one deployment. simple to start with.</p>
+<pre><code>┌─────────────────────────────┐
+│         monolith            │
+│                             │
+│  auth module                │
+│  goals module               │
+│  logs module                │
+│  notifications module       │
+│  file upload module         │
+│                             │
+└─────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│        database             │
+└─────────────────────────────┘</code></pre>
+<p><strong>use for:</strong> almost everything. startups, MVPs, small to
+medium apps.</p>
+<p><strong>pros:</strong> simple to develop, deploy, debug. no network
+between services. <strong>cons:</strong> as it grows, harder to scale
+individual parts. one bug can crash everything.</p>
+<h3 id="microservices">microservices</h3>
+<p>split into many small services, each with its own database.</p>
+<pre><code>┌──────────┐  ┌──────────┐  ┌──────────┐
+│  auth    │  │  goals   │  │  notify  │
+│ service  │  │ service  │  │ service  │
+└──────────┘  └──────────┘  └──────────┘
+     │              │              │
+┌────┴───┐    ┌─────┴──┐    ┌──────┴─┐
+│auth db │    │goals db│    │notify  │
+└────────┘    └────────┘    │  db    │
+                            └────────┘</code></pre>
+<p><strong>use for:</strong> large teams, services that need to scale
+independently, after outgrowing monolith.</p>
+<p><strong>pros:</strong> scale services independently, different tech
+stacks, isolated failures. <strong>cons:</strong> massive operational
+complexity, network calls between services, hard to debug.</p>
+<p><strong>rule:</strong> don’t start with microservices. start
+monolith, split when you have a clear reason.</p>
+<h3 id="the-practical-architecture-for-your-projects">the practical
+architecture for your projects</h3>
+<pre><code>┌─────────────────────────────────────────┐
+│               Vercel CDN                │
+│         (React frontend, static)        │
+└─────────────────────────────────────────┘
+                     │ HTTPS
+                     ▼
+┌─────────────────────────────────────────┐
+│            Railway / Render             │
+│            (FastAPI backend)            │
+│                                         │
+│  routes → services → repositories      │
+│                                         │
+└─────────────────────────────────────────┘
+          │                    │
+          ▼                    ▼
+┌──────────────────┐  ┌───────────────────┐
+│    Supabase      │  │  Supabase Storage │
+│   PostgreSQL     │  │  (file uploads)   │
+└──────────────────┘  └───────────────────┘</code></pre>
+<p>this is tier 1/2 architecture. handles tens of thousands of users
+easily. zero cost to start.</p>
+<hr />
+<h2 id="step-5-caching-strategy">step 5: caching strategy</h2>
+<p>cache = storing results so you don’t compute or fetch them again.</p>
+<pre><code>cache hit:  request → cache → return cached data (fast, ~1ms)
+cache miss: request → cache → not found → database → store in cache → return data</code></pre>
+<p><strong>what to cache:</strong></p>
+<pre><code>good candidates:
+  results of expensive DB queries
+  user session data
+  computed values (stats, aggregates)
+  external API responses
+  rendered HTML fragments
+
+bad candidates:
+  data that changes every request
+  unique per-user data (unless caching per user)
+  very large objects</code></pre>
+<p><strong>cache invalidation</strong> — when to clear the cache:</p>
+<pre><code>time-based (TTL):
+  cache expires after N seconds
+  simple, but may serve stale data
+  good for: stats, public content
+
+event-based:
+  clear cache when data changes
+  more complex but always fresh
+  good for: user-specific data
+
+example:
+  cache user&#39;s goals for 60 seconds (TTL)
+  when user creates/updates/deletes a goal: clear their goals cache</code></pre>
+<hr />
+<h2 id="step-6-handling-failure">step 6: handling failure</h2>
+<p>design for failure. every component will fail eventually.</p>
+<p><strong>what can fail:</strong></p>
+<pre><code>database is down        → show maintenance page, retry
+external API is down    → fallback response, queue retry
+server runs out of memory → auto-restart, alert
+bad deploy breaks app   → rollback to previous version
+user sends malicious data → validate, sanitize, reject
+too many requests       → rate limiting, queue</code></pre>
+<p><strong>retry logic:</strong></p>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> with_retry(fn, max_attempts<span class="op">=</span><span class="dv">3</span>, delay<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> attempt <span class="kw">in</span> <span class="bu">range</span>(max_attempts):</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="cf">await</span> fn()</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> attempt <span class="op">==</span> max_attempts <span class="op">-</span> <span class="dv">1</span>:</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>                <span class="cf">raise</span></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">await</span> asyncio.sleep(delay <span class="op">*</span> (<span class="dv">2</span> <span class="op">**</span> attempt))  <span class="co"># exponential backoff</span></span></code></pre></div>
+<p><strong>circuit breaker</strong> — stop calling a failing
+service:</p>
+<pre><code>closed (normal) → open (failing, stop calling) → half-open (try again)</code></pre>
+<p><strong>graceful degradation</strong> — app still works when parts
+fail:</p>
+<pre><code>search service down → show all results unsorted (not an error page)
+recommendation service down → show popular items instead
+image processing down → show original image</code></pre>
+<hr />
+<h2 id="step-7-api-design-in-architecture">step 7: API design in
+architecture</h2>
+<p>your API is the contract between frontend and backend. design it
+before building either.</p>
+<p><strong>REST resource structure:</strong></p>
+<pre><code>/api/v1/users
+/api/v1/users/:id
+/api/v1/users/:id/goals
+/api/v1/goals
+/api/v1/goals/:id
+/api/v1/logs
+/api/v1/auth/login
+/api/v1/auth/signup
+/api/v1/auth/logout</code></pre>
+<p><strong>versioning:</strong></p>
+<pre><code>/api/v1/... → current stable version
+/api/v2/... → new version (backwards incompatible changes)
+
+never break existing clients.
+deprecate old versions with a sunset date.</code></pre>
+<p><strong>pagination:</strong></p>
+<div class="sourceCode" id="cb56"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="er">GET</span> <span class="er">/api/goals?page=2&amp;per_page=20</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;data&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="er">...</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;pagination&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;page&quot;</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;per_page&quot;</span><span class="fu">:</span> <span class="dv">20</span><span class="fu">,</span></span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;total&quot;</span><span class="fu">:</span> <span class="dv">150</span><span class="fu">,</span></span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;total_pages&quot;</span><span class="fu">:</span> <span class="dv">8</span></span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<hr />
+<h2 id="putting-it-all-together-design-document">putting it all
+together: design document</h2>
+<p>before starting any project write a simple design doc. one page is
+enough.</p>
+<pre><code># ProjectName — Design Document
+
+## problem
+what problem does this solve? for who?
+
+## users
+who uses this? what do they do daily?
+
+## core features (MVP)
+1. ...
+2. ...
+3. ...
+
+## pages / screens
+- /        landing page
+- /login   login
+- /app     main app (protected)
+
+## data model
+users:  id, email, name, created_at
+posts:  id, user_id, title, content, created_at
+
+## API endpoints
+GET  /api/posts        list posts
+POST /api/posts        create post
+GET  /api/posts/:id    get post
+DELETE /api/posts/:id  delete post
+
+## architecture
+frontend: React on Vercel
+backend:  FastAPI on Railway
+database: PostgreSQL on Supabase
+
+## what i am NOT building (v1)
+- comments
+- notifications
+- mobile app</code></pre>
+<p>one page. written before any code. saves weeks of rework.</p>
+<hr />
+<h2 id="common-design-mistakes">common design mistakes</h2>
+<p><strong>designing for scale you don’t have</strong> — adding Redis,
+message queues, microservices for an app with 10 users. complexity kills
+projects.</p>
+<p><strong>no empty states</strong> — every list or data view needs a
+design for when it’s empty. “no goals yet — add your first one!”</p>
+<p><strong>no error states</strong> — every async operation needs a
+design for failure.</p>
+<p><strong>inconsistent spacing</strong> — not using a spacing system.
+elements feel misaligned and random.</p>
+<p><strong>too many fonts and colors</strong> — pick one font, one
+accent color, stick to it.</p>
+<p><strong>designing only the happy path</strong> — what happens when
+the network fails? when input is wrong? when the user is on a slow 2G
+connection?</p>
+<p><strong>no mobile design</strong> — over 60% of traffic is mobile.
+design for it first.</p>
+<p><strong>not documenting the data model</strong> — changing the schema
+later when the app is running is painful. think it through before
+writing any code.</p>
+<hr />
+<pre><code>=^._.^= measure twice, cut once</code></pre>
+</div>
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+</script>
+</body>
+</html>
