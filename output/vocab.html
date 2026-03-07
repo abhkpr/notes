@@ -23,169 +23,173 @@
             font-size: 14px;
             line-height: 1.7;
         }
-        /* ── hamburger button ── */
+
+        /* ── hamburger ── */
         .hamburger {
-            position: fixed;
-            top: 12px;
-            left: 12px;
-            z-index: 1000;
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            color: var(--green);
-            font-size: 1.2rem;
-            padding: 4px 10px;
-            cursor: pointer;
-            font-family: 'Share Tech Mono', monospace;
+            position: fixed; top: 12px; left: 12px; z-index: 1000;
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--green); font-size: 1.2rem; padding: 4px 10px;
+            cursor: pointer; font-family: 'Share Tech Mono', monospace;
         }
-        .hamburger:hover {
-            border-color: var(--green);
-        }
-        /* ── overlay ── */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 99;
-        }
-        .overlay.open { display: block; }
-        /* ── sidebar ── */
-        .sidebar {
-            position: fixed;
-            top: 0; left: 0;
-            width: var(--sidebar);
-            height: 100vh;
-            background: var(--bg2);
-            border-right: 1px solid var(--border);
-            overflow-y: auto;
-            z-index: 100;
-            transform: translateX(-100%);
-            transition: transform 0.2s ease;
-            padding: 60px 0 20px;
-        }
-        .sidebar.open {
-            transform: translateX(0);
-        }
-        .sidebar-title {
-            padding: 0 20px 16px;
-            color: var(--green);
-            font-size: 0.8rem;
-            letter-spacing: 3px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 10px;
-        }
-        .sidebar nav a {
-            display: block;
-            padding: 8px 20px;
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 0.85rem;
-            border-left: 2px solid transparent;
+        .hamburger:hover { border-color: var(--green); }
+
+        /* ── search button in header ── */
+        .search-btn {
+            position: fixed; top: 12px; right: 12px; z-index: 1000;
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--muted); font-size: 0.75rem; padding: 4px 12px;
+            cursor: pointer; font-family: 'Share Tech Mono', monospace;
+            display: flex; align-items: center; gap: 8px;
             transition: all 0.15s;
         }
-        .sidebar nav a:hover {
-            color: var(--fg);
-            border-left-color: var(--green);
-            background: rgba(0,204,0,0.05);
+        .search-btn:hover { border-color: var(--green); color: var(--green); }
+        .search-btn .kbd {
+            background: var(--border); padding: 1px 5px;
+            font-size: 0.7rem; color: var(--muted);
         }
-        .sidebar nav a.active {
-            color: var(--green);
-            border-left-color: var(--green);
+
+        /* ── overlay ── */
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99;
         }
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: var(--sidebar); height: 100vh;
+            background: var(--bg2); border-right: 1px solid var(--border);
+            overflow-y: auto; z-index: 100;
+            transform: translateX(-100%); transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-title {
+            padding: 0 20px 16px; color: var(--green);
+            font-size: 0.8rem; letter-spacing: 3px;
+            border-bottom: 1px solid var(--border); margin-bottom: 10px;
+        }
+        .sidebar nav a {
+            display: block; padding: 8px 20px; color: var(--muted);
+            text-decoration: none; font-size: 0.85rem;
+            border-left: 2px solid transparent; transition: all 0.15s;
+        }
+        .sidebar nav a:hover { color: var(--fg); border-left-color: var(--green); background: rgba(0,204,0,0.05); }
+        .sidebar nav a.active { color: var(--green); border-left-color: var(--green); }
+
         /* ── main content ── */
-        .content {
-            max-width: 750px;
-            margin: 0 auto;
-            padding: 60px 24px 80px;
-        }
+        .content { max-width: 750px; margin: 0 auto; padding: 60px 24px 80px; }
+
         /* ── typography ── */
-        h1, h2, h3, h4 {
-            color: var(--fg);
-            margin: 28px 0 12px;
-            letter-spacing: 1px;
-        }
-        h1 {
-            font-size: 1.6rem;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-            color: var(--green);
-        }
+        h1, h2, h3, h4 { color: var(--fg); margin: 28px 0 12px; letter-spacing: 1px; }
+        h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--green); }
         h2 { font-size: 1.2rem; color: var(--green); }
         h3 { font-size: 1rem; }
         p { margin-bottom: 14px; color: var(--fg); }
         a { color: var(--green); text-decoration: none; }
         a:hover { text-decoration: underline; }
-        code {
-            background: var(--bg2);
-            color: var(--green);
-            border: 1px solid var(--border);
-            padding: 2px 6px;
-            font-family: 'Share Tech Mono', monospace;
-        }
-        pre {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-left: 3px solid var(--green);
-            padding: 16px;
-            overflow-x: auto;
-            margin: 16px 0;
-            white-space: pre;
-        }
-        pre code {
-            border: none;
-            padding: 0;
-            background: none;
-            white-space: pre;
-            font-family: 'Share Tech Mono', monospace;
-            line-height: 1.4;
-        }
-        blockquote {
-            border-left: 3px solid var(--green);
-            padding: 10px 16px;
-            background: var(--bg2);
-            color: var(--muted);
-            margin: 16px 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 16px 0;
-        }
-        td, th {
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            text-align: left;
-        }
-        th {
-            background: var(--bg2);
-            color: var(--green);
-        }
-        ul, ol {
-            padding-left: 20px;
-            margin-bottom: 14px;
-        }
+        code { background: var(--bg2); color: var(--green); border: 1px solid var(--border); padding: 2px 6px; font-family: 'Share Tech Mono', monospace; }
+        pre { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--green); padding: 16px; overflow-x: auto; margin: 16px 0; white-space: pre; }
+        pre code { border: none; padding: 0; background: none; white-space: pre; font-family: 'Share Tech Mono', monospace; line-height: 1.4; }
+        blockquote { border-left: 3px solid var(--green); padding: 10px 16px; background: var(--bg2); color: var(--muted); margin: 16px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        td, th { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+        th { background: var(--bg2); color: var(--green); }
+        ul, ol { padding-left: 20px; margin-bottom: 14px; }
         li { margin-bottom: 4px; }
-        hr {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 24px 0;
-        }
-        /* ── scrollbar ── */
+        hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); }
+
+        /* ── SEARCH MODAL ── */
+        .search-modal {
+            position: fixed; inset: 0; z-index: 2000;
+            background: rgba(0,0,0,0.85);
+            display: flex; align-items: flex-start; justify-content: center;
+            padding-top: 80px;
+            opacity: 0; pointer-events: none; transition: opacity 0.15s;
+        }
+        .search-modal.open { opacity: 1; pointer-events: all; }
+
+        .search-box {
+            background: var(--bg2); border: 1px solid var(--green);
+            width: 100%; max-width: 580px;
+            box-shadow: 0 0 40px rgba(0,204,0,0.1);
+        }
+        .search-input-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px; border-bottom: 1px solid var(--border);
+        }
+        .search-icon { color: var(--green); font-size: 14px; flex-shrink: 0; }
+        .search-input {
+            background: none; border: none; outline: none;
+            color: var(--fg); font-family: 'Share Tech Mono', monospace;
+            font-size: 14px; flex: 1;
+        }
+        .search-input::placeholder { color: var(--muted); }
+        .search-close {
+            color: var(--muted); font-size: 11px; cursor: pointer;
+            flex-shrink: 0; padding: 2px 6px; border: 1px solid var(--border);
+            background: none; font-family: 'Share Tech Mono', monospace;
+            transition: all 0.15s;
+        }
+        .search-close:hover { color: var(--green); border-color: var(--green); }
+
+        .search-results { max-height: 420px; overflow-y: auto; }
+
+        .search-result {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 12px 18px; cursor: pointer; text-decoration: none;
+            border-bottom: 1px solid var(--border); transition: background 0.1s;
+        }
+        .search-result:last-child { border-bottom: none; }
+        .search-result:hover, .search-result.focused { background: rgba(0,204,0,0.05); }
+        .search-result:hover .sr-title, .search-result.focused .sr-title { color: var(--green); }
+
+        .sr-left { flex-shrink: 0; color: var(--green); font-size: 11px; opacity: 0.5; width: 16px; text-align: center; }
+        .sr-body { flex: 1; min-width: 0; }
+        .sr-title { color: var(--fg); font-size: 13px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sr-page { color: var(--muted); font-size: 11px; }
+        .sr-match { color: var(--muted); font-size: 11px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sr-match em { color: var(--green); font-style: normal; }
+
+        .search-footer {
+            padding: 8px 18px; border-top: 1px solid var(--border);
+            display: flex; gap: 16px; align-items: center;
+        }
+        .sf-hint { font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+        .sf-key { background: var(--border); padding: 1px 5px; font-size: 10px; }
+
+        .search-empty {
+            padding: 40px 18px; text-align: center;
+            color: var(--muted); font-size: 12px;
+        }
+        .search-empty span { color: var(--green); }
+
+        /* highlight matched text */
+        mark { background: rgba(0,204,0,0.15); color: var(--green); padding: 0 2px; }
     </style>
 </head>
 <body>
+
 <button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+<!-- search trigger button -->
+<button class="search-btn" onclick="openSearch()">
+    ⌕ search <span class="kbd">ctrl k</span>
+</button>
+
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
 <div class="sidebar" id="sidebar">
     <div class="sidebar-title">// notes</div>
     <nav>
-        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="bash.html">Bash and Shell Scripting</a><a href="alacritty.html">Alacritty</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="git-workflow.html">Git and GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="dsa.html">Data Structures and Algorithms</a><a href="cs.html">Computer Science Fundamentals</a><a href="system-design.html">System Design</a><a href="design-pattern.html">Design Patterns</a><a href="Cpp.html">C++ for Competitive Programming — Complete Notes</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="ts.html">TypeScript with React</a><a href="react.html">React</a><a href="py.html">Python</a><a href="api.html">API Design and REST</a><a href="sql.html">SQL and PostgreSQL</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="docker.html">Docker</a><a href="testing.html">Testing</a><a href="kt.html">Kotlin</a><a href="fullstack.html">Full Stack — Frontend and Backend Together</a><a href="how-to-build.html">How to Build a Project</a><a href="design.html">Designing UI, Database and System Architecture</a><a href="web.html">Building Websites and Web Applications</a><a href="vocab.html" class="active">Dev Vocabulary</a><a href="warbird.html">warbird site — documentation</a>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="bash.html">Bash and Shell Scripting</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub</a><a href="git-workflow.html">Git and GitHub</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="dsa.html">Data Structures and Algorithms</a><a href="cs.html">Computer Science Fundamentals</a><a href="system-design.html">System Design</a><a href="design-pattern.html">Design Patterns</a><a href="Cpp.html">C++ for Competitive Programming — Complete Notes</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="ts.html">TypeScript with React</a><a href="react.html">React</a><a href="py.html">Python</a><a href="api.html">API Design and REST</a><a href="sql.html">SQL and PostgreSQL</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="docker.html">Docker</a><a href="testing.html">Testing</a><a href="kt.html">Kotlin</a><a href="fullstack.html">Full Stack — Frontend and Backend Together</a><a href="how-to-build.html">How to Build a Project</a><a href="design.html">Designing UI, Database and System Architecture</a><a href="web.html">Building Websites and Web Applications</a><a href="vocab.html" class="active">Dev Vocabulary</a><a href="warbird.html">warbird site — documentation</a>
     </nav>
 </div>
+
 <div class="content">
     <h1 id="dev-vocabulary">Dev Vocabulary</h1>
 <blockquote>
@@ -693,11 +697,155 @@ a11y   Accessibility (a + 11 letters + y)
 i18n   Internationalization (i + 18 letters + n)</code></pre>
 <hr />
 <pre><code>=^._.^= know the words, speak the language</code></pre>
+
 </div>
+
+<!-- ── SEARCH MODAL ── -->
+<div class="search-modal" id="searchModal" onclick="closeSearchOutside(event)">
+    <div class="search-box" onclick="event.stopPropagation()">
+        <div class="search-input-row">
+            <span class="search-icon">⌕</span>
+            <input
+                class="search-input" id="searchInput"
+                placeholder="search notes..."
+                oninput="doSearch()"
+                onkeydown="searchKeyNav(event)"
+                autocomplete="off" spellcheck="false"
+            >
+            <button class="search-close" onclick="closeSearch()">esc</button>
+        </div>
+        <div class="search-results" id="searchResults">
+            <div class="search-empty">type to search all notes</div>
+        </div>
+        <div class="search-footer">
+            <span class="sf-hint"><span class="sf-key">↑↓</span> navigate</span>
+            <span class="sf-hint"><span class="sf-key">enter</span> open</span>
+            <span class="sf-hint"><span class="sf-key">esc</span> close</span>
+        </div>
+    </div>
+</div>
+
 <script>
+// ── SIDEBAR ──
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('overlay').classList.toggle('open');
+}
+
+// ── SEARCH ──
+let searchIndex = null;
+let focusIdx = -1;
+
+async function loadIndex() {
+    if (searchIndex) return;
+    try {
+        // figure out base path (works from any subfolder depth)
+        const base = document.location.pathname.includes('/output/')
+            ? document.location.pathname.replace(/\/output\/.*/, '/output/')
+            : './';
+        const r = await fetch(base + 'search-index.json');
+        searchIndex = await r.json();
+    } catch(e) {
+        searchIndex = [];
+        console.warn('search index not found');
+    }
+}
+
+function openSearch() {
+    loadIndex();
+    document.getElementById('searchModal').classList.add('open');
+    setTimeout(() => document.getElementById('searchInput').focus(), 50);
+}
+
+function closeSearch() {
+    document.getElementById('searchModal').classList.remove('open');
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').innerHTML = '<div class="search-empty">type to search all notes</div>';
+    focusIdx = -1;
+}
+
+function closeSearchOutside(e) {
+    if (e.target === document.getElementById('searchModal')) closeSearch();
+}
+
+// ctrl+k / cmd+k
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if (e.key === 'Escape') closeSearch();
+});
+
+function highlight(text, query) {
+    if (!query) return text;
+    const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return text.replace(re, '<em>$1</em>');
+}
+
+function doSearch() {
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    const res = document.getElementById('searchResults');
+    focusIdx = -1;
+
+    if (!q) {
+        res.innerHTML = '<div class="search-empty">type to search all notes</div>';
+        return;
+    }
+    if (!searchIndex || !searchIndex.length) {
+        res.innerHTML = '<div class="search-empty"><span>building index...</span></div>';
+        return;
+    }
+
+    // score each entry
+    const scored = [];
+    for (const entry of searchIndex) {
+        const titleMatch = entry.title.toLowerCase().includes(q);
+        const pageMatch  = entry.page.toLowerCase().includes(q);
+        const bodyMatch  = entry.body.toLowerCase().includes(q);
+        if (!titleMatch && !pageMatch && !bodyMatch) continue;
+
+        let score = 0;
+        if (titleMatch) score += 10;
+        if (pageMatch)  score += 5;
+        if (bodyMatch)  score += 1;
+
+        // find surrounding context for body match
+        let matchSnippet = '';
+        if (bodyMatch) {
+            const idx = entry.body.toLowerCase().indexOf(q);
+            const start = Math.max(0, idx - 30);
+            const end   = Math.min(entry.body.length, idx + q.length + 60);
+            matchSnippet = (start > 0 ? '…' : '') + entry.body.slice(start, end) + (end < entry.body.length ? '…' : '');
+        }
+
+        scored.push({ ...entry, score, matchSnippet });
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    const top = scored.slice(0, 12);
+
+    if (!top.length) {
+        res.innerHTML = `<div class="search-empty">no results for <span>"${q}"</span></div>`;
+        return;
+    }
+
+    res.innerHTML = top.map((r, i) => `
+        <a class="search-result" href="${r.href}" data-idx="${i}">
+            <span class="sr-left">#</span>
+            <div class="sr-body">
+                <div class="sr-title">${highlight(r.title, q)}</div>
+                <div class="sr-page">${r.page}</div>
+                ${r.matchSnippet ? `<div class="sr-match">${highlight(r.matchSnippet, q)}</div>` : ''}
+            </div>
+        </a>
+    `).join('');
+}
+
+function searchKeyNav(e) {
+    const items = document.querySelectorAll('.search-result');
+    if (e.key === 'ArrowDown') { e.preventDefault(); focusIdx = Math.min(focusIdx + 1, items.length - 1); }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); focusIdx = Math.max(focusIdx - 1, 0); }
+    if (e.key === 'Enter' && focusIdx >= 0) { items[focusIdx].click(); }
+    items.forEach((el, i) => el.classList.toggle('focused', i === focusIdx));
+    if (focusIdx >= 0) items[focusIdx].scrollIntoView({ block: 'nearest' });
 }
 </script>
 </body>
