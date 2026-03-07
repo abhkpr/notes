@@ -1,62 +1,59 @@
 # Alacritty
 
-> the fastest terminal emulator. GPU-accelerated, minimal, fast.
+## What is Alacritty?
+
+Alacritty is a **GPU-accelerated terminal emulator** written in Rust. It is the fastest terminal available — renders using OpenGL, configured entirely via a single TOML file. No GUI settings, no tabs built-in, no plugins.
+
+```
+fast        → GPU rendering, no electron, no web engine
+minimal     → one config file, zero bloat
+composable  → pair with tmux or zellij for tabs/splits
+live reload → change config, see it instantly
+```
 
 ---
 
-## what is Alacritty
-
-Alacritty is a terminal emulator written in Rust. it uses the GPU for rendering which makes it significantly faster than CPU-rendered terminals like GNOME Terminal or xterm.
-
-it is intentionally minimal — no tabs, no splits, no scrollback search UI. it does one thing: render text fast. pair it with tmux for tabs and splits.
-
-**why use it:**
-- fastest terminal available
-- cross-platform (Linux, macOS, Windows)
-- highly configurable via a single TOML file
-- works perfectly with i3wm (what you use)
-- low memory usage
-
----
-
-## install
+## Install
 
 ```bash
-# Ubuntu / Linux Lite
+# Ubuntu / Debian
 sudo apt install alacritty
 
-# or from source (latest version)
-sudo apt install cargo
-cargo install alacritty
+# Arch
+sudo pacman -S alacritty
 
-# set as default terminal
-sudo update-alternatives --install /usr/bin/x-terminal-emulator \
-    x-terminal-emulator /usr/bin/alacritty 50
-sudo update-alternatives --config x-terminal-emulator
+# macOS
+brew install --cask alacritty
 
-# in i3 config — set alacritty as terminal
-bindsym $mod+Return exec alacritty
+# From source (latest)
+sudo apt install cmake pkg-config libfreetype6-dev libfontconfig1-dev \
+  libxcb-xfixes0-dev libxkbcommon-dev python3
+git clone https://github.com/alacritty/alacritty.git
+cd alacritty
+cargo build --release
+sudo cp target/release/alacritty /usr/local/bin
 ```
 
 ---
 
-## config file
-
-Alacritty uses TOML format. config lives at:
-
-```
-~/.config/alacritty/alacritty.toml   (modern, preferred)
-~/.alacritty.toml                     (alternative)
-```
+## Config File Location
 
 ```bash
+# Linux + macOS
+~/.config/alacritty/alacritty.toml
+
+# Create it
 mkdir -p ~/.config/alacritty
-nano ~/.config/alacritty/alacritty.toml
+touch ~/.config/alacritty/alacritty.toml
 ```
+
+Alacritty **watches the config file** — changes apply live without restarting.
+
+> Note: versions before v0.12 use YAML (`alacritty.yml`). v0.12+ uses TOML.
 
 ---
 
-## complete config
+## Full Config Reference
 
 ```toml
 # ~/.config/alacritty/alacritty.toml
@@ -65,76 +62,190 @@ nano ~/.config/alacritty/alacritty.toml
 TERM = "xterm-256color"
 
 [window]
-padding = { x = 12, y = 12 }
-dynamic_padding = false
-decorations = "none"          # no title bar (good for i3)
-opacity = 0.95                # slight transparency
-startup_mode = "Windowed"
-title = "alacritty"
-dynamic_title = true          # show current command in title
+padding.x = 12
+padding.y = 10
+decorations = "full"        # full | none | transparent (macOS)
+opacity = 1.0               # 0.0 transparent → 1.0 opaque
+blur = false                # background blur (macOS / picom)
+startup_mode = "Windowed"   # Windowed | Maximized | Fullscreen
+dynamic_title = true        # title shows current process
 
 [scrolling]
-history = 10000               # lines to keep in scrollback
-multiplier = 3                # scroll speed
+history = 10000             # lines of scrollback
+multiplier = 3              # scroll speed multiplier
 
 [font]
-normal = { family = "FiraCode Nerd Font", style = "Regular" }
-bold   = { family = "FiraCode Nerd Font", style = "Bold" }
-italic = { family = "FiraCode Nerd Font", style = "Italic" }
 size = 13.0
+
+[font.normal]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+
+[font.bold]
+family = "JetBrainsMono Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "JetBrainsMono Nerd Font"
+style = "Italic"
+
+[font.bold_italic]
+family = "JetBrainsMono Nerd Font"
+style = "Bold Italic"
 
 [font.offset]
 x = 0
-y = 2                         # line height tweak
+y = 2                       # extra line spacing
 
 [cursor]
-style = { shape = "Block", blinking = "Always" }
-blink_interval = 500          # ms
-vi_mode_style = { shape = "Block" }
-thickness = 0.15
+style.shape = "Block"       # Block | Underline | Beam
+style.blinking = "On"       # Never | Off | On | Always
+blink_interval = 500        # ms between blinks
+unfocused_hollow = true     # hollow cursor when window loses focus
 
 [terminal]
-osc52 = "CopyPaste"           # allow copy via OSC52 (useful in SSH)
+shell.program = "/bin/zsh"  # default shell
 
-# dark theme — matches your notes site
+[mouse]
+hide_when_typing = true
+
+[selection]
+save_to_clipboard = false   # auto-copy selection to clipboard
+```
+
+---
+
+## Fonts
+
+Alacritty works best with **Nerd Fonts** — patched fonts that include icons used by neovim, starship, lsd, etc.
+
+```bash
+# Install JetBrains Mono Nerd Font
+mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts
+wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
+unzip JetBrainsMono.zip
+fc-cache -fv
+
+# Verify
+fc-list | grep -i "jetbrains"
+```
+
+**Good font choices:**
+```
+JetBrainsMono Nerd Font    clean, excellent ligatures
+FiraCode Nerd Font          popular, great ligatures
+Hack Nerd Font              minimal, very readable
+CascadiaCode Nerd Font      Microsoft font, clean
+Iosevka Nerd Font           narrow, fits more on screen
+```
+
+---
+
+## Colors
+
+### Tokyo Night
+
+```toml
 [colors.primary]
-background = "#0d0d0d"
-foreground = "#e0e0e0"
+background = "#1a1b26"
+foreground = "#c0caf5"
 
 [colors.cursor]
-text   = "#0d0d0d"
-cursor = "#00cc00"
+text   = "#1a1b26"
+cursor = "#c0caf5"
 
 [colors.normal]
-black   = "#1a1a1a"
-red     = "#cc3333"
-green   = "#00cc00"
-yellow  = "#ccaa00"
-blue    = "#3399cc"
-magenta = "#9966cc"
-cyan    = "#00aaaa"
-white   = "#cccccc"
+black   = "#15161e"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
+magenta = "#bb9af7"
+cyan    = "#7dcfff"
+white   = "#a9b1d6"
 
 [colors.bright]
-black   = "#333333"
-red     = "#ff4444"
-green   = "#33ff33"
-yellow  = "#ffcc00"
-blue    = "#44aaff"
-magenta = "#bb88ff"
-cyan    = "#00cccc"
-white   = "#e0e0e0"
+black   = "#414868"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
+magenta = "#bb9af7"
+cyan    = "#7dcfff"
+white   = "#c0caf5"
+```
 
-# key bindings
-[[keyboard.bindings]]
-key = "V"
-mods = "Control|Shift"
-action = "Paste"
+### Catppuccin Mocha
 
+```toml
+[colors.primary]
+background = "#1e1e2e"
+foreground = "#cdd6f4"
+
+[colors.normal]
+black   = "#45475a"
+red     = "#f38ba8"
+green   = "#a6e3a1"
+yellow  = "#f9e2af"
+blue    = "#89b4fa"
+magenta = "#f5c2e7"
+cyan    = "#94e2d5"
+white   = "#bac2de"
+
+[colors.bright]
+black   = "#585b70"
+red     = "#f38ba8"
+green   = "#a6e3a1"
+yellow  = "#f9e2af"
+blue    = "#89b4fa"
+magenta = "#f5c2e7"
+cyan    = "#94e2d5"
+white   = "#a6adc8"
+```
+
+### Gruvbox Dark
+
+```toml
+[colors.primary]
+background = "#282828"
+foreground = "#ebdbb2"
+
+[colors.normal]
+black   = "#282828"
+red     = "#cc241d"
+green   = "#98971a"
+yellow  = "#d79921"
+blue    = "#458588"
+magenta = "#b16286"
+cyan    = "#689d6a"
+white   = "#a89984"
+
+[colors.bright]
+black   = "#928374"
+red     = "#fb4934"
+green   = "#b8bb26"
+yellow  = "#fabd2f"
+blue    = "#83a598"
+magenta = "#d3869b"
+cyan    = "#8ec07c"
+white   = "#ebdbb2"
+```
+
+---
+
+## Key Bindings
+
+```toml
 [[keyboard.bindings]]
 key = "C"
 mods = "Control|Shift"
 action = "Copy"
+
+[[keyboard.bindings]]
+key = "V"
+mods = "Control|Shift"
+action = "Paste"
 
 [[keyboard.bindings]]
 key = "Plus"
@@ -152,121 +263,332 @@ mods = "Control"
 action = "ResetFontSize"
 
 [[keyboard.bindings]]
+key = "N"
+mods = "Control|Shift"
+action = "SpawnNewInstance"
+
+[[keyboard.bindings]]
 key = "F11"
 action = "ToggleFullscreen"
 
-# open new terminal in same directory
 [[keyboard.bindings]]
-key = "Return"
+key = "PageUp"
+mods = "Shift"
+action = "ScrollPageUp"
+
+[[keyboard.bindings]]
+key = "PageDown"
+mods = "Shift"
+action = "ScrollPageDown"
+
+[[keyboard.bindings]]
+key = "Home"
+mods = "Shift"
+action = "ScrollToTop"
+
+[[keyboard.bindings]]
+key = "End"
+mods = "Shift"
+action = "ScrollToBottom"
+```
+
+---
+
+## Default Shortcuts
+
+```
+Ctrl+Shift+C          copy selection
+Ctrl+Shift+V          paste
+Ctrl+Shift+N          new window
+Ctrl++                increase font size
+Ctrl+-                decrease font size
+Ctrl+0                reset font size
+Shift+PageUp          scroll up one page
+Shift+PageDown        scroll down one page
+Shift+Home            scroll to top
+Shift+End             scroll to bottom
+Ctrl+Shift+Space      enter vi mode
+```
+
+---
+
+## Vi Mode
+
+Vi mode lets you scroll and select text without a mouse.
+
+```
+Ctrl+Shift+Space      enter vi mode
+h j k l               move cursor left/down/up/right
+Ctrl+d                half page down
+Ctrl+u                half page up
+Ctrl+f                full page down
+Ctrl+b                full page up
+gg                    go to top
+G                     go to bottom
+v                     start character selection
+V                     select entire line
+y                     copy selection and exit vi mode
+/                     search forward
+?                     search backward
+n                     next search match
+N                     previous search match
+Escape                exit vi mode
+```
+
+---
+
+## Transparency + Blur
+
+```toml
+[window]
+opacity = 0.90        # semi-transparent
+
+# blur — needs a compositor
+blur = true
+```
+
+**Setup picom blur on i3:**
+
+```bash
+# Install picom
+sudo apt install picom
+
+# Run with blur
+picom --blur-method dual_kawase --blur-strength 5 &
+```
+
+```bash
+# Add to i3 config so it starts automatically
+exec --no-startup-id picom --blur-method dual_kawase --blur-strength 5
+```
+
+---
+
+## Use with tmux
+
+Alacritty has no tabs or splits by design. tmux gives you that.
+
+```toml
+# Auto-attach or create tmux session on launch
+[terminal]
+shell.program = "/bin/bash"
+shell.args = ["-c", "tmux attach || tmux new-session"]
+```
+
+```
+# Essential tmux shortcuts inside alacritty
+Ctrl+b c          new window
+Ctrl+b n          next window
+Ctrl+b p          previous window
+Ctrl+b %          split vertically
+Ctrl+b "          split horizontally
+Ctrl+b h/j/k/l    move between panes
+Ctrl+b d          detach session
+Ctrl+b [          scroll mode (vi keys work here)
+```
+
+---
+
+## Use with Zellij
+
+Modern tmux alternative — better UI, easier config.
+
+```bash
+# Install
+bash <(curl -L zellij.dev/launch)
+
+# Auto-start in alacritty
+```
+
+```toml
+[terminal]
+shell.program = "/bin/bash"
+shell.args = ["-c", "zellij attach main || zellij --session main"]
+```
+
+---
+
+## Split Config with Imports
+
+Keep config clean by splitting into multiple files:
+
+```toml
+# alacritty.toml
+import = [
+  "~/.config/alacritty/themes/tokyo-night.toml",
+  "~/.config/alacritty/keybindings.toml",
+]
+
+[font]
+size = 13.0
+
+[window]
+padding.x = 14
+padding.y = 12
+opacity = 0.95
+```
+
+Good folder structure:
+```
+~/.config/alacritty/
+├── alacritty.toml          main config
+├── keybindings.toml        all key bindings
+└── themes/
+    ├── tokyo-night.toml
+    ├── catppuccin.toml
+    └── gruvbox.toml
+```
+
+To switch themes just change the import line.
+
+---
+
+## My Recommended Config
+
+```toml
+# ~/.config/alacritty/alacritty.toml
+
+[env]
+TERM = "xterm-256color"
+
+[window]
+padding.x = 14
+padding.y = 12
+opacity = 0.95
+dynamic_title = true
+startup_mode = "Windowed"
+
+[scrolling]
+history = 10000
+multiplier = 3
+
+[font]
+size = 13.0
+
+[font.normal]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+
+[font.bold]
+family = "JetBrainsMono Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "JetBrainsMono Nerd Font"
+style = "Italic"
+
+[font.offset]
+y = 2
+
+[cursor]
+style.shape = "Beam"
+style.blinking = "On"
+blink_interval = 500
+unfocused_hollow = true
+
+[mouse]
+hide_when_typing = true
+
+[colors.primary]
+background = "#1a1b26"
+foreground = "#c0caf5"
+
+[colors.cursor]
+text   = "#1a1b26"
+cursor = "#c0caf5"
+
+[colors.normal]
+black   = "#15161e"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
+magenta = "#bb9af7"
+cyan    = "#7dcfff"
+white   = "#a9b1d6"
+
+[colors.bright]
+black   = "#414868"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
+magenta = "#bb9af7"
+cyan    = "#7dcfff"
+white   = "#c0caf5"
+
+[[keyboard.bindings]]
+key = "C"
+mods = "Control|Shift"
+action = "Copy"
+
+[[keyboard.bindings]]
+key = "V"
+mods = "Control|Shift"
+action = "Paste"
+
+[[keyboard.bindings]]
+key = "N"
 mods = "Control|Shift"
 action = "SpawnNewInstance"
+
+[[keyboard.bindings]]
+key = "Plus"
+mods = "Control"
+action = "IncreaseFontSize"
+
+[[keyboard.bindings]]
+key = "Minus"
+mods = "Control"
+action = "DecreaseFontSize"
+
+[[keyboard.bindings]]
+key = "Key0"
+mods = "Control"
+action = "ResetFontSize"
 ```
 
 ---
 
-## fonts
-
-Alacritty works best with a Nerd Font — these include icons used by tools like nvim plugins, starship prompt, etc.
+## Troubleshooting
 
 ```bash
-# install FiraCode Nerd Font
-mkdir -p ~/.local/share/fonts
-cd ~/.local/share/fonts
+# Check for config errors
+alacritty --print-events 2>&1 | head -30
 
-# download
-wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
-unzip FiraCode.zip
-fc-cache -fv
+# Font not found — check exact name
+fc-list | grep -i "jetbrains"
+fc-cache -fv                        # rebuild font cache
 
-# verify font is found
-fc-list | grep -i firacode
-```
+# Colors wrong
+echo $TERM                          # should be xterm-256color
 
----
+# Slow rendering
+# → set opacity = 1.0 (transparency is expensive)
+# → disable blur
 
-## useful CLI flags
+# Check version (determines YAML vs TOML)
+alacritty --version
+# v0.12+ → use .toml
+# older  → use .yml
 
-```bash
-alacritty                          # open terminal
-alacritty --hold -e command        # run command, keep open after exit
-alacritty -e htop                  # open with specific command
-alacritty --title "my terminal"    # set window title
-alacritty --config-file ~/custom.toml  # use different config
-alacritty -o 'font.size=16'        # override config option
-
-# open in specific directory
-alacritty --working-directory ~/projects/studentos
-```
-
----
-
-## with i3wm
-
-```bash
-# ~/.config/i3/config
-
-# open terminal
-bindsym $mod+Return exec alacritty
-
-# open terminal in current directory (requires xcwd or similar)
-bindsym $mod+Shift+Return exec alacritty --working-directory "$(xcwd)"
-
-# scratchpad terminal
-bindsym $mod+grave exec alacritty --title scratchpad
-for_window [title="scratchpad"] move scratchpad
-bindsym $mod+Shift+grave [title="scratchpad"] scratchpad show
-```
-
----
-
-## with tmux (the right combo)
-
-Alacritty has no tabs or splits. use tmux for that:
-
-```bash
-# open alacritty and start tmux
-alacritty -e tmux new-session
-
-# or add to alacritty config to always start tmux
-# no built-in way — do it in shell profile instead:
-# add to ~/.bashrc:
-# if [ -z "$TMUX" ]; then tmux attach || tmux new-session; fi
-```
-
----
-
-## live reload
-
-Alacritty watches its config file and reloads automatically when you save. no restart needed.
-
-```bash
-# edit config and save — terminal updates instantly
-nano ~/.config/alacritty/alacritty.toml
-```
-
----
-
-## troubleshooting
-
-```bash
-# check config for errors
-alacritty --print-events 2>&1 | head -20
-
-# reset to defaults
+# Reset to defaults
 mv ~/.config/alacritty/alacritty.toml ~/.config/alacritty/alacritty.toml.bak
-
-# wrong colors in vim/neovim
-# make sure TERM is set correctly
-echo $TERM          # should be xterm-256color or alacritty
-# add to config: [env] TERM = "xterm-256color"
-
-# font not found
-fc-list | grep -i "your font name"
-fc-cache -fv       # rebuild font cache
 ```
 
 ---
 
+## Quick Reference
+
 ```
-=^._.^= fast terminal. more time coding.
+Config file         ~/.config/alacritty/alacritty.toml
+Live reload         yes — save file, changes apply instantly
+Tabs / splits       no — use tmux or zellij
+Font format         TTF/OTF, Nerd Fonts recommended
+Copy                Ctrl+Shift+C
+Paste               Ctrl+Shift+V
+New window          Ctrl+Shift+N
+Font size           Ctrl+= / Ctrl+-
+Vi scroll mode      Ctrl+Shift+Space
+Search (vi mode)    /
 ```

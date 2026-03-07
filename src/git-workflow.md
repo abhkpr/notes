@@ -1,4 +1,4 @@
-# Git and GitHub
+# Git and GitHub Workflow
 
 > version control. the thing that saves your work and your career.
 

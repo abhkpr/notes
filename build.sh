@@ -12,6 +12,7 @@ ORDER=(
 
     # foundations
     "linux"
+    "alacritty"
     "bash"
     "vim"
     "mds"

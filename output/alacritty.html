@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alacritty | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger ── */
+        .hamburger {
+            position: fixed; top: 12px; left: 12px; z-index: 1000;
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--green); font-size: 1.2rem; padding: 4px 10px;
+            cursor: pointer; font-family: 'Share Tech Mono', monospace;
+        }
+        .hamburger:hover { border-color: var(--green); }
+
+        /* ── search button in header ── */
+        .search-btn {
+            position: fixed; top: 12px; right: 12px; z-index: 1000;
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--muted); font-size: 0.75rem; padding: 4px 12px;
+            cursor: pointer; font-family: 'Share Tech Mono', monospace;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.15s;
+        }
+        .search-btn:hover { border-color: var(--green); color: var(--green); }
+        .search-btn .kbd {
+            background: var(--border); padding: 1px 5px;
+            font-size: 0.7rem; color: var(--muted);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99;
+        }
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: var(--sidebar); height: 100vh;
+            background: var(--bg2); border-right: 1px solid var(--border);
+            overflow-y: auto; z-index: 100;
+            transform: translateX(-100%); transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-title {
+            padding: 0 20px 16px; color: var(--green);
+            font-size: 0.8rem; letter-spacing: 3px;
+            border-bottom: 1px solid var(--border); margin-bottom: 10px;
+        }
+        .sidebar nav a {
+            display: block; padding: 8px 20px; color: var(--muted);
+            text-decoration: none; font-size: 0.85rem;
+            border-left: 2px solid transparent; transition: all 0.15s;
+        }
+        .sidebar nav a:hover { color: var(--fg); border-left-color: var(--green); background: rgba(0,204,0,0.05); }
+        .sidebar nav a.active { color: var(--green); border-left-color: var(--green); }
+
+        /* ── main content ── */
+        .content { max-width: 750px; margin: 0 auto; padding: 60px 24px 80px; }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 { color: var(--fg); margin: 28px 0 12px; letter-spacing: 1px; }
+        h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--green); }
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+        p { margin-bottom: 14px; color: var(--fg); }
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code { background: var(--bg2); color: var(--green); border: 1px solid var(--border); padding: 2px 6px; font-family: 'Share Tech Mono', monospace; }
+        pre { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--green); padding: 16px; overflow-x: auto; margin: 16px 0; white-space: pre; }
+        pre code { border: none; padding: 0; background: none; white-space: pre; font-family: 'Share Tech Mono', monospace; line-height: 1.4; }
+        blockquote { border-left: 3px solid var(--green); padding: 10px 16px; background: var(--bg2); color: var(--muted); margin: 16px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        td, th { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+        th { background: var(--bg2); color: var(--green); }
+        ul, ol { padding-left: 20px; margin-bottom: 14px; }
+        li { margin-bottom: 4px; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+        /* ── SEARCH MODAL ── */
+        .search-modal {
+            position: fixed; inset: 0; z-index: 2000;
+            background: rgba(0,0,0,0.85);
+            display: flex; align-items: flex-start; justify-content: center;
+            padding-top: 80px;
+            opacity: 0; pointer-events: none; transition: opacity 0.15s;
+        }
+        .search-modal.open { opacity: 1; pointer-events: all; }
+
+        .search-box {
+            background: var(--bg2); border: 1px solid var(--green);
+            width: 100%; max-width: 580px;
+            box-shadow: 0 0 40px rgba(0,204,0,0.1);
+        }
+        .search-input-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px; border-bottom: 1px solid var(--border);
+        }
+        .search-icon { color: var(--green); font-size: 14px; flex-shrink: 0; }
+        .search-input {
+            background: none; border: none; outline: none;
+            color: var(--fg); font-family: 'Share Tech Mono', monospace;
+            font-size: 14px; flex: 1;
+        }
+        .search-input::placeholder { color: var(--muted); }
+        .search-close {
+            color: var(--muted); font-size: 11px; cursor: pointer;
+            flex-shrink: 0; padding: 2px 6px; border: 1px solid var(--border);
+            background: none; font-family: 'Share Tech Mono', monospace;
+            transition: all 0.15s;
+        }
+        .search-close:hover { color: var(--green); border-color: var(--green); }
+
+        .search-results { max-height: 420px; overflow-y: auto; }
+
+        .search-result {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 12px 18px; cursor: pointer; text-decoration: none;
+            border-bottom: 1px solid var(--border); transition: background 0.1s;
+        }
+        .search-result:last-child { border-bottom: none; }
+        .search-result:hover, .search-result.focused { background: rgba(0,204,0,0.05); }
+        .search-result:hover .sr-title, .search-result.focused .sr-title { color: var(--green); }
+
+        .sr-left { flex-shrink: 0; color: var(--green); font-size: 11px; opacity: 0.5; width: 16px; text-align: center; }
+        .sr-body { flex: 1; min-width: 0; }
+        .sr-title { color: var(--fg); font-size: 13px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sr-page { color: var(--muted); font-size: 11px; }
+        .sr-match { color: var(--muted); font-size: 11px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sr-match em { color: var(--green); font-style: normal; }
+
+        .search-footer {
+            padding: 8px 18px; border-top: 1px solid var(--border);
+            display: flex; gap: 16px; align-items: center;
+        }
+        .sf-hint { font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+        .sf-key { background: var(--border); padding: 1px 5px; font-size: 10px; }
+
+        .search-empty {
+            padding: 40px 18px; text-align: center;
+            color: var(--muted); font-size: 12px;
+        }
+        .search-empty span { color: var(--green); }
+
+        /* highlight matched text */
+        mark { background: rgba(0,204,0,0.15); color: var(--green); padding: 0 2px; }
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+<!-- search trigger button -->
+<button class="search-btn" onclick="openSearch()">
+    ⌕ search <span class="kbd">ctrl k</span>
+</button>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="alacritty.html" class="active">Alacritty</a><a href="bash.html">Bash and Shell Scripting</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub Cheatsheet</a><a href="git-workflow.html">Git and GitHub Workflow</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="dsa.html">Data Structures and Algorithms</a><a href="cs.html">Computer Science Fundamentals</a><a href="system-design.html">System Design</a><a href="design-pattern.html">Design Patterns</a><a href="Cpp.html">C++ for Competitive Programming — Complete Notes</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="ts.html">TypeScript with React</a><a href="react.html">React</a><a href="py.html">Python</a><a href="api.html">API Design and REST</a><a href="sql.html">SQL and PostgreSQL</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="cloudflare.html">Cloudflare</a><a href="docker.html">Docker</a><a href="testing.html">Testing</a><a href="kt.html">Kotlin</a><a href="fullstack.html">Full Stack — Frontend and Backend Together</a><a href="how-to-build.html">How to Build a Project</a><a href="design.html">Designing UI, Database and System Architecture</a><a href="web.html">Building Websites and Web Applications</a><a href="vocab.html">Dev Vocabulary</a><a href="warbird.html">warbird site — documentation</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="alacritty">Alacritty</h1>
+<h2 id="what-is-alacritty">What is Alacritty?</h2>
+<p>Alacritty is a <strong>GPU-accelerated terminal emulator</strong>
+written in Rust. It is the fastest terminal available — renders using
+OpenGL, configured entirely via a single TOML file. No GUI settings, no
+tabs built-in, no plugins.</p>
+<pre><code>fast        → GPU rendering, no electron, no web engine
+minimal     → one config file, zero bloat
+composable  → pair with tmux or zellij for tabs/splits
+live reload → change config, see it instantly</code></pre>
+<hr />
+<h2 id="install">Install</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Ubuntu / Debian</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install alacritty</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Arch</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pacman <span class="at">-S</span> alacritty</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># macOS</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install <span class="at">--cask</span> alacritty</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># From source (latest)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install cmake pkg-config libfreetype6-dev libfontconfig1-dev <span class="dt">\</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  libxcb-xfixes0-dev libxkbcommon-dev python3</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/alacritty/alacritty.git</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> alacritty</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> build <span class="at">--release</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> cp target/release/alacritty /usr/local/bin</span></code></pre></div>
+<hr />
+<h2 id="config-file-location">Config File Location</h2>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Linux + macOS</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">~/.config/alacritty/alacritty.toml</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create it</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.config/alacritty</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> ~/.config/alacritty/alacritty.toml</span></code></pre></div>
+<p>Alacritty <strong>watches the config file</strong> — changes apply
+live without restarting.</p>
+<blockquote>
+<p>Note: versions before v0.12 use YAML (<code>alacritty.yml</code>).
+v0.12+ uses TOML.</p>
+</blockquote>
+<hr />
+<h2 id="full-config-reference">Full Config Reference</h2>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ~/.config/alacritty/alacritty.toml</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">TERM</span> <span class="op">=</span> <span class="st">&quot;xterm-256color&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[window]</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="dt">padding.x</span> <span class="op">=</span> <span class="dv">12</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="dt">padding.y</span> <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="dt">decorations</span> <span class="op">=</span> <span class="st">&quot;full&quot;</span>        <span class="co"># full | none | transparent (macOS)</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="dt">opacity</span> <span class="op">=</span> <span class="fl">1.0</span>               <span class="co"># 0.0 transparent → 1.0 opaque</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="dt">blur</span> <span class="op">=</span> <span class="cn">false</span>                <span class="co"># background blur (macOS / picom)</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="dt">startup_mode</span> <span class="op">=</span> <span class="st">&quot;Windowed&quot;</span>   <span class="co"># Windowed | Maximized | Fullscreen</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="dt">dynamic_title</span> <span class="op">=</span> <span class="cn">true</span>        <span class="co"># title shows current process</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">[scrolling]</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="dt">history</span> <span class="op">=</span> <span class="dv">10000</span>             <span class="co"># lines of scrollback</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="dt">multiplier</span> <span class="op">=</span> <span class="dv">3</span>              <span class="co"># scroll speed multiplier</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="kw">[font]</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="dt">size</span> <span class="op">=</span> <span class="fl">13.0</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="kw">[font.normal]</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="dt">family</span> <span class="op">=</span> <span class="st">&quot;JetBrainsMono Nerd Font&quot;</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="dt">style</span> <span class="op">=</span> <span class="st">&quot;Regular&quot;</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="kw">[font.bold]</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="dt">family</span> <span class="op">=</span> <span class="st">&quot;JetBrainsMono Nerd Font&quot;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="dt">style</span> <span class="op">=</span> <span class="st">&quot;Bold&quot;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="kw">[font.italic]</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="dt">family</span> <span class="op">=</span> <span class="st">&quot;JetBrainsMono Nerd Font&quot;</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="dt">style</span> <span class="op">=</span> <span class="st">&quot;Italic&quot;</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="kw">[font.bold_italic]</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="dt">family</span> <span class="op">=</span> <span class="st">&quot;JetBrainsMono Nerd Font&quot;</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="dt">style</span> <span class="op">=</span> <span class="st">&quot;Bold Italic&quot;</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="kw">[font.offset]</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="dt">x</span> <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="dt">y</span> <span class="op">=</span> <span class="dv">2</span>                       <span class="co"># extra line spacing</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="kw">[cursor]</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="dt">style.shape</span> <span class="op">=</span> <span class="st">&quot;Block&quot;</span>       <span class="co"># Block | Underline | Beam</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="dt">style.blinking</span> <span class="op">=</span> <span class="st">&quot;On&quot;</span>       <span class="co"># Never | Off | On | Always</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="dt">blink_interval</span> <span class="op">=</span> <span class="dv">500</span>        <span class="co"># ms between blinks</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="dt">unfocused_hollow</span> <span class="op">=</span> <span class="cn">true</span>     <span class="co"># hollow cursor when window loses focus</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="kw">[terminal]</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="dt">shell.program</span> <span class="op">=</span> <span class="st">&quot;/bin/zsh&quot;</span>  <span class="co"># default shell</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="kw">[mouse]</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="dt">hide_when_typing</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="kw">[selection]</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="dt">save_to_clipboard</span> <span class="op">=</span> <span class="cn">false</span>   <span class="co"># auto-copy selection to clipboard</span></span></code></pre></div>
+<hr />
+<h2 id="fonts">Fonts</h2>
+<p>Alacritty works best with <strong>Nerd Fonts</strong> — patched fonts
+that include icons used by neovim, starship, lsd, etc.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install JetBrains Mono Nerd Font</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.local/share/fonts</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/.local/share/fonts</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span> JetBrainsMono.zip</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">fc-cache</span> <span class="at">-fv</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">fc-list</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> <span class="st">&quot;jetbrains&quot;</span></span></code></pre></div>
+<p><strong>Good font choices:</strong></p>
+<pre><code>JetBrainsMono Nerd Font    clean, excellent ligatures
+FiraCode Nerd Font          popular, great ligatures
+Hack Nerd Font              minimal, very readable
+CascadiaCode Nerd Font      Microsoft font, clean
+Iosevka Nerd Font           narrow, fits more on screen</code></pre>
+<hr />
+<h2 id="colors">Colors</h2>
+<h3 id="tokyo-night">Tokyo Night</h3>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.primary]</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">background</span> <span class="op">=</span> <span class="st">&quot;#1a1b26&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">foreground</span> <span class="op">=</span> <span class="st">&quot;#c0caf5&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.cursor]</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="dt">text</span>   <span class="op">=</span> <span class="st">&quot;#1a1b26&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="dt">cursor</span> <span class="op">=</span> <span class="st">&quot;#c0caf5&quot;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.normal]</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="dt">black</span>   <span class="op">=</span> <span class="st">&quot;#15161e&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="dt">red</span>     <span class="op">=</span> <span class="st">&quot;#f7768e&quot;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="dt">green</span>   <span class="op">=</span> <span class="st">&quot;#9ece6a&quot;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="dt">yellow</span>  <span class="op">=</span> <span class="st">&quot;#e0af68&quot;</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="dt">blue</span>    <span class="op">=</span> <span class="st">&quot;#7aa2f7&quot;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="dt">magenta</span> <span class="op">=</span> <span class="st">&quot;#bb9af7&quot;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="dt">cyan</span>    <span class="op">=</span> <span class="st">&quot;#7dcfff&quot;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="dt">white</span>   <span class="op">=</span> <span class="st">&quot;#a9b1d6&quot;</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.bright]</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="dt">black</span>   <span class="op">=</span> <span class="st">&quot;#414868&quot;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="dt">red</span>     <span class="op">=</span> <span class="st">&quot;#f7768e&quot;</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="dt">green</span>   <span class="op">=</span> <span class="st">&quot;#9ece6a&quot;</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="dt">yellow</span>  <span class="op">=</span> <span class="st">&quot;#e0af68&quot;</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="dt">blue</span>    <span class="op">=</span> <span class="st">&quot;#7aa2f7&quot;</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="dt">magenta</span> <span class="op">=</span> <span class="st">&quot;#bb9af7&quot;</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="dt">cyan</span>    <span class="op">=</span> <span class="st">&quot;#7dcfff&quot;</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="dt">white</span>   <span class="op">=</span> <span class="st">&quot;#c0caf5&quot;</span></span></code></pre></div>
+<h3 id="catppuccin-mocha">Catppuccin Mocha</h3>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.primary]</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">background</span> <span class="op">=</span> <span class="st">&quot;#1e1e2e&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="dt">foreground</span> <span class="op">=</span> <span class="st">&quot;#cdd6f4&quot;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.normal]</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="dt">black</span>   <span class="op">=</span> <span class="st">&quot;#45475a&quot;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="dt">red</span>     <span class="op">=</span> <span class="st">&quot;#f38ba8&quot;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="dt">green</span>   <span class="op">=</span> <span class="st">&quot;#a6e3a1&quot;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="dt">yellow</span>  <span class="op">=</span> <span class="st">&quot;#f9e2af&quot;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="dt">blue</span>    <span class="op">=</span> <span class="st">&quot;#89b4fa&quot;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="dt">magenta</span> <span class="op">=</span> <span class="st">&quot;#f5c2e7&quot;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="dt">cyan</span>    <span class="op">=</span> <span class="st">&quot;#94e2d5&quot;</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="dt">white</span>   <span class="op">=</span> <span class="st">&quot;#bac2de&quot;</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.bright]</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="dt">black</span>   <span class="op">=</span> <span class="st">&quot;#585b70&quot;</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="dt">red</span>     <span class="op">=</span> <span class="st">&quot;#f38ba8&quot;</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="dt">green</span>   <span class="op">=</span> <span class="st">&quot;#a6e3a1&quot;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="dt">yellow</span>  <span class="op">=</span> <span class="st">&quot;#f9e2af&quot;</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="dt">blue</span>    <span class="op">=</span> <span class="st">&quot;#89b4fa&quot;</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="dt">magenta</span> <span class="op">=</span> <span class="st">&quot;#f5c2e7&quot;</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="dt">cyan</span>    <span class="op">=</span> <span class="st">&quot;#94e2d5&quot;</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="dt">white</span>   <span class="op">=</span> <span class="st">&quot;#a6adc8&quot;</span></span></code></pre></div>
+<h3 id="gruvbox-dark">Gruvbox Dark</h3>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.primary]</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">background</span> <span class="op">=</span> <span class="st">&quot;#282828&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">foreground</span> <span class="op">=</span> <span class="st">&quot;#ebdbb2&quot;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.normal]</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="dt">black</span>   <span class="op">=</span> <span class="st">&quot;#282828&quot;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="dt">red</span>     <span class="op">=</span> <span class="st">&quot;#cc241d&quot;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="dt">green</span>   <span class="op">=</span> <span class="st">&quot;#98971a&quot;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="dt">yellow</span>  <span class="op">=</span> <span class="st">&quot;#d79921&quot;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="dt">blue</span>    <span class="op">=</span> <span class="st">&quot;#458588&quot;</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="dt">magenta</span> <span class="op">=</span> <span class="st">&quot;#b16286&quot;</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="dt">cyan</span>    <span class="op">=</span> <span class="st">&quot;#689d6a&quot;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="dt">white</span>   <span class="op">=</span> <span class="st">&quot;#a89984&quot;</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.bright]</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="dt">black</span>   <span class="op">=</span> <span class="st">&quot;#928374&quot;</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="dt">red</span>     <span class="op">=</span> <span class="st">&quot;#fb4934&quot;</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="dt">green</span>   <span class="op">=</span> <span class="st">&quot;#b8bb26&quot;</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="dt">yellow</span>  <span class="op">=</span> <span class="st">&quot;#fabd2f&quot;</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="dt">blue</span>    <span class="op">=</span> <span class="st">&quot;#83a598&quot;</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="dt">magenta</span> <span class="op">=</span> <span class="st">&quot;#d3869b&quot;</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="dt">cyan</span>    <span class="op">=</span> <span class="st">&quot;#8ec07c&quot;</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="dt">white</span>   <span class="op">=</span> <span class="st">&quot;#ebdbb2&quot;</span></span></code></pre></div>
+<hr />
+<h2 id="key-bindings">Key Bindings</h2>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;C&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control|Shift&quot;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;Copy&quot;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;V&quot;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control|Shift&quot;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;Paste&quot;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;Plus&quot;</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control&quot;</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;IncreaseFontSize&quot;</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;Minus&quot;</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control&quot;</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;DecreaseFontSize&quot;</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;Key0&quot;</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control&quot;</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;ResetFontSize&quot;</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;N&quot;</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control|Shift&quot;</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;SpawnNewInstance&quot;</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;F11&quot;</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;ToggleFullscreen&quot;</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;PageUp&quot;</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Shift&quot;</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;ScrollPageUp&quot;</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;PageDown&quot;</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Shift&quot;</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;ScrollPageDown&quot;</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;Home&quot;</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Shift&quot;</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;ScrollToTop&quot;</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;End&quot;</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Shift&quot;</span></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;ScrollToBottom&quot;</span></span></code></pre></div>
+<hr />
+<h2 id="default-shortcuts">Default Shortcuts</h2>
+<pre><code>Ctrl+Shift+C          copy selection
+Ctrl+Shift+V          paste
+Ctrl+Shift+N          new window
+Ctrl++                increase font size
+Ctrl+-                decrease font size
+Ctrl+0                reset font size
+Shift+PageUp          scroll up one page
+Shift+PageDown        scroll down one page
+Shift+Home            scroll to top
+Shift+End             scroll to bottom
+Ctrl+Shift+Space      enter vi mode</code></pre>
+<hr />
+<h2 id="vi-mode">Vi Mode</h2>
+<p>Vi mode lets you scroll and select text without a mouse.</p>
+<pre><code>Ctrl+Shift+Space      enter vi mode
+h j k l               move cursor left/down/up/right
+Ctrl+d                half page down
+Ctrl+u                half page up
+Ctrl+f                full page down
+Ctrl+b                full page up
+gg                    go to top
+G                     go to bottom
+v                     start character selection
+V                     select entire line
+y                     copy selection and exit vi mode
+/                     search forward
+?                     search backward
+n                     next search match
+N                     previous search match
+Escape                exit vi mode</code></pre>
+<hr />
+<h2 id="transparency-blur">Transparency + Blur</h2>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[window]</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="dt">opacity</span> <span class="op">=</span> <span class="fl">0.90</span>        <span class="co"># semi-transparent</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># blur — needs a compositor</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="dt">blur</span> <span class="op">=</span> <span class="cn">true</span></span></code></pre></div>
+<p><strong>Setup picom blur on i3:</strong></p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install picom</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install picom</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run with blur</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">picom</span> <span class="at">--blur-method</span> dual_kawase <span class="at">--blur-strength</span> 5 <span class="kw">&amp;</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add to i3 config so it starts automatically</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">exec</span> <span class="at">--no-startup-id</span> picom <span class="at">--blur-method</span> dual_kawase <span class="at">--blur-strength</span> 5</span></code></pre></div>
+<hr />
+<h2 id="use-with-tmux">Use with tmux</h2>
+<p>Alacritty has no tabs or splits by design. tmux gives you that.</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Auto-attach or create tmux session on launch</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">[terminal]</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="dt">shell.program</span> <span class="op">=</span> <span class="st">&quot;/bin/bash&quot;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="dt">shell.args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-c&quot;</span><span class="op">,</span> <span class="st">&quot;tmux attach || tmux new-session&quot;</span><span class="op">]</span></span></code></pre></div>
+<pre><code># Essential tmux shortcuts inside alacritty
+Ctrl+b c          new window
+Ctrl+b n          next window
+Ctrl+b p          previous window
+Ctrl+b %          split vertically
+Ctrl+b &quot;          split horizontally
+Ctrl+b h/j/k/l    move between panes
+Ctrl+b d          detach session
+Ctrl+b [          scroll mode (vi keys work here)</code></pre>
+<hr />
+<h2 id="use-with-zellij">Use with Zellij</h2>
+<p>Modern tmux alternative — better UI, easier config.</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> <span class="op">&lt;(</span><span class="ex">curl</span> <span class="at">-L</span> zellij.dev/launch<span class="op">)</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Auto-start in alacritty</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[terminal]</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="dt">shell.program</span> <span class="op">=</span> <span class="st">&quot;/bin/bash&quot;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="dt">shell.args</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;-c&quot;</span><span class="op">,</span> <span class="st">&quot;zellij attach main || zellij --session main&quot;</span><span class="op">]</span></span></code></pre></div>
+<hr />
+<h2 id="split-config-with-imports">Split Config with Imports</h2>
+<p>Keep config clean by splitting into multiple files:</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># alacritty.toml</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="dt">import</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;~/.config/alacritty/themes/tokyo-night.toml&quot;</span><span class="op">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;~/.config/alacritty/keybindings.toml&quot;</span><span class="op">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[font]</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="dt">size</span> <span class="op">=</span> <span class="fl">13.0</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[window]</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="dt">padding.x</span> <span class="op">=</span> <span class="dv">14</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="dt">padding.y</span> <span class="op">=</span> <span class="dv">12</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="dt">opacity</span> <span class="op">=</span> <span class="fl">0.95</span></span></code></pre></div>
+<p>Good folder structure:</p>
+<pre><code>~/.config/alacritty/
+├── alacritty.toml          main config
+├── keybindings.toml        all key bindings
+└── themes/
+    ├── tokyo-night.toml
+    ├── catppuccin.toml
+    └── gruvbox.toml</code></pre>
+<p>To switch themes just change the import line.</p>
+<hr />
+<h2 id="my-recommended-config">My Recommended Config</h2>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ~/.config/alacritty/alacritty.toml</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[env]</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="dt">TERM</span> <span class="op">=</span> <span class="st">&quot;xterm-256color&quot;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[window]</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="dt">padding.x</span> <span class="op">=</span> <span class="dv">14</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="dt">padding.y</span> <span class="op">=</span> <span class="dv">12</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="dt">opacity</span> <span class="op">=</span> <span class="fl">0.95</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="dt">dynamic_title</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="dt">startup_mode</span> <span class="op">=</span> <span class="st">&quot;Windowed&quot;</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="kw">[scrolling]</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="dt">history</span> <span class="op">=</span> <span class="dv">10000</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="dt">multiplier</span> <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="kw">[font]</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="dt">size</span> <span class="op">=</span> <span class="fl">13.0</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="kw">[font.normal]</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="dt">family</span> <span class="op">=</span> <span class="st">&quot;JetBrainsMono Nerd Font&quot;</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="dt">style</span> <span class="op">=</span> <span class="st">&quot;Regular&quot;</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="kw">[font.bold]</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="dt">family</span> <span class="op">=</span> <span class="st">&quot;JetBrainsMono Nerd Font&quot;</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="dt">style</span> <span class="op">=</span> <span class="st">&quot;Bold&quot;</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a><span class="kw">[font.italic]</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a><span class="dt">family</span> <span class="op">=</span> <span class="st">&quot;JetBrainsMono Nerd Font&quot;</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a><span class="dt">style</span> <span class="op">=</span> <span class="st">&quot;Italic&quot;</span></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="kw">[font.offset]</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a><span class="dt">y</span> <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a><span class="kw">[cursor]</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="dt">style.shape</span> <span class="op">=</span> <span class="st">&quot;Beam&quot;</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a><span class="dt">style.blinking</span> <span class="op">=</span> <span class="st">&quot;On&quot;</span></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a><span class="dt">blink_interval</span> <span class="op">=</span> <span class="dv">500</span></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a><span class="dt">unfocused_hollow</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a><span class="kw">[mouse]</span></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a><span class="dt">hide_when_typing</span> <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.primary]</span></span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a><span class="dt">background</span> <span class="op">=</span> <span class="st">&quot;#1a1b26&quot;</span></span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a><span class="dt">foreground</span> <span class="op">=</span> <span class="st">&quot;#c0caf5&quot;</span></span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.cursor]</span></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a><span class="dt">text</span>   <span class="op">=</span> <span class="st">&quot;#1a1b26&quot;</span></span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a><span class="dt">cursor</span> <span class="op">=</span> <span class="st">&quot;#c0caf5&quot;</span></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.normal]</span></span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a><span class="dt">black</span>   <span class="op">=</span> <span class="st">&quot;#15161e&quot;</span></span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a><span class="dt">red</span>     <span class="op">=</span> <span class="st">&quot;#f7768e&quot;</span></span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a><span class="dt">green</span>   <span class="op">=</span> <span class="st">&quot;#9ece6a&quot;</span></span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a><span class="dt">yellow</span>  <span class="op">=</span> <span class="st">&quot;#e0af68&quot;</span></span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a><span class="dt">blue</span>    <span class="op">=</span> <span class="st">&quot;#7aa2f7&quot;</span></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a><span class="dt">magenta</span> <span class="op">=</span> <span class="st">&quot;#bb9af7&quot;</span></span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a><span class="dt">cyan</span>    <span class="op">=</span> <span class="st">&quot;#7dcfff&quot;</span></span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a><span class="dt">white</span>   <span class="op">=</span> <span class="st">&quot;#a9b1d6&quot;</span></span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a><span class="kw">[colors.bright]</span></span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a><span class="dt">black</span>   <span class="op">=</span> <span class="st">&quot;#414868&quot;</span></span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a><span class="dt">red</span>     <span class="op">=</span> <span class="st">&quot;#f7768e&quot;</span></span>
+<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a><span class="dt">green</span>   <span class="op">=</span> <span class="st">&quot;#9ece6a&quot;</span></span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a><span class="dt">yellow</span>  <span class="op">=</span> <span class="st">&quot;#e0af68&quot;</span></span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a><span class="dt">blue</span>    <span class="op">=</span> <span class="st">&quot;#7aa2f7&quot;</span></span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a><span class="dt">magenta</span> <span class="op">=</span> <span class="st">&quot;#bb9af7&quot;</span></span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a><span class="dt">cyan</span>    <span class="op">=</span> <span class="st">&quot;#7dcfff&quot;</span></span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a><span class="dt">white</span>   <span class="op">=</span> <span class="st">&quot;#c0caf5&quot;</span></span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;C&quot;</span></span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control|Shift&quot;</span></span>
+<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;Copy&quot;</span></span>
+<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;V&quot;</span></span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control|Shift&quot;</span></span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;Paste&quot;</span></span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;N&quot;</span></span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control|Shift&quot;</span></span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;SpawnNewInstance&quot;</span></span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;Plus&quot;</span></span>
+<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control&quot;</span></span>
+<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;IncreaseFontSize&quot;</span></span>
+<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;Minus&quot;</span></span>
+<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control&quot;</span></span>
+<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;DecreaseFontSize&quot;</span></span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a><span class="kw">[[keyboard.bindings]]</span></span>
+<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a><span class="dt">key</span> <span class="op">=</span> <span class="st">&quot;Key0&quot;</span></span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a><span class="dt">mods</span> <span class="op">=</span> <span class="st">&quot;Control&quot;</span></span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a><span class="dt">action</span> <span class="op">=</span> <span class="st">&quot;ResetFontSize&quot;</span></span></code></pre></div>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for config errors</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">alacritty</span> <span class="at">--print-events</span> <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">head</span> <span class="at">-30</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Font not found — check exact name</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">fc-list</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> <span class="st">&quot;jetbrains&quot;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="ex">fc-cache</span> <span class="at">-fv</span>                        <span class="co"># rebuild font cache</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Colors wrong</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$TERM</span>                          <span class="co"># should be xterm-256color</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Slow rendering</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="co"># → set opacity = 1.0 (transparency is expensive)</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co"># → disable blur</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Check version (determines YAML vs TOML)</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="ex">alacritty</span> <span class="at">--version</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="co"># v0.12+ → use .toml</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="co"># older  → use .yml</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset to defaults</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="fu">mv</span> ~/.config/alacritty/alacritty.toml ~/.config/alacritty/alacritty.toml.bak</span></code></pre></div>
+<hr />
+<h2 id="quick-reference">Quick Reference</h2>
+<pre><code>Config file         ~/.config/alacritty/alacritty.toml
+Live reload         yes — save file, changes apply instantly
+Tabs / splits       no — use tmux or zellij
+Font format         TTF/OTF, Nerd Fonts recommended
+Copy                Ctrl+Shift+C
+Paste               Ctrl+Shift+V
+New window          Ctrl+Shift+N
+Font size           Ctrl+= / Ctrl+-
+Vi scroll mode      Ctrl+Shift+Space
+Search (vi mode)    /</code></pre>
+
+</div>
+
+<!-- ── SEARCH MODAL ── -->
+<div class="search-modal" id="searchModal" onclick="closeSearchOutside(event)">
+    <div class="search-box" onclick="event.stopPropagation()">
+        <div class="search-input-row">
+            <span class="search-icon">⌕</span>
+            <input
+                class="search-input" id="searchInput"
+                placeholder="search notes..."
+                oninput="doSearch()"
+                onkeydown="searchKeyNav(event)"
+                autocomplete="off" spellcheck="false"
+            >
+            <button class="search-close" onclick="closeSearch()">esc</button>
+        </div>
+        <div class="search-results" id="searchResults">
+            <div class="search-empty">type to search all notes</div>
+        </div>
+        <div class="search-footer">
+            <span class="sf-hint"><span class="sf-key">↑↓</span> navigate</span>
+            <span class="sf-hint"><span class="sf-key">enter</span> open</span>
+            <span class="sf-hint"><span class="sf-key">esc</span> close</span>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── SIDEBAR ──
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+
+// ── SEARCH ──
+let searchIndex = null;
+let focusIdx = -1;
+
+async function loadIndex() {
+    if (searchIndex) return;
+    try {
+        // figure out base path (works from any subfolder depth)
+        const base = document.location.pathname.includes('/output/')
+            ? document.location.pathname.replace(/\/output\/.*/, '/output/')
+            : './';
+        const r = await fetch(base + 'search-index.json');
+        searchIndex = await r.json();
+    } catch(e) {
+        searchIndex = [];
+        console.warn('search index not found');
+    }
+}
+
+function openSearch() {
+    loadIndex();
+    document.getElementById('searchModal').classList.add('open');
+    setTimeout(() => document.getElementById('searchInput').focus(), 50);
+}
+
+function closeSearch() {
+    document.getElementById('searchModal').classList.remove('open');
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').innerHTML = '<div class="search-empty">type to search all notes</div>';
+    focusIdx = -1;
+}
+
+function closeSearchOutside(e) {
+    if (e.target === document.getElementById('searchModal')) closeSearch();
+}
+
+// ctrl+k / cmd+k
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if (e.key === 'Escape') closeSearch();
+});
+
+function highlight(text, query) {
+    if (!query) return text;
+    const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return text.replace(re, '<em>$1</em>');
+}
+
+function doSearch() {
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    const res = document.getElementById('searchResults');
+    focusIdx = -1;
+
+    if (!q) {
+        res.innerHTML = '<div class="search-empty">type to search all notes</div>';
+        return;
+    }
+    if (!searchIndex || !searchIndex.length) {
+        res.innerHTML = '<div class="search-empty"><span>building index...</span></div>';
+        return;
+    }
+
+    // score each entry
+    const scored = [];
+    for (const entry of searchIndex) {
+        const titleMatch = entry.title.toLowerCase().includes(q);
+        const pageMatch  = entry.page.toLowerCase().includes(q);
+        const bodyMatch  = entry.body.toLowerCase().includes(q);
+        if (!titleMatch && !pageMatch && !bodyMatch) continue;
+
+        let score = 0;
+        if (titleMatch) score += 10;
+        if (pageMatch)  score += 5;
+        if (bodyMatch)  score += 1;
+
+        // find surrounding context for body match
+        let matchSnippet = '';
+        if (bodyMatch) {
+            const idx = entry.body.toLowerCase().indexOf(q);
+            const start = Math.max(0, idx - 30);
+            const end   = Math.min(entry.body.length, idx + q.length + 60);
+            matchSnippet = (start > 0 ? '…' : '') + entry.body.slice(start, end) + (end < entry.body.length ? '…' : '');
+        }
+
+        scored.push({ ...entry, score, matchSnippet });
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    const top = scored.slice(0, 12);
+
+    if (!top.length) {
+        res.innerHTML = `<div class="search-empty">no results for <span>"${q}"</span></div>`;
+        return;
+    }
+
+    res.innerHTML = top.map((r, i) => `
+        <a class="search-result" href="${r.href}" data-idx="${i}">
+            <span class="sr-left">#</span>
+            <div class="sr-body">
+                <div class="sr-title">${highlight(r.title, q)}</div>
+                <div class="sr-page">${r.page}</div>
+                ${r.matchSnippet ? `<div class="sr-match">${highlight(r.matchSnippet, q)}</div>` : ''}
+            </div>
+        </a>
+    `).join('');
+}
+
+function searchKeyNav(e) {
+    const items = document.querySelectorAll('.search-result');
+    if (e.key === 'ArrowDown') { e.preventDefault(); focusIdx = Math.min(focusIdx + 1, items.length - 1); }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); focusIdx = Math.max(focusIdx - 1, 0); }
+    if (e.key === 'Enter' && focusIdx >= 0) { items[focusIdx].click(); }
+    items.forEach((el, i) => el.classList.toggle('focused', i === focusIdx));
+    if (focusIdx >= 0) items[focusIdx].scrollIntoView({ block: 'nearest' });
+}
+</script>
+</body>
+</html>

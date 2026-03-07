@@ -1,4 +1,4 @@
-# Git & GitHub
+# Git & GitHub Cheatsheet
 
 > version control. the thing that saves your ass.
 
