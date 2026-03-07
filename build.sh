@@ -43,6 +43,7 @@ ORDER=(
     "database"
     "network"
     "security"
+    "cloudflare"
     "docker"
     "testing"
 
