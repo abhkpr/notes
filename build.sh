@@ -18,6 +18,7 @@ ORDER=(
     "mds"
     "git"
     "git-workflow"
+    "gh"
     "i3"
 
     # math and cs theory
