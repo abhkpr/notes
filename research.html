@@ -1,0 +1,2717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Complete Research Handbook | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg:      #0d0d0d;
+            --bg2:     #111111;
+            --fg:      #e0e0e0;
+            --green:   #00cc00;
+            --muted:   #666666;
+            --border:  #222222;
+            --sidebar: 260px;
+        }
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* ── hamburger ── */
+        .hamburger {
+            position: fixed; top: 12px; left: 12px; z-index: 1000;
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--green); font-size: 1.2rem; padding: 4px 10px;
+            cursor: pointer; font-family: 'Share Tech Mono', monospace;
+        }
+        .hamburger:hover { border-color: var(--green); }
+
+        /* ── search button in header ── */
+        .search-btn {
+            position: fixed; top: 12px; right: 12px; z-index: 1000;
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--muted); font-size: 0.75rem; padding: 4px 12px;
+            cursor: pointer; font-family: 'Share Tech Mono', monospace;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.15s;
+        }
+        .search-btn:hover { border-color: var(--green); color: var(--green); }
+        .search-btn .kbd {
+            background: var(--border); padding: 1px 5px;
+            font-size: 0.7rem; color: var(--muted);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99;
+        }
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: var(--sidebar); height: 100vh;
+            background: var(--bg2); border-right: 1px solid var(--border);
+            overflow-y: auto; z-index: 100;
+            transform: translateX(-100%); transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-title {
+            padding: 0 20px 16px; color: var(--green);
+            font-size: 0.8rem; letter-spacing: 3px;
+            border-bottom: 1px solid var(--border); margin-bottom: 10px;
+        }
+        .sidebar nav a {
+            display: block; padding: 8px 20px; color: var(--muted);
+            text-decoration: none; font-size: 0.85rem;
+            border-left: 2px solid transparent; transition: all 0.15s;
+        }
+        .sidebar nav a:hover { color: var(--fg); border-left-color: var(--green); background: rgba(0,204,0,0.05); }
+        .sidebar nav a.active { color: var(--green); border-left-color: var(--green); }
+
+        /* ── main content ── */
+        .content { max-width: 750px; margin: 0 auto; padding: 60px 24px 80px; }
+
+        /* ── typography ── */
+        h1, h2, h3, h4 { color: var(--fg); margin: 28px 0 12px; letter-spacing: 1px; }
+        h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--green); }
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+        p { margin-bottom: 14px; color: var(--fg); }
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code { background: var(--bg2); color: var(--green); border: 1px solid var(--border); padding: 2px 6px; font-family: 'Share Tech Mono', monospace; }
+        pre { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--green); padding: 16px; overflow-x: auto; margin: 16px 0; white-space: pre; }
+        pre code { border: none; padding: 0; background: none; white-space: pre; font-family: 'Share Tech Mono', monospace; line-height: 1.4; }
+        blockquote { border-left: 3px solid var(--green); padding: 10px 16px; background: var(--bg2); color: var(--muted); margin: 16px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        td, th { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+        th { background: var(--bg2); color: var(--green); }
+        ul, ol { padding-left: 20px; margin-bottom: 14px; }
+        li { margin-bottom: 4px; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+        /* ── SEARCH MODAL ── */
+        .search-modal {
+            position: fixed; inset: 0; z-index: 2000;
+            background: rgba(0,0,0,0.85);
+            display: flex; align-items: flex-start; justify-content: center;
+            padding-top: 80px;
+            opacity: 0; pointer-events: none; transition: opacity 0.15s;
+        }
+        .search-modal.open { opacity: 1; pointer-events: all; }
+
+        .search-box {
+            background: var(--bg2); border: 1px solid var(--green);
+            width: 100%; max-width: 580px;
+            box-shadow: 0 0 40px rgba(0,204,0,0.1);
+        }
+        .search-input-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px; border-bottom: 1px solid var(--border);
+        }
+        .search-icon { color: var(--green); font-size: 14px; flex-shrink: 0; }
+        .search-input {
+            background: none; border: none; outline: none;
+            color: var(--fg); font-family: 'Share Tech Mono', monospace;
+            font-size: 14px; flex: 1;
+        }
+        .search-input::placeholder { color: var(--muted); }
+        .search-close {
+            color: var(--muted); font-size: 11px; cursor: pointer;
+            flex-shrink: 0; padding: 2px 6px; border: 1px solid var(--border);
+            background: none; font-family: 'Share Tech Mono', monospace;
+            transition: all 0.15s;
+        }
+        .search-close:hover { color: var(--green); border-color: var(--green); }
+
+        .search-results { max-height: 420px; overflow-y: auto; }
+
+        .search-result {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 12px 18px; cursor: pointer; text-decoration: none;
+            border-bottom: 1px solid var(--border); transition: background 0.1s;
+        }
+        .search-result:last-child { border-bottom: none; }
+        .search-result:hover, .search-result.focused { background: rgba(0,204,0,0.05); }
+        .search-result:hover .sr-title, .search-result.focused .sr-title { color: var(--green); }
+
+        .sr-left { flex-shrink: 0; color: var(--green); font-size: 11px; opacity: 0.5; width: 16px; text-align: center; }
+        .sr-body { flex: 1; min-width: 0; }
+        .sr-title { color: var(--fg); font-size: 13px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sr-page { color: var(--muted); font-size: 11px; }
+        .sr-match { color: var(--muted); font-size: 11px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sr-match em { color: var(--green); font-style: normal; }
+
+        .search-footer {
+            padding: 8px 18px; border-top: 1px solid var(--border);
+            display: flex; gap: 16px; align-items: center;
+        }
+        .sf-hint { font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+        .sf-key { background: var(--border); padding: 1px 5px; font-size: 10px; }
+
+        .search-empty {
+            padding: 40px 18px; text-align: center;
+            color: var(--muted); font-size: 12px;
+        }
+        .search-empty span { color: var(--green); }
+
+        /* highlight matched text */
+        mark { background: rgba(0,204,0,0.15); color: var(--green); padding: 0 2px; }
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+<!-- search trigger button -->
+<button class="search-btn" onclick="openSearch()">
+    ⌕ search <span class="kbd">ctrl k</span>
+</button>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="alacritty.html">Alacritty</a><a href="bash.html">Bash and Shell Scripting</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub Cheatsheet</a><a href="git-workflow.html">Git and GitHub Workflow</a><a href="gh.html">GitHub CLI</a><a href="gh-cli-wf.html">GitHub CLI  Workflow</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="dsa.html">Data Structures and Algorithms</a><a href="cs.html">Computer Science Fundamentals</a><a href="system-design.html">System Design</a><a href="design-pattern.html">Design Patterns</a><a href="Cpp.html">C++ for Competitive Programming — Complete Notes</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="ts.html">TypeScript with React</a><a href="react.html">React</a><a href="py.html">Python</a><a href="api.html">API Design and REST</a><a href="sql.html">SQL and PostgreSQL</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="cloudflare.html">Cloudflare</a><a href="deploy.html">GitHub + Cloudflare — Full Developer Workflow</a><a href="docker.html">Docker</a><a href="testing.html">Testing</a><a href="kt.html">Kotlin</a><a href="fullstack.html">Full Stack — Frontend and Backend Together</a><a href="how-to-build.html">How to Build a Project</a><a href="design.html">Designing UI, Database and System Architecture</a><a href="web.html">Building Websites and Web Applications</a><a href="vocab.html">Dev Vocabulary</a><a href="warbird.html">warbird site — documentation</a><a href="research.html" class="active">The Complete Research Handbook</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="the-complete-research-handbook">The Complete Research
+Handbook</h1>
+<h3 id="for-cs-students-academic-research-startup-product-research">For
+CS Students: Academic Research + Startup Product Research</h3>
+<blockquote>
+<p><strong>From zero to publishing papers and building products people
+pay for</strong> Everything. A to Z. No fluff.</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">TABLE OF CONTENTS</h2>
+<ol type="1">
+<li><a href="#1-the-mental-foundation">The Mental Foundation</a></li>
+<li><a href="#2-types-of-research">Types of Research</a></li>
+<li><a href="#3-academic-research--full-process">Academic Research —
+Full Process</a>
+<ul>
+<li>3.1 Finding Your Research Question</li>
+<li>3.2 Literature Review</li>
+<li>3.3 Where to Find Papers</li>
+<li>3.4 Reading Papers Efficiently</li>
+<li>3.5 Organizing Your Research</li>
+<li>3.6 Note-Taking Systems</li>
+<li>3.7 Forming a Hypothesis</li>
+<li>3.8 Designing Experiments</li>
+<li>3.9 Running Experiments</li>
+<li>3.10 Analyzing Results</li>
+<li>3.11 Writing the Paper</li>
+<li>3.12 Peer Review + Submission</li>
+</ul></li>
+<li><a href="#4-startupproduct-research--full-process">Startup/Product
+Research — Full Process</a>
+<ul>
+<li>4.1 Problem Discovery</li>
+<li>4.2 Market Research</li>
+<li>4.3 Customer Discovery</li>
+<li>4.4 Competitive Analysis</li>
+<li>4.5 Validation Before Building</li>
+<li>4.6 Continuous Product Research</li>
+<li>4.7 Metrics and Analytics</li>
+</ul></li>
+<li><a href="#5-documentation-systems">Documentation Systems</a>
+<ul>
+<li>5.1 Academic Documentation</li>
+<li>5.2 Startup Documentation</li>
+<li>5.3 Templates</li>
+</ul></li>
+<li><a href="#6-tools-master-list">Tools Master List</a></li>
+<li><a href="#7-from-research-to-startup">From Research to
+Startup</a></li>
+<li><a href="#8-working-with-advisors-and-mentors">Working With Advisors
+and Mentors</a></li>
+<li><a href="#9-research-ethics">Research Ethics</a></li>
+<li><a href="#10-the-weekly-rhythm">The Weekly Rhythm</a></li>
+<li><a href="#11-common-mistakes-and-how-to-avoid-them">Common Mistakes
+and How to Avoid Them</a></li>
+<li><a href="#12-resources-library">Resources Library</a></li>
+<li><a href="#13-the-master-mental-model">The Master Mental
+Model</a></li>
+</ol>
+<hr />
+<hr />
+<h1 id="the-mental-foundation">1. THE MENTAL FOUNDATION</h1>
+<h2 id="what-research-actually-is">What Research Actually Is</h2>
+<p>Most people are taught research as: <strong>find papers → read papers
+→ cite papers.</strong> That is library science. Not research.</p>
+<p><strong>Real research is:</strong> &gt; You have a question the world
+hasn’t fully answered. You go find out. Then you tell the world what you
+found.</p>
+<p>Think of the world as a giant codebase. Most of it is already written
+and documented — that is existing knowledge. But there are
+<strong>bugs</strong> (unsolved problems) and <strong>missing
+features</strong> (unexplored areas).</p>
+<p>Research is finding those bugs and either: - <strong>Patching
+them</strong> — solving an existing problem → academic research -
+<strong>Building a feature people will pay for</strong> — solving a
+market problem → startup research</p>
+<p>Both start the same way: <strong>you notice something is broken or
+missing.</strong></p>
+<h2 id="the-core-difference-academic-vs-startup-research">The Core
+Difference: Academic vs Startup Research</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dimension</th>
+<th>Academic Research</th>
+<th>Startup Research</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Output</td>
+<td>Knowledge / Paper</td>
+<td>Product / Revenue</td>
+</tr>
+<tr class="even">
+<td>Audience</td>
+<td>Committee of experts</td>
+<td>Market of customers</td>
+</tr>
+<tr class="odd">
+<td>Success metric</td>
+<td>Novel contribution</td>
+<td>People pay for it</td>
+</tr>
+<tr class="even">
+<td>Timeline</td>
+<td>Months to years</td>
+<td>Weeks to months</td>
+</tr>
+<tr class="odd">
+<td>Iteration speed</td>
+<td>Slow</td>
+<td>Fast</td>
+</tr>
+<tr class="even">
+<td>Failure handling</td>
+<td>Negative result = publishable</td>
+<td>Negative result = pivot</td>
+</tr>
+<tr class="odd">
+<td>Primary question</td>
+<td>“Is this true?”</td>
+<td>“Will people pay for this?”</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The thinking process is almost identical. Master one, you get
+the other free.</strong></p>
+<h2 id="the-researcher-mindset">The Researcher Mindset</h2>
+<p>Before anything else, internalize these:</p>
+<p><strong>1. Intellectual honesty above everything</strong> Your job is
+to find truth, not to confirm what you already believe. If your
+experiment disproves your hypothesis — that is a result. A real one.
+Publish it.</p>
+<p><strong>2. Comfort with uncertainty</strong> You will spend most of
+your time not knowing. That is normal. That is the job. The discomfort
+of not knowing is the fuel that drives research.</p>
+<p><strong>3. Skepticism of everything, including yourself</strong>
+Every paper has flaws. Every methodology has assumptions. Including
+yours. The best researchers are the harshest critics of their own
+work.</p>
+<p><strong>4. First principles thinking</strong> When stuck, strip away
+everything and ask: what do I actually know for certain? What am I
+assuming? What would I have to prove for this to be true?</p>
+<p><strong>5. The 10x question habit</strong> For every conclusion:
+“Under what conditions would this be false?” For every assumption: “What
+if the opposite were true?” This is the habit that separates good
+researchers from great ones.</p>
+<hr />
+<hr />
+<h1 id="types-of-research">2. TYPES OF RESEARCH</h1>
+<h2 id="the-3-core-types">The 3 Core Types</h2>
+<h3 id="type-1-exploratory-research">Type 1 — Exploratory Research</h3>
+<p><strong>“I don’t know what I don’t know”</strong></p>
+<p>Used when: entering a completely new field, starting a new project,
+trying to understand a domain</p>
+<p>Goal: Build a map of the territory. Understand what exists, what the
+open questions are, who the key players are.</p>
+<p>Outputs: Literature review, concept maps, research question
+candidates</p>
+<h3 id="type-2-validating-research">Type 2 — Validating Research</h3>
+<p><strong>“I think I know something. Let me verify.”</strong></p>
+<p>Used when: you have a hypothesis, you want to test an existing claim,
+you’re checking your assumptions</p>
+<p>Goal: Prove or disprove a specific, testable claim with data and
+evidence</p>
+<p>Outputs: Experiment results, validated/invalidated hypothesis,
+paper</p>
+<h3 id="type-3-building-research">Type 3 — Building Research</h3>
+<p><strong>“I know what needs to exist. Let me create it.”</strong></p>
+<p>Used when: problem is confirmed, solution direction is clear, time to
+construct and measure</p>
+<p>Goal: Build the thing and measure whether it solves the problem</p>
+<p>Outputs: System, prototype, product, technical contribution</p>
+<p><strong>You always start with Type 1, regardless of how confident you
+feel.</strong></p>
+<hr />
+<h2 id="research-methodologies-in-cs">Research Methodologies in CS</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Methodology</th>
+<th>Description</th>
+<th>When to Use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Empirical</td>
+<td>Run experiments, collect data, measure</td>
+<td>Comparing systems, benchmarking, ML experiments</td>
+</tr>
+<tr class="even">
+<td>Theoretical</td>
+<td>Mathematical proofs, formal analysis</td>
+<td>Algorithm complexity, security proofs</td>
+</tr>
+<tr class="odd">
+<td>System Building</td>
+<td>Design, implement, evaluate a new system</td>
+<td>New tools, frameworks, architectures</td>
+</tr>
+<tr class="even">
+<td>Survey/Review</td>
+<td>Comprehensive analysis of existing work</td>
+<td>Literature reviews, meta-analyses</td>
+</tr>
+<tr class="odd">
+<td>Case Study</td>
+<td>Deep analysis of specific instances</td>
+<td>Real-world system behavior, deployment studies</td>
+</tr>
+<tr class="even">
+<td>User Study</td>
+<td>Observe/interview people using systems</td>
+<td>HCI, usability, accessibility</td>
+</tr>
+<tr class="odd">
+<td>Simulation</td>
+<td>Model and simulate systems</td>
+<td>Networks, distributed systems, scenarios</td>
+</tr>
+</tbody>
+</table>
+<p>Most CS research combines at least 2 of these.</p>
+<hr />
+<hr />
+<h1 id="academic-research-full-process">3. ACADEMIC RESEARCH — FULL
+PROCESS</h1>
+<h2 id="finding-your-research-question">3.1 Finding Your Research
+Question</h2>
+<p><strong>This is where 90% of students fail. They pick a topic, not a
+question.</strong></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Wrong (topic)</th>
+<th>Right (question)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“I want to research machine learning”</td>
+<td>“Why do transformers underperform on time-series vs LSTMs, and can
+positional encoding be modified to fix this?”</td>
+</tr>
+<tr class="even">
+<td>“I want to study databases”</td>
+<td>“What is the performance cost of ACID compliance in distributed
+transactions at scale, and can it be reduced without sacrificing
+consistency?”</td>
+</tr>
+<tr class="odd">
+<td>“I want to work on security”</td>
+<td>“Are current LLM-based code generation tools producing
+systematically vulnerable code in specific categories?”</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-anatomy-of-a-good-research-question">The Anatomy of a Good
+Research Question</h3>
+<pre><code>[Observed gap or problem] + [specific context] + [proposed direction]</code></pre>
+<p>A good research question must be: - <strong>Specific</strong> — not
+vague, clearly bounded - <strong>Falsifiable</strong> — you must be able
+to be wrong - <strong>Novel</strong> — not already answered (do your
+literature review first) - <strong>Feasible</strong> — answerable within
+your resources and time - <strong>Significant</strong> — the answer must
+matter to someone</p>
+<h3 id="method-1-the-survey-paper-method">Method 1 — The Survey Paper
+Method</h3>
+<p>Survey papers (also called review papers) summarize an entire
+subfield. They are treasure maps.</p>
+<p>Steps: 1. Search “[your area] survey” or “[your area] review” on
+Google Scholar 2. Filter for recent papers (last 3-5 years) 3. Go
+directly to “Future Work,” “Open Problems,” or “Limitations” section 4.
+Those sections are researchers explicitly saying: “someone please solve
+this” 5. Pick one that genuinely interests you and that you have the
+skills to attempt</p>
+<h3 id="method-2-the-contradiction-method">Method 2 — The Contradiction
+Method</h3>
+<ol type="1">
+<li>Find two papers in the same area that reach different
+conclusions</li>
+<li>The gap between them IS a research question</li>
+<li>“Paper A claims X works under conditions Y. Paper B says it doesn’t.
+Under what specific conditions does each hold, and why?”</li>
+</ol>
+<p>This is powerful because the disagreement already signals there is
+something real to discover.</p>
+<h3 id="method-3-the-real-world-backwards-method">Method 3 — The Real
+World Backwards Method</h3>
+<ol type="1">
+<li>Start with a real problem you or someone you know has
+experienced</li>
+<li>Ask: “Why does this problem exist?”</li>
+<li>Keep asking why (5 Whys technique) until you hit something no paper
+has answered</li>
+<li>That unanswered “why” is your research question</li>
+</ol>
+<p>This method produces the most impactful research because it is
+grounded in reality. It also happens to be the same starting point for a
+startup.</p>
+<h3
+id="method-4-the-replication-extension-method-best-for-beginners">Method
+4 — The Replication + Extension Method (Best for Beginners)</h3>
+<ol type="1">
+<li>Find a well-cited paper in your area</li>
+<li>Replicate their experiment (this teaches you the methodology
+deeply)</li>
+<li>Identify one assumption they made or one thing they didn’t test</li>
+<li>Your extension of that = your contribution</li>
+</ol>
+<p>This is underrated. Many great papers are rigorous extensions of
+prior work.</p>
+<hr />
+<h2 id="literature-review">3.2 Literature Review</h2>
+<h3 id="what-a-literature-review-is-not">What a Literature Review Is
+Not</h3>
+<ul>
+<li>It is not a list of paper summaries</li>
+<li>It is not a history lesson about the field</li>
+<li>It is not copy-pasting abstracts</li>
+</ul>
+<h3 id="what-a-literature-review-actually-is">What a Literature Review
+Actually Is</h3>
+<p>A literature review is a <strong>structured argument</strong> that:
+1. Shows you understand the existing landscape 2. Identifies the
+specific gap your work fills 3. Explains why existing approaches don’t
+fully solve the problem</p>
+<p>Think of it as a prosecution brief: you are building the case that
+your research needs to exist.</p>
+<h3 id="the-literature-review-process">The Literature Review
+Process</h3>
+<p><strong>Phase 1: Seed</strong> Start with 3-5 highly relevant papers
+you already know or find immediately.</p>
+<p><strong>Phase 2: Expand</strong> For each seed paper: - Note every
+paper it cites that seems relevant - Search Google Scholar “Cited by” to
+find everything that cited it - You now have 30-50 papers</p>
+<p><strong>Phase 3: Filter</strong> Apply the 3-Pass reading method (see
+3.4) to filter down to what actually matters.</p>
+<p><strong>Phase 4: Cluster</strong> Group papers by subtopic, approach,
+or contribution type. This becomes your review structure.</p>
+<p><strong>Phase 5: Synthesize</strong> Write the review not as “Paper A
+did X. Paper B did Y.” but as “The dominant approach to this problem has
+been X [A, B, C], which works well for [conditions] but fails when
+[limitation]. An alternative direction is Y [D, E], which addresses
+[limitation] but introduces [new problem].”</p>
+<p><strong>Phase 6: Identify Gap</strong> The gap — what none of these
+papers solve — is where your work lives. State it explicitly.</p>
+<h3 id="connected-papers">Connected Papers</h3>
+<p>Go to connectedpapers.com, paste any paper’s title. It generates a
+visual graph of related papers, showing you the neighborhood of
+literature around a topic. Use this for discovery — it surfaces papers
+you’d never find by keyword search alone.</p>
+<hr />
+<h2 id="where-to-find-papers">3.3 Where to Find Papers</h2>
+<h3 id="primary-academic-sources">Primary Academic Sources</h3>
+<pre><code>Google Scholar          scholar.google.com
+├── Start here always. Broadest coverage.
+├── Use &quot;Cited by&quot; to trace forward in time
+└── Use date filter to get recent work
+
+Semantic Scholar        semanticscholar.org
+├── AI-powered, shows citation graphs
+├── Shows &quot;highly influential citations&quot;
+└── Better for finding key papers in a cluster
+
+ArXiv                   arxiv.org
+├── Preprints — papers before peer review
+├── CS/ML cutting edge is here first
+├── Search by category: cs.LG, cs.AI, cs.DB, cs.CR, etc.
+└── Papers appear here 6-12 months before conferences
+
+ACM Digital Library     dl.acm.org
+├── Core CS research
+└── SIGMOD, STOC, CCS, CHI, SOSP, OSDI etc.
+
+IEEE Xplore             ieeexplore.ieee.org
+├── Engineering + CS
+└── ICSE, INFOCOM, S&amp;P, CVPR etc.
+
+Papers With Code        paperswithcode.com
+├── ML papers + working code implementations
+├── Benchmarks and leaderboards
+└── State of the art tracking per task
+
+DBLP                    dblp.org
+├── CS bibliography database
+└── Great for finding all papers by a specific author
+
+ResearchGate            researchgate.net
+└── Researchers often post their own PDFs here</code></pre>
+<h3 id="getting-paywalled-papers-legally-and-free">Getting Paywalled
+Papers — Legally and Free</h3>
+<pre><code>1. Unpaywall browser extension
+   Install it. It auto-finds free legal versions of papers.
+   Works 50-60% of the time.
+
+2. ArXiv preprint version
+   Search the paper title on arxiv.org — most CS papers have a preprint.
+
+3. Author&#39;s personal/lab website
+   Researchers post their own papers. Google &quot;[author name] publications&quot;
+
+4. Email the author directly
+   &quot;Dear Prof. X, I&#39;m a CS student studying [topic].
+   Could you share a copy of your paper [title]?
+   I don&#39;t have institutional access.&quot;
+   Response rate: ~70%. They almost always say yes.
+   Bonus: sometimes turns into a research relationship.
+
+5. Google Scholar PDF links
+   Click the [PDF] link on the right side of Google Scholar results.
+   Many link to free versions.</code></pre>
+<h3 id="key-conferences-by-cs-subfield">Key Conferences by CS
+Subfield</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Subfield</th>
+<th>Top Conferences</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Machine Learning</td>
+<td>NeurIPS, ICML, ICLR</td>
+</tr>
+<tr class="even">
+<td>Computer Vision</td>
+<td>CVPR, ICCV, ECCV</td>
+</tr>
+<tr class="odd">
+<td>NLP</td>
+<td>ACL, EMNLP, NAACL</td>
+</tr>
+<tr class="even">
+<td>Systems</td>
+<td>OSDI, SOSP, ATC, EuroSys</td>
+</tr>
+<tr class="odd">
+<td>Databases</td>
+<td>SIGMOD, VLDB, ICDE</td>
+</tr>
+<tr class="even">
+<td>Security</td>
+<td>S&amp;P (Oakland), CCS, USENIX Security, NDSS</td>
+</tr>
+<tr class="odd">
+<td>Networking</td>
+<td>SIGCOMM, NSDI</td>
+</tr>
+<tr class="even">
+<td>HCI</td>
+<td>CHI, UIST</td>
+</tr>
+<tr class="odd">
+<td>Software Engineering</td>
+<td>ICSE, FSE, ASE</td>
+</tr>
+<tr class="even">
+<td>Theory</td>
+<td>STOC, FOCS, SODA</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A paper at these venues = peer-reviewed, high bar,
+trustworthy.</strong></p>
+<hr />
+<h2 id="reading-papers-efficiently">3.4 Reading Papers Efficiently</h2>
+<h3 id="the-3-pass-method">The 3-Pass Method</h3>
+<p><em>(Adapted from Prof. S. Keshav’s canonical framework)</em></p>
+<p><strong>Pass 1 — Bird’s Eye View (5–15 minutes)</strong></p>
+<p>Read only: - Title and abstract - Introduction: first paragraph +
+last paragraph only - All section headings - Conclusion - Skim all
+figures and tables (read their captions)</p>
+<p>After Pass 1, answer: 1. What problem does this solve? 2. What is
+their core approach? 3. Did it work? (main result) 4. Is this relevant
+to my work?</p>
+<p><strong>80% of papers end here.</strong> That is correct and
+efficient.</p>
+<p><strong>Pass 2 — Understanding (30 minutes – 1 hour)</strong></p>
+<p>Read everything except proofs and deep math. Understand the core
+idea. Mark every reference you don’t recognize — those are papers to
+possibly read next. Understand all figures.</p>
+<p>After Pass 2, you should be able to explain the paper to someone else
+in 3 minutes.</p>
+<p><strong>Pass 3 — Deep Reading (3–5 hours, critical papers
+only)</strong></p>
+<p>Read everything. Understand every proof, every design decision, every
+experiment. Ask: could you reimplement this? Could you find a flaw?
+Could you extend this?</p>
+<p><strong>This level is reserved for the 5 most important papers to
+your work.</strong></p>
+<h3 id="what-to-look-for-in-different-sections">What to Look For in
+Different Sections</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Section</th>
+<th>Key Questions to Ask</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Abstract</td>
+<td>What claim are they making? Is it specific?</td>
+</tr>
+<tr class="even">
+<td>Introduction</td>
+<td>What is the precise problem? What are they NOT solving?</td>
+</tr>
+<tr class="odd">
+<td>Related Work</td>
+<td>What is the gap they position against?</td>
+</tr>
+<tr class="even">
+<td>Methodology</td>
+<td>What assumptions are they making? What could fail?</td>
+</tr>
+<tr class="odd">
+<td>Experiments</td>
+<td>Are baselines fair? Are datasets appropriate?</td>
+</tr>
+<tr class="even">
+<td>Results</td>
+<td>Are differences statistically significant?</td>
+</tr>
+<tr class="odd">
+<td>Conclusion</td>
+<td>What do they claim vs what did they actually prove?</td>
+</tr>
+<tr class="even">
+<td>Limitations</td>
+<td>Are they honest? What did they hide here?</td>
+</tr>
+</tbody>
+</table>
+<h3 id="red-flags-in-papers">Red Flags in Papers</h3>
+<ul>
+<li>No statistical significance testing on results</li>
+<li>Comparison only against weak baselines</li>
+<li>Dataset that suspiciously fits their method</li>
+<li>“Future work” section that addresses obvious flaws</li>
+<li>Cherry-picked examples without aggregate metrics</li>
+<li>No ablation study (testing each component separately)</li>
+<li>Results that are “too clean”</li>
+</ul>
+<hr />
+<h2 id="organizing-your-research">3.5 Organizing Your Research</h2>
+<h3 id="folder-structure-use-this-exactly">Folder Structure (Use This
+Exactly)</h3>
+<pre><code>/research-project-name/
+│
+├── /papers/
+│   ├── /foundational/      → papers everyone cites, must-reads
+│   ├── /related-work/      → papers in your topic area
+│   ├── /methods/           → papers about techniques you use
+│   └── /datasets/          → papers about datasets you use
+│
+├── /notes/
+│   ├── /paper-summaries/   → one file per paper
+│   ├── /ideas/             → your original thoughts
+│   ├── /meeting-notes/     → advisor meetings
+│   └── /weekly-logs/       → weekly research diary
+│
+├── /experiments/
+│   ├── /exp-001/           → one folder per experiment
+│   │   ├── config.yaml     → exact parameters used
+│   │   ├── run.py          → code to reproduce
+│   │   ├── results/        → raw outputs
+│   │   └── README.md       → what this tested and what happened
+│   └── /exp-002/
+│
+├── /writing/
+│   ├── /drafts/            → version-controlled LaTeX
+│   ├── /figures/           → all paper figures
+│   └── /references.bib     → Zotero-managed bibliography
+│
+├── /data/
+│   ├── /raw/               → original, never modified
+│   ├── /processed/         → cleaned versions
+│   └── data_sources.md     → where everything came from
+│
+├── /code/
+│   ├── requirements.txt    → exact package versions
+│   ├── README.md           → how to run everything
+│   └── /src/
+│
+└── README.md               → project overview, status, how to navigate</code></pre>
+<p><strong>Everything in Git. From day 1. No exceptions.</strong></p>
+<h3 id="zotero-setup-your-research-database">Zotero Setup (Your Research
+Database)</h3>
+<p>Zotero is free and the best tool for managing papers.</p>
+<p>Setup steps: 1. Install Zotero desktop + browser extension 2. Create
+collections by project and subtopic 3. When you find a paper online,
+click the browser extension — it imports automatically 4. Add tags
+consistently: <code>to-read</code>, <code>read-pass1</code>,
+<code>read-pass2</code>, <code>read-pass3</code>, <code>key-paper</code>
+5. Write your notes in the Zotero note attached to each paper 6. Use
+Zotero’s citation tool in Word or Overleaf — never manually format
+references</p>
+<p><strong>The single biggest time-saving habit in academic
+research.</strong></p>
+<hr />
+<h2 id="note-taking-systems">3.6 Note-Taking Systems</h2>
+<h3 id="the-zettelkasten-method">The Zettelkasten Method</h3>
+<p>Developed by sociologist Niklas Luhmann, who published 70 books and
+400 articles using this method. The system works because it mirrors how
+ideas actually connect — not hierarchically, but as a network.</p>
+<p><strong>Three types of notes:</strong></p>
+<p><strong>1. Fleeting Notes</strong> Raw, immediate capture. Any
+format. No editing. Write these during reading, conversations, showers.
+Process them within 24 hours or they become clutter.</p>
+<pre><code>Example:
+&quot;Paper X claims attention is all you need for sequence modeling —
+but what about explicit memory? Is positional encoding actually
+enough for tasks that require remembering state 10,000 tokens ago?&quot;</code></pre>
+<p><strong>2. Literature Notes</strong> Your summary of one source, in
+your own words. Never copy-paste. Forcing yourself to restate in your
+own words tells you immediately if you understood it.</p>
+<p>Template:</p>
+<pre><code>Source: [Author, Year, Title]
+Main argument:
+How they argue it:
+Key evidence/data:
+What I find interesting:
+What I disagree with:
+How it connects to my work:</code></pre>
+<p><strong>3. Permanent Notes</strong> Your original ideas, fully
+formed, connected to other notes. These are the actual atoms of your
+research.</p>
+<pre><code>Example:
+NOTE-042: Positional Encoding Fails for Long-Range Dependencies
+The standard sinusoidal positional encoding in transformers (NOTE-031)
+encodes absolute position, not relative importance. This explains the
+degradation I observed in EXP-007 for sequences &gt; 2048 tokens.
+Potential fix: learnable relative positional bias (see NOTE-038 on ALiBi).
+This might resolve the failure mode in [my project name].
+→ Links: NOTE-031, NOTE-038, EXP-007</code></pre>
+<p><strong>The rule: one idea per note. Link aggressively.</strong></p>
+<h3 id="obsidian-for-zettelkasten">Obsidian for Zettelkasten</h3>
+<p>Obsidian is local-first markdown notes with bidirectional linking. It
+is the best tool for Zettelkasten.</p>
+<p>Key features to use: - <code>[[note name]]</code> syntax creates
+links between notes - Graph view shows the visual network of your ideas
+- Dataview plugin lets you query your notes like a database - Daily
+notes for fleeting notes - Canvas for visual thinking and mapping</p>
+<hr />
+<h2 id="forming-a-hypothesis">3.7 Forming a Hypothesis</h2>
+<p>A hypothesis is not a guess. It is a <strong>precise, testable
+prediction</strong> derived from your understanding of the existing
+literature.</p>
+<h3 id="anatomy-of-a-good-hypothesis">Anatomy of a Good Hypothesis</h3>
+<pre><code>&quot;If [specific action/change], then [specific measurable outcome],
+because [mechanistic reason based on prior knowledge].&quot;</code></pre>
+<p>Example: &gt; “If we replace absolute positional encoding with ALiBi
+(Attention with Linear Biases) in standard transformer language models,
+then perplexity on sequences longer than 2048 tokens will decrease by at
+least 15%, because ALiBi encodes relative distance rather than absolute
+position, which is more informative for long-range dependencies.”</p>
+<p>Notice: - Specific action: replace absolute with ALiBi - Measurable
+outcome: perplexity, by at least 15% - Mechanistic reason: relative vs
+absolute position encoding</p>
+<h3 id="null-hypothesis">Null Hypothesis</h3>
+<p>Always state the null hypothesis too:</p>
+<blockquote>
+<p>“ALiBi positional encoding provides no statistically significant
+improvement over standard positional encoding for sequences longer than
+2048 tokens.”</p>
+</blockquote>
+<p>Your experiment is designed to reject (or fail to reject) the null
+hypothesis. This framing keeps you honest.</p>
+<h3 id="assumption-mapping">Assumption Mapping</h3>
+<p>Before running any experiment, list every assumption your hypothesis
+rests on:</p>
+<pre><code>ASSUMPTION 1: The model architecture is otherwise identical
+ASSUMPTION 2: The dataset contains sufficient long sequences to measure this
+ASSUMPTION 3: Perplexity is the right metric for this comparison
+ASSUMPTION 4: The difference in the encoding is the actual causal factor</code></pre>
+<p>For each assumption, ask: what if this is wrong? How does that affect
+my conclusion?</p>
+<hr />
+<h2 id="designing-experiments">3.8 Designing Experiments</h2>
+<p>The experiment design is where most CS papers live or die. A
+brilliant idea with a poor experiment produces an unreliable result.</p>
+<h3 id="the-components-of-a-well-designed-experiment">The Components of
+a Well-Designed Experiment</h3>
+<p><strong>1. Baseline</strong> What are you comparing against? The
+baseline must be: - Fair — same resources, same data, same conditions -
+Strong — use the best existing method, not a weak one - Relevant —
+actually what practitioners would use</p>
+<p><em>The most common criticism in peer review: “The baseline is too
+weak.”</em></p>
+<p><strong>2. Dataset</strong> - Is it the right dataset for your claim?
+- Is it publicly available? (reproducibility) - Are there known biases
+in it that could skew results? - Do you need train/validation/test
+splits? Are they contamination-free?</p>
+<p><strong>3. Metrics</strong> Choose metrics that actually measure what
+you claim to improve.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Claim</th>
+<th>Wrong Metric</th>
+<th>Right Metric</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Faster”</td>
+<td>Wall clock time on your laptop</td>
+<td>Throughput on standardized hardware, multiple runs</td>
+</tr>
+<tr class="even">
+<td>“More accurate”</td>
+<td>Accuracy on balanced dataset</td>
+<td>F1 score if classes are imbalanced</td>
+</tr>
+<tr class="odd">
+<td>“More efficient”</td>
+<td>Lines of code</td>
+<td>FLOPs, memory usage, inference latency</td>
+</tr>
+<tr class="even">
+<td>“Better user experience”</td>
+<td>Your gut feeling</td>
+<td>User study with proper statistical design</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4. Controls</strong> Hold everything constant except the
+variable you’re testing. This sounds obvious. It is constantly
+violated.</p>
+<p><strong>5. Ablation Studies</strong> Test each component of your
+system independently. If you added 3 things and got improvement, which
+of the 3 actually did it?</p>
+<p>Remove each component one at a time and measure. This is what
+separates “it works” from “we understand why it works.”</p>
+<p><strong>6. Statistical Significance</strong> Never report a single
+run. Run multiple times. Report mean ± standard deviation. Use
+appropriate statistical tests (t-test, Wilcoxon, etc.). Results that
+don’t survive statistical testing are not results.</p>
+<h3 id="experiment-design-template">Experiment Design Template</h3>
+<pre><code>EXPERIMENT ID: EXP-[number]
+DATE:
+HYPOTHESIS BEING TESTED: [which hypothesis, state it]
+WHAT I CHANGED: [the independent variable]
+WHAT I MEASURED: [the dependent variable(s)]
+WHAT I HELD CONSTANT: [controls]
+DATASET: [name, version, split sizes]
+BASELINE: [what I&#39;m comparing against]
+METRICS: [exactly what numbers I will collect]
+NUMBER OF RUNS: [minimum 3, ideally 5+]
+EXPECTED RESULT: [what I predict before running]</code></pre>
+<hr />
+<h2 id="running-experiments">3.9 Running Experiments</h2>
+<h3 id="reproducibility-non-negotiable">Reproducibility —
+Non-Negotiable</h3>
+<p>Every experiment must be reproducible. This means:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set all random seeds at the top of every experiment</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random, numpy <span class="im">as</span> np, torch</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">42</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>random.seed(SEED)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(SEED)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(SEED)</span></code></pre></div>
+<p>Log every hyperparameter. Use config files (YAML or JSON), not
+hardcoded values. The experiment log should contain everything needed to
+reproduce the result from scratch.</p>
+<h3 id="experiment-tracking-tools">Experiment Tracking Tools</h3>
+<p><strong>Weights &amp; Biases (wandb)</strong> — best for ML
+experiments - Automatic logging of metrics, hyperparameters, system
+stats - Visual dashboards - Compare runs side by side - Free for
+academics</p>
+<p><strong>MLflow</strong> — open source alternative - Local or cloud -
+Experiment tracking + model registry</p>
+<p><strong>Sacred + Omniboard</strong> — lightweight alternative</p>
+<p><strong>Minimum viable tracking (no tools):</strong> Every experiment
+gets a folder with: - <code>config.yaml</code> — all parameters -
+<code>run.sh</code> — exact command to reproduce - <code>results/</code>
+— all outputs - <code>notes.md</code> — what you observed</p>
+<h3 id="during-the-experiment-what-to-log">During the Experiment — What
+to Log</h3>
+<pre><code>- All hyperparameters (learning rate, batch size, epochs, etc.)
+- Environment (Python version, package versions, hardware)
+- Random seeds
+- Training curves (loss, metrics at each epoch)
+- Final metrics (mean + std across runs)
+- Wall clock time
+- Memory usage
+- Any anomalies or unexpected behavior</code></pre>
+<hr />
+<h2 id="analyzing-results">3.10 Analyzing Results</h2>
+<p>Getting results is not the end. Understanding them is.</p>
+<h3 id="the-three-questions-for-every-result">The Three Questions for
+Every Result</h3>
+<p><strong>1. Does it match my hypothesis?</strong> If yes: great, but
+ask “why does it work?” — don’t just accept it If no: even better — ask
+“why not?” This is where discoveries live</p>
+<p><strong>2. Are there patterns I didn’t expect?</strong> Look at
+failure cases, outliers, edge cases. These are often more interesting
+than the main result.</p>
+<p><strong>3. What alternative explanations exist?</strong> Could
+something other than my proposed mechanism explain this result? This is
+the hardest question. It’s also what reviewers will ask. Answer it
+before they do.</p>
+<h3 id="error-analysis">Error Analysis</h3>
+<p>For any classification/prediction task: don’t just look at aggregate
+accuracy. Look at where your system fails.</p>
+<ul>
+<li>What types of examples does it get wrong?</li>
+<li>Is there a systematic pattern to the failures?</li>
+<li>Does it fail on certain conditions, domains, or data
+distributions?</li>
+</ul>
+<p>Error analysis often points directly to your next hypothesis.</p>
+<h3 id="ablation-analysis-checklist">Ablation Analysis Checklist</h3>
+<pre><code>□ Tested with each component removed individually
+□ Tested with combinations of components removed
+□ Identified which component contributes most to improvement
+□ Identified which component is necessary vs nice-to-have
+□ Tested on both easy and hard subsets of the data
+□ Tested across at least 2 different datasets if possible</code></pre>
+<hr />
+<h2 id="writing-the-paper">3.11 Writing the Paper</h2>
+<h3 id="the-structure-of-a-cs-research-paper">The Structure of a CS
+Research Paper</h3>
+<pre><code>TITLE
+└── Should contain: the problem + the approach or result
+    Bad:  &quot;A New Method for Text Classification&quot;
+    Good: &quot;Sparse Attention for Efficient Long-Document Text Classification&quot;
+
+ABSTRACT (150-250 words)
+└── Write this LAST
+    Paragraph 1: Problem and why it matters
+    Paragraph 2: What you did
+    Paragraph 3: Key result (include the number)
+    No citations. No jargon without definition.
+
+INTRODUCTION (1-2 pages)
+└── Para 1: The big picture problem
+    Para 2-3: Current approaches and their limitations
+    Para 4: What you do differently (your approach, high level)
+    Para 5: Key results (spoil them — this is not a mystery novel)
+    Final para: &quot;Our contributions are: (1)... (2)... (3)...&quot;
+
+RELATED WORK (0.5-1 page)
+└── Group related papers by approach, not chronologically
+    Don&#39;t trash other work. Use: &quot;orthogonal to,&quot; &quot;complementary to&quot;
+    Make clear how yours differs from each group
+
+METHODOLOGY / APPROACH (2-4 pages)
+└── The most important section technically
+    Someone else must be able to reproduce your work from this alone
+    Include: problem formulation, architecture/algorithm, design decisions
+    Use diagrams generously — a figure is worth 200 words
+
+EXPERIMENTS (2-3 pages)
+└── Setup: datasets, baselines, metrics, implementation details
+    Main results: your primary comparison table/figure
+    Ablation studies: what each component contributes
+    Analysis: qualitative examples, error analysis, interesting cases
+
+DISCUSSION (0.5-1 page)
+└── Why do results look the way they do?
+    What surprised you?
+    What does this mean for the broader field?
+    Honest limitations
+
+CONCLUSION (0.5 page)
+└── What did you find? (restate main result)
+    What are the limitations?
+    What is the most important future work?
+
+REFERENCES
+└── Use Zotero. Never manually format.
+    Follow the venue&#39;s citation style exactly.</code></pre>
+<h3 id="writing-process-the-actual-steps">Writing Process — The Actual
+Steps</h3>
+<p><strong>Step 1: Write the methodology first</strong> You know this
+best. Get it on paper (or LaTeX). It unlocks the rest.</p>
+<p><strong>Step 2: Write the experiments section</strong> You have the
+results. Describe the setup, present the numbers, explain what they
+show.</p>
+<p><strong>Step 3: Write the introduction</strong> Now that you know
+what you did and what you found, you can properly set it up.</p>
+<p><strong>Step 4: Write related work</strong> You’ve done the
+literature review. Structure it as an argument for why your work was
+needed.</p>
+<p><strong>Step 5: Write the discussion and conclusion</strong> Reflect
+on what it all means.</p>
+<p><strong>Step 6: Write the abstract</strong> The entire paper in 200
+words. Write this last.</p>
+<p><strong>Step 7: Write the title</strong> Sounds trivial. Not trivial.
+The title determines who reads your paper.</p>
+<h3 id="latex-learn-it">LaTeX — Learn It</h3>
+<p>Every serious CS paper is written in LaTeX. The learning curve is 1
+week. It pays back in every paper for the rest of your career.</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode latex"><code class="sourceCode latex"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">% Basic paper structure</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">\documentclass</span>[10pt, conference]{<span class="ex">IEEEtran</span>}</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">\usepackage</span>{<span class="ex">amsmath, graphicx, booktabs, hyperref</span>}</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">\title</span>{Your Paper Title}</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">\author</span>{Your Name}</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">document</span>}</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="fu">\maketitle</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="kw">\begin</span>{<span class="ex">abstract</span>}</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>Your abstract here.</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">abstract</span>}</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="kw">\section</span>{Introduction}</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="kw">\section</span>{Related Work}</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="kw">\section</span>{Methodology}</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="kw">\section</span>{Experiments}</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="kw">\section</span>{Conclusion}</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="bu">\bibliography</span>{<span class="ex">references</span>}</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="bu">\bibliographystyle</span>{<span class="ex">IEEEtran</span>}</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="kw">\end</span>{<span class="ex">document</span>}</span></code></pre></div>
+<p>Use <strong>Overleaf</strong> — online LaTeX editor with real-time
+collaboration. Free for individuals.</p>
+<h3 id="writing-principles">Writing Principles</h3>
+<p><strong>1. One paragraph = one idea</strong> State the idea in
+sentence 1. Support it. No exceptions.</p>
+<p><strong>2. Active voice</strong> “We propose a method that…” not “A
+method is proposed that…”</p>
+<p><strong>3. Precision over elegance</strong> “Our method reduces
+latency by 23% on the X benchmark” not “Our method significantly speeds
+things up”</p>
+<p><strong>4. Every claim needs evidence</strong> “X is slow [citation]”
+or “X is slow (Table 2)” — if you can’t back it, don’t claim it</p>
+<p><strong>5. Write drunk, edit sober</strong> First draft = get ideas
+out, don’t judge. Second draft = structure and clarity. Third draft =
+precision and polish. Never try to do all three at once.</p>
+<hr />
+<h2 id="peer-review-submission">3.12 Peer Review + Submission</h2>
+<h3 id="choosing-a-venue">Choosing a Venue</h3>
+<p><strong>Tier 1 venues:</strong> NeurIPS, ICML, ICLR, CVPR, ACL,
+SIGMOD, SOSP, S&amp;P (security), CHI <strong>Tier 2 venues:</strong>
+Solid conferences in each area — AAAI, IJCAI, CIKM, NDSS, USENIX, etc.
+<strong>Journals:</strong> TPAMI, VLDB Journal, JACM, TDSC — slower,
+more thorough review <strong>Workshops:</strong> Good for early work,
+getting feedback, networking</p>
+<p>For your first paper: aim for the best workshop or solid Tier 2
+conference. Get the experience. Then aim higher.</p>
+<h3 id="submission-checklist">Submission Checklist</h3>
+<pre><code>□ Paper fits within page limit
+□ All figures are readable at print size
+□ All claims are backed by evidence or citation
+□ Ablation studies are included
+□ Baselines are fair and strong
+□ Statistical significance is reported
+□ Code will be released (say this in the paper)
+□ Anonymous version for double-blind review (remove author names, institution)
+□ Supplementary material prepared if needed
+□ Camera-ready deadline noted for when accepted</code></pre>
+<h3 id="reading-reviews">Reading Reviews</h3>
+<p>When you get reviews back: 1. Wait 24 hours before responding. Never
+respond emotionally. 2. Read all reviews together — look for patterns
+across reviewers 3. List every concern: (a) they’re right and I need to
+fix it, (b) they misunderstood and I need to clarify, (c) they’re wrong
+and I need to argue why</p>
+<p><strong>Reviewers are almost always right about what confused them,
+even if wrong about why.</strong></p>
+<h3 id="the-rebuttal">The Rebuttal</h3>
+<p>Address every concern. Be concise. Be factual. New experiments &gt;
+argument.</p>
+<p>“We thank Reviewer 2 for this concern. We ran additional experiments
+on Dataset X with the configuration they suggested (Appendix B). The
+results show Y, which is consistent with our main claims.”</p>
+<hr />
+<hr />
+<h1 id="startupproduct-research-full-process">4. STARTUP/PRODUCT
+RESEARCH — FULL PROCESS</h1>
+<h2 id="the-mindset-shift">The Mindset Shift</h2>
+<blockquote>
+<p>In academic research, you convince a committee of experts. In startup
+research, you convince a market of customers.</p>
+</blockquote>
+<p>The process is the same. The jury changes.</p>
+<p><strong>The #1 rule of startup research:</strong></p>
+<blockquote>
+<p>Talk to people before you write code. Every time. No exceptions.</p>
+</blockquote>
+<p>Most failed startups built something nobody wanted. Not because they
+were bad engineers. Because they never verified the problem was real and
+widespread before building the solution.</p>
+<hr />
+<h2 id="problem-discovery">4.1 Problem Discovery</h2>
+<h3 id="the-three-sources-of-real-problems">The Three Sources of Real
+Problems</h3>
+<p><strong>Source 1 — Your Own Life (Best Source)</strong> Problems you
+personally hit repeatedly. You are your own first customer — you
+understand the pain intimately, you know the context, you know what good
+looks like.</p>
+<p>Exercises: - List every task you do repeatedly that feels stupid or
+inefficient - List every tool you use that constantly frustrates you -
+List every time in the last month you thought “why doesn’t this
+exist?”</p>
+<p><strong>Source 2 — Jobs, Internships, Observations</strong>
+Inefficiencies you saw working somewhere. Industries still using Excel
+for everything. Processes that take 4 people that should take a script.
+Manual work that is clearly automatable.</p>
+<p>The pattern to look for: <strong>high-value, recurring, manual
+process.</strong></p>
+<p><strong>Source 3 — Research Paper Gaps</strong> You are a CS student.
+This is your unfair advantage over most founders.</p>
+<p>Academic research is 5-10 years ahead of commercial products. There
+are solutions in papers that nobody has productized. Find those.</p>
+<p>Examples: - Transformers existed in research for years before OpenAI
+commercialized them - Semantic search existed in research long before it
+appeared in consumer products - Privacy-preserving computation is
+researched heavily; commercial products are just emerging</p>
+<h3 id="the-5-whys-for-problem-discovery">The 5 Whys for Problem
+Discovery</h3>
+<p>Ask “why?” five times to reach the root cause:</p>
+<pre><code>SURFACE: &quot;Our customer support takes 3 days to respond&quot;
+Why? → Too many tickets
+Why? → Users can&#39;t find answers in documentation
+Why? → Documentation is scattered and unstructured
+Why? → No single source of truth, every team writes their own
+Why? → No tooling that creates documentation from actual product behavior
+
+ROOT PROBLEM: There&#39;s no automated way to generate accurate, current
+documentation from product behavior → that&#39;s a startup idea</code></pre>
+<hr />
+<h2 id="market-research">4.2 Market Research</h2>
+<h3 id="tam-sam-som-framework">TAM / SAM / SOM Framework</h3>
+<pre><code>TAM (Total Addressable Market)
+└── Everyone who could ever buy this
+    &quot;All companies that have customer support&quot;
+    Don&#39;t need to pursue this. Just need it to be large enough.
+
+SAM (Serviceable Addressable Market)
+└── Who you can realistically reach with your model
+    &quot;B2B SaaS companies with 10-200 employees in English-speaking markets&quot;
+
+SOM (Serviceable Obtainable Market)
+└── Who you&#39;ll actually get in year 1-2
+    &quot;50 B2B SaaS startups you can reach through your network and cold outreach&quot;</code></pre>
+<p>You do not need a billion-dollar TAM to build a profitable startup.
+You need a SOM that pays.</p>
+<p><strong>The math that matters:</strong></p>
+<pre><code>SOM x Average Revenue Per Customer = Your Revenue Target
+
+50 customers x $500/month = $25,000 MRR = $300,000 ARR
+This is a real, fundable, profitable business.</code></pre>
+<h3 id="market-research-process">Market Research Process</h3>
+<p><strong>Step 1: Establish that people pay for solutions to this
+problem today</strong> If there is zero existing spending on this
+problem — be very suspicious. Either the pain isn’t bad enough, or you
+haven’t found the right buyer.</p>
+<p><strong>Step 2: Find the existing solutions and their flaws</strong>
+The flaws of existing solutions are your opportunity. Not their
+existence — their flaws.</p>
+<p><strong>Step 3: Estimate market size</strong> Bottom-up: [number of
+potential customers] × [price they’d pay] = market size This is more
+credible than top-down (“the market is $10B”)</p>
+<p><strong>Step 4: Identify growth direction</strong> Is this market
+growing, stable, or shrinking? You want growing — you ride the wave
+instead of fighting for share.</p>
+<h3 id="market-research-tools">Market Research Tools</h3>
+<pre><code>FINDING WHAT PEOPLE COMPLAIN ABOUT
+Reddit (r/[industry], r/entrepreneur, r/smallbusiness)
+  → search &quot;[product name] sucks&quot; or &quot;[category] alternative&quot;
+Twitter/X
+  → &quot;[industry] + (hate OR frustrating OR finally)&quot; searches
+G2 / Capterra / Trustpilot
+  → competitor reviews — read the 2-3 star reviews
+    these are people who paid, tried, and were disappointed
+    that gap = your product
+Product Hunt comments
+  → what do people ask for that doesn&#39;t exist?
+Hacker News
+  → search news.ycombinator.com for &quot;pain&quot; or &quot;Ask HN: what SaaS&quot;
+
+MARKET SIZING + COMPETITIVE LANDSCAPE
+Crunchbase         → funding in this space (validates market exists)
+SimilarWeb         → competitor traffic estimates
+LinkedIn           → how many people have job title X (market size proxy)
+Google Trends      → is interest growing or dying?
+SEMrush / Ahrefs   → keyword search volume (how many search for the problem)
+Statista           → industry reports (some free)
+
+GEOGRAPHIC + DEMOGRAPHIC SIGNALS
+SparkToro          → where does your audience spend time online
+Facebook Audience Insights → demographic data
+LinkedIn Sales Navigator → precise B2B targeting data</code></pre>
+<hr />
+<h2 id="customer-discovery">4.3 Customer Discovery</h2>
+<p><strong>This is the most important step. Most founders skip it or do
+it badly.</strong></p>
+<h3 id="the-mom-test">The Mom Test</h3>
+<p>From Rob Fitzpatrick’s book <em>The Mom Test</em> — the most
+important startup book you will read.</p>
+<p>The core insight: if you ask “would you use this?” everyone says yes
+(including your mom, who loves you). You need questions that people
+can’t lie to you about even if they want to.</p>
+<p><strong>Questions that get honest answers:</strong></p>
+<pre><code>&quot;Tell me about the last time you experienced [problem].&quot;
+→ Real, specific, past behavior. Not hypothetical.
+
+&quot;Walk me through how you handle [problem] today.&quot;
+→ Reveals actual workflow, pain points, existing solutions
+
+&quot;How much time/money does this cost you right now?&quot;
+→ Quantifies pain. Low numbers = low priority = bad sign.
+
+&quot;What have you tried? Why didn&#39;t it work?&quot;
+→ Reveals solution landscape and failure modes
+
+&quot;Who else has this problem in your organization?&quot;
+→ Reveals buying process and scope
+
+&quot;What would you do if [tool they use] disappeared tomorrow?&quot;
+→ Reveals true dependency and switching costs</code></pre>
+<p><strong>Questions that get lies (avoid these):</strong></p>
+<pre><code>&quot;Would you use an app that does X?&quot; → &quot;Yes&quot; (to be polite)
+&quot;Do you think this is a good idea?&quot; → &quot;Yes&quot; (to encourage you)
+&quot;Would you pay $X/month for this?&quot; → &quot;Probably&quot; (hypothetical)
+&quot;How much would you pay for this?&quot; → Random number with no commitment</code></pre>
+<h3 id="how-to-get-customer-interviews">How to Get Customer
+Interviews</h3>
+<p><strong>Cold LinkedIn messages:</strong></p>
+<pre><code>&quot;Hi [Name], I&#39;m a CS student researching [problem area].
+I&#39;m not selling anything — just trying to understand how
+[job title] currently handles [problem].
+Would you have 15 minutes for a quick call?
+I&#39;ll share what I learn with you.&quot;
+
+Response rate: 15-30% when this is genuine.</code></pre>
+<p><strong>Warm network:</strong> - Professors who know practitioners -
+Family friends in relevant industries - Previous internship contacts -
+Alumni from your university</p>
+<p><strong>Online communities:</strong> - Find the subreddit or Slack
+community for your target user - Participate genuinely for 2 weeks
+before asking - Post: “I’m researching [problem]. Would anyone share
+their experience with [problem]? DM me.”</p>
+<p><strong>Minimum viable discovery: 20 conversations before writing any
+code.</strong></p>
+<h3 id="the-interview-structure">The Interview Structure</h3>
+<pre><code>OPENING (2 min)
+&quot;Thanks for your time. I&#39;m trying to understand how [role] 
+handles [problem area]. There&#39;s no product to sell — just learning.
+Mind if I take notes?&quot;
+
+CONTEXT (5 min)
+&quot;Tell me about your role and your team.&quot;
+&quot;What tools do you use for [area]?&quot;
+
+CORE QUESTIONS (20 min)
+&quot;Tell me about the last time [problem] happened.&quot;
+&quot;Walk me through exactly what you do.&quot;
+&quot;What&#39;s the most painful part?&quot;
+&quot;What have you tried? What failed?&quot;
+&quot;What does it cost you — time, money, frustration?&quot;
+
+CLOSING (3 min)
+&quot;Is there anything I didn&#39;t ask that you think I should know?&quot;
+&quot;Who else should I talk to about this?&quot;</code></pre>
+<h3 id="reading-the-signals">Reading the Signals</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Signal</th>
+<th>What It Means</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“I do this manually every Monday”</td>
+<td>Real, recurring pain</td>
+</tr>
+<tr class="even">
+<td>“We pay $X/month for [bad solution]”</td>
+<td>Proven willingness to pay</td>
+</tr>
+<tr class="odd">
+<td>“I’ve tried 3 tools, none work”</td>
+<td>Active problem, no good solution</td>
+</tr>
+<tr class="even">
+<td>“When can I use it?”</td>
+<td>Strong pull signal</td>
+</tr>
+<tr class="odd">
+<td>“I’ve actually built a workaround”</td>
+<td>Very strong — they care enough to build</td>
+</tr>
+<tr class="even">
+<td>“That sounds interesting”</td>
+<td>Polite disinterest</td>
+</tr>
+<tr class="odd">
+<td>“I guess I’d use it”</td>
+<td>Not a real problem for them</td>
+</tr>
+<tr class="even">
+<td>“Depends on the price”</td>
+<td>Low pain, price sensitive</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="competitive-analysis">4.4 Competitive Analysis</h2>
+<p>Never say “we have no competition.” Every problem has a current
+solution — manual process, spreadsheet, internal tool, or adjacent
+product.</p>
+<h3 id="the-competitive-analysis-framework">The Competitive Analysis
+Framework</h3>
+<p>For every competitor or substitute:</p>
+<pre><code>PRODUCT ANALYSIS
+Name + URL:
+What does it do? (1 sentence)
+Who is the target customer?
+What problem does it solve best?
+What does it NOT do well?
+What do users complain about most? (read the reviews)
+
+BUSINESS ANALYSIS
+Pricing:
+Revenue estimates (SimilarWeb + funding ÷ growth):
+Funding history (Crunchbase):
+Team size (LinkedIn):
+How long have they existed?
+
+TECHNICAL ANALYSIS
+What stack do they use? (BuiltWith, Wappalyzer)
+Any obvious technical limitations?
+Is their core IP easy to replicate?
+
+YOUR DIFFERENTIATION
+Why will customers switch from or choose you over them?
+What is your specific unfair advantage?</code></pre>
+<h3 id="the-22-positioning-map">The 2×2 Positioning Map</h3>
+<p>Draw two axes that matter in your market. Examples: - Price vs Ease
+of Use - Power/Features vs Speed to Value - Enterprise vs SMB, Automated
+vs Manual</p>
+<p>Place every competitor. Find the empty quadrant. That is your
+position.</p>
+<h3 id="the-g2capterra-review-mining-method">The G2/Capterra Review
+Mining Method</h3>
+<p>This is the most underused startup research technique:</p>
+<ol type="1">
+<li>Find your top 3 competitors on G2 or Capterra</li>
+<li>Filter reviews: 2 and 3 stars only (these are paying customers who
+are disappointed)</li>
+<li>Copy every complaint into a spreadsheet</li>
+<li>Tag by theme: “too expensive,” “missing feature X,” “bad UX,” “poor
+support”</li>
+<li>Find the themes that repeat most often</li>
+</ol>
+<p><strong>The most common complaints = your product
+roadmap.</strong></p>
+<hr />
+<h2 id="validation-before-building">4.5 Validation Before Building</h2>
+<h3 id="the-validation-ladder-cheapest-to-most-expensive">The Validation
+Ladder (cheapest to most expensive)</h3>
+<pre><code>LEVEL 1: Smoke Test (2-3 days)
+Build a landing page. Describe the product. Add signup/waitlist.
+Measure: what % of visitors sign up?
+Benchmark: 5%+ is a good signal
+
+LEVEL 2: Concierge MVP (1-2 weeks)
+Manually do what the product would do for 5-10 customers.
+No code — just you doing the work with spreadsheets, email, manual process.
+Measure: will they pay for this manual version?
+This tells you if the value is real before any engineering.
+
+LEVEL 3: Wizard of Oz (2-4 weeks)
+Front-end looks like a real product. Back-end is you doing things manually.
+Customer sees an interface. You are behind the curtain.
+Measure: engagement, return rate, qualitative feedback.
+
+LEVEL 4: Pre-sell (any time)
+Ask for money before it&#39;s built. &quot;Pay $X now, get access in 8 weeks.&quot;
+If they won&#39;t give money, they don&#39;t really want it.
+Measure: actual payment = strongest possible signal.
+
+LEVEL 5: MVP (4-8 weeks)
+Simplest possible working version. One use case. No extras.
+Measure: activation, retention, NPS, payment.</code></pre>
+<p><strong>The cardinal rule: move up the ladder only when the current
+level gives you signal.</strong></p>
+<h3 id="landing-page-that-converts">Landing Page That Converts</h3>
+<p>A good validation landing page has:</p>
+<pre><code>HEADLINE        → What you do + who it&#39;s for (10 words max)
+SUBHEADLINE     → Specific benefit + the pain it solves
+SOCIAL PROOF    → Logos, quotes, numbers (even if early)
+HOW IT WORKS    → 3 simple steps
+CTA BUTTON      → &quot;Join Waitlist&quot; or &quot;Get Early Access&quot; or &quot;Buy Now&quot;
+SECONDARY CTA   → &quot;See a demo&quot; or &quot;Watch video&quot;</code></pre>
+<p>Tools: Carrd (simplest), Framer (most beautiful), Webflow (most
+flexible)</p>
+<h3 id="pricing-experiments">Pricing Experiments</h3>
+<p>Run pricing tests early. Most founders underprice.</p>
+<p>The Van Westendorp pricing model: Ask these 4 questions in your
+customer interviews:</p>
+<pre><code>1. At what price would this be so cheap you&#39;d question the quality?
+2. At what price would this be a bargain — great value?
+3. At what price would this start to get expensive but you&#39;d still buy?
+4. At what price would this be too expensive?</code></pre>
+<p>The “acceptable range” is between Q2 and Q3. The sweet spot is Q3.
+Most founders price at Q1.</p>
+<hr />
+<h2 id="continuous-product-research">4.6 Continuous Product
+Research</h2>
+<p>After you’ve built and launched, research does not stop. It
+transforms.</p>
+<h3 id="the-continuous-discovery-framework">The Continuous Discovery
+Framework</h3>
+<p><em>(Teresa Torres — read her book)</em></p>
+<pre><code>WEEKLY RHYTHM
+├── 1 customer interview per week (minimum, forever)
+├── Review analytics dashboard
+├── Check support tickets for patterns
+└── Team sync: what did we learn this week?
+
+MONTHLY RHYTHM
+├── Opportunity mapping: what new needs are emerging?
+├── Assumption audit: which of our beliefs might be wrong?
+├── Competitive check: what changed in the landscape?
+└── Metrics review: are we moving the right numbers?</code></pre>
+<h3 id="the-opportunity-solution-tree">The Opportunity Solution
+Tree</h3>
+<pre><code>DESIRED OUTCOME (what metric are we trying to move?)
+        ↓
+OPPORTUNITIES (what user needs, pain points, desires exist?)
+        ↓
+SOLUTIONS (what could we build to address each opportunity?)
+        ↓
+EXPERIMENTS (what&#39;s the smallest test of each solution?)</code></pre>
+<p>This tree prevents the most common product mistake: jumping from
+“user has problem” directly to “let’s build a feature” without asking
+“is this the right solution?”</p>
+<hr />
+<h2 id="metrics-and-analytics">4.7 Metrics and Analytics</h2>
+<h3 id="the-aarrr-framework-pirate-metrics">The AARRR Framework (Pirate
+Metrics)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Stage</th>
+<th>Metric</th>
+<th>Question</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Acquisition</strong></td>
+<td>Visitors, signups</td>
+<td>Where do users come from?</td>
+</tr>
+<tr class="even">
+<td><strong>Activation</strong></td>
+<td>% who complete onboarding, time-to-value</td>
+<td>Do they get value in session 1?</td>
+</tr>
+<tr class="odd">
+<td><strong>Retention</strong></td>
+<td>DAU/WAU/MAU, churn rate</td>
+<td>Do they come back?</td>
+</tr>
+<tr class="even">
+<td><strong>Revenue</strong></td>
+<td>MRR, ARPU, LTV</td>
+<td>Are they paying? Upgrading?</td>
+</tr>
+<tr class="odd">
+<td><strong>Referral</strong></td>
+<td>NPS, referral rate, viral coefficient</td>
+<td>Do they tell others?</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Track all five from day 1. Most startups only track
+acquisition.</strong></p>
+<h3 id="the-north-star-metric">The North Star Metric</h3>
+<p>One metric that best captures the value you deliver to customers. All
+other metrics serve this one.</p>
+<p>Examples:</p>
+<pre><code>Airbnb         → Nights booked
+Spotify        → Time spent listening
+Slack          → Messages sent
+WhatsApp       → Messages sent
+Your startup   → ???</code></pre>
+<p>Ask: “If this number goes up, are our customers definitely getting
+more value?” If yes — that’s your North Star.</p>
+<h3 id="instrumentation-what-to-track-from-day-1">Instrumentation — What
+to Track From Day 1</h3>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Every user action that matters should fire an event</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>analytics.track(<span class="st">&#39;user_id&#39;</span>, <span class="st">&#39;event_name&#39;</span>, {</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;property_1&#39;</span>: value,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;property_2&#39;</span>: value,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;timestamp&#39;</span>: datetime.now()</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Key events to track:</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co"># - User signed up</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co"># - User completed onboarding</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co"># - User performed core action (whatever your product does)</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="co"># - User hit paywall</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="co"># - User upgraded/paid</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="co"># - User invited someone</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="co"># - User churned (deleted account / cancelled)</span></span></code></pre></div>
+<p>Tools: PostHog (open source, self-host), Mixpanel, Amplitude</p>
+<hr />
+<hr />
+<h1 id="documentation-systems">5. DOCUMENTATION SYSTEMS</h1>
+<h2 id="academic-documentation">5.1 Academic Documentation</h2>
+<h3 id="the-research-journal">The Research Journal</h3>
+<p>Keep this daily. 10 minutes maximum. The habit beats the
+duration.</p>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research Log — [DATE]</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">### What I did today</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">1-3 sentences</span><span class="co">]</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="fu">### Key insight or finding</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The most important thing I learned</span><span class="co">]</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="fu">### Questions this raised</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">What I&#39;m now wondering</span><span class="co">]</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### Experiment or action for tomorrow</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">One concrete next step</span><span class="co">]</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="fu">### Mood/Energy</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">1-5 — tracking this shows patterns in your best work days</span><span class="co">]</span></span></code></pre></div>
+<h3 id="paper-summary-card-template">Paper Summary Card Template</h3>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## Paper Summary</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>**Title:** <span class="co">[</span><span class="ot">Full title</span><span class="co">]</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>**Authors:** <span class="co">[</span><span class="ot">Author list</span><span class="co">]</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>**Year:** <span class="co">[</span><span class="ot">Year</span><span class="co">]</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>**Venue:** <span class="co">[</span><span class="ot">Conference/Journal</span><span class="co">]</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>**Link:** <span class="co">[</span><span class="ot">URL or DOI</span><span class="co">]</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>**Zotero Key:** <span class="co">[</span><span class="ot">your key</span><span class="co">]</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### The Problem</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">What problem does this paper solve? 2-3 sentences</span><span class="co">]</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why Existing Solutions Were Insufficient</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">What did prior work fail to do?</span><span class="co">]</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="fu">### Their Approach</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The core method, in your words. Not a copy-paste of the abstract.</span><span class="co">]</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a><span class="fu">### Key Insight</span></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The one clever idea that makes this work</span><span class="co">]</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a><span class="fu">### Main Results</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Key numbers: accuracy, speedup, improvement over baseline</span><span class="co">]</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a><span class="fu">### Limitations</span></span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">What doesn&#39;t this handle? What did they admit was missing?</span><span class="co">]</span></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a><span class="fu">### My Critical Assessment</span></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Do I believe the results? Are the experiments convincing? What would I challenge?</span><span class="co">]</span></span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a><span class="fu">### Relevance to My Work</span></span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">How does this affect my research? Does it support or contradict my hypothesis?</span><span class="co">]</span></span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a><span class="fu">### Follow-up Papers to Read</span></span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Papers from references I should track down</span><span class="co">]</span></span></code></pre></div>
+<h3 id="experiment-log-template">Experiment Log Template</h3>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## Experiment Log</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>**Experiment ID:** EXP-<span class="co">[</span><span class="ot">number</span><span class="co">]</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>**Date:** <span class="co">[</span><span class="ot">date</span><span class="co">]</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>**Status:** <span class="co">[</span><span class="ot">planned / running / completed / abandoned</span><span class="co">]</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="fu">### Hypothesis</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">If I do X, then Y will happen because Z</span><span class="co">]</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### Setup</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Dataset: <span class="co">[</span><span class="ot">name, version, statistics</span><span class="co">]</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Model/System: <span class="co">[</span><span class="ot">exact configuration</span><span class="co">]</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Baseline: <span class="co">[</span><span class="ot">what I&#39;m comparing against</span><span class="co">]</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Metrics: <span class="co">[</span><span class="ot">what I&#39;m measuring</span><span class="co">]</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Hardware: <span class="co">[</span><span class="ot">GPU/CPU, RAM, etc.</span><span class="co">]</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Random Seed: <span class="co">[</span><span class="ot">number</span><span class="co">]</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Key Hyperparameters: <span class="co">[</span><span class="ot">list</span><span class="co">]</span></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a><span class="fu">### Command to Reproduce</span></span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a><span class="in">```bash</span></span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> run_experiment.py <span class="at">--config</span> configs/exp-<span class="pp">[</span><span class="ss">number</span><span class="pp">]</span>.yaml</span></code></pre></div>
+<h3 id="results">Results</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Baseline</th>
+<th>Our Method</th>
+<th>Delta</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>[Metric 1]</td>
+<td>[value]</td>
+<td>[value]</td>
+<td>[%]</td>
+</tr>
+</tbody>
+</table>
+<h3 id="analysis">Analysis</h3>
+<p>[Why did the results look this way? What patterns did I notice?]</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>[Does this support or reject the hypothesis?]</p>
+<h3 id="next-experiment">Next Experiment</h3>
+<p>[What does this result suggest I should test next?]</p>
+<pre><code>
+### Meeting Notes Template (Advisor Meetings)
+
+```markdown
+## Advisor Meeting — [DATE]
+
+**Attendees:** [names]
+**Duration:** [time]
+
+---
+
+### What I Presented
+[What I showed the advisor]
+
+### Key Feedback
+[What they said — be specific, use quotes where possible]
+
+### Things to Do Before Next Meeting
+- [ ] [Action 1]
+- [ ] [Action 2]
+- [ ] [Action 3]
+
+### Questions I Forgot to Ask (for next time)
+[...]
+
+### My Reflection
+[What was most useful? What surprised me?]</code></pre>
+<hr />
+<h2 id="startup-documentation">5.2 Startup Documentation</h2>
+<h3 id="the-opportunity-document-living-document">The Opportunity
+Document (Living Document)</h3>
+<p>Update this every week. This is your compass.</p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Opportunity Document — [Product Name]</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>**Last Updated:** <span class="co">[</span><span class="ot">date</span><span class="co">]</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>**Version:** <span class="co">[</span><span class="ot">number</span><span class="co">]</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## Problem Statement</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>**The problem:**</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">1-2 sentences, specific, no jargon</span><span class="co">]</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>**Who has it:**</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Specific person: job title, company type, size, context</span><span class="co">]</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>**How often it occurs:**</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Daily / weekly / monthly — frequency matters</span><span class="co">]</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>**How bad it is:**</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Time cost, money cost, emotional cost</span><span class="co">]</span></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a><span class="fu">## Evidence We&#39;ve Collected</span></span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>**Interviews conducted:** <span class="co">[</span><span class="ot">number</span><span class="co">]</span></span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>**Verbatim quotes from customers:**</span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; &quot;</span><span class="co">[</span><span class="ot">Exact quote from interview — use their words, not yours</span><span class="co">]</span><span class="at">&quot; — </span><span class="co">[</span><span class="ot">Role, Company Size</span><span class="co">]</span></span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; &quot;</span><span class="co">[</span><span class="ot">Another exact quote</span><span class="co">]</span><span class="at">&quot; — </span><span class="co">[</span><span class="ot">Role, Company Size</span><span class="co">]</span></span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a>**Data points:**</span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Market data point</span><span class="co">]</span></span>
+<span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Behavioral observation</span><span class="co">]</span></span>
+<span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-35"><a href="#cb37-35" aria-hidden="true" tabindex="-1"></a><span class="fu">## Current Solutions and Their Failures</span></span>
+<span id="cb37-36"><a href="#cb37-36" aria-hidden="true" tabindex="-1"></a>| Solution | Who Uses It | What They Like | What They Hate |</span>
+<span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a>|---|---|---|---|</span>
+<span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a>| <span class="co">[</span><span class="ot">Competitor A</span><span class="co">]</span> | <span class="co">[</span><span class="ot">customer type</span><span class="co">]</span> | <span class="co">[</span><span class="ot">strengths</span><span class="co">]</span> | <span class="co">[</span><span class="ot">weaknesses</span><span class="co">]</span> |</span>
+<span id="cb37-39"><a href="#cb37-39" aria-hidden="true" tabindex="-1"></a>| <span class="co">[</span><span class="ot">Competitor B</span><span class="co">]</span> | <span class="co">[</span><span class="ot">customer type</span><span class="co">]</span> | <span class="co">[</span><span class="ot">strengths</span><span class="co">]</span> | <span class="co">[</span><span class="ot">weaknesses</span><span class="co">]</span> |</span>
+<span id="cb37-40"><a href="#cb37-40" aria-hidden="true" tabindex="-1"></a>| Manual process | <span class="co">[</span><span class="ot">customer type</span><span class="co">]</span> | <span class="co">[</span><span class="ot">control</span><span class="co">]</span> | <span class="co">[</span><span class="ot">time, error</span><span class="co">]</span> |</span>
+<span id="cb37-41"><a href="#cb37-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-42"><a href="#cb37-42" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb37-43"><a href="#cb37-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-44"><a href="#cb37-44" aria-hidden="true" tabindex="-1"></a><span class="fu">## Our Hypothesis</span></span>
+<span id="cb37-45"><a href="#cb37-45" aria-hidden="true" tabindex="-1"></a>**What we will build:**</span>
+<span id="cb37-46"><a href="#cb37-46" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">1 sentence</span><span class="co">]</span></span>
+<span id="cb37-47"><a href="#cb37-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-48"><a href="#cb37-48" aria-hidden="true" tabindex="-1"></a>**Why it will be better:**</span>
+<span id="cb37-49"><a href="#cb37-49" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Specific mechanism — not &quot;easier to use&quot; but &quot;eliminates the X step that takes 2 hours&quot;</span><span class="co">]</span></span>
+<span id="cb37-50"><a href="#cb37-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-51"><a href="#cb37-51" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb37-52"><a href="#cb37-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-53"><a href="#cb37-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## Assumptions (Ranked by Risk)</span></span>
+<span id="cb37-54"><a href="#cb37-54" aria-hidden="true" tabindex="-1"></a>| # | Assumption | Risk Level | How to Test |</span>
+<span id="cb37-55"><a href="#cb37-55" aria-hidden="true" tabindex="-1"></a>|---|---|---|---|</span>
+<span id="cb37-56"><a href="#cb37-56" aria-hidden="true" tabindex="-1"></a>| 1 | <span class="co">[</span><span class="ot">Most uncertain belief</span><span class="co">]</span> | High | <span class="co">[</span><span class="ot">Experiment</span><span class="co">]</span> |</span>
+<span id="cb37-57"><a href="#cb37-57" aria-hidden="true" tabindex="-1"></a>| 2 | <span class="co">[</span><span class="ot">Next uncertain belief</span><span class="co">]</span> | Medium | <span class="co">[</span><span class="ot">Experiment</span><span class="co">]</span> |</span>
+<span id="cb37-58"><a href="#cb37-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-59"><a href="#cb37-59" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb37-60"><a href="#cb37-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-61"><a href="#cb37-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## Experiments Done</span></span>
+<span id="cb37-62"><a href="#cb37-62" aria-hidden="true" tabindex="-1"></a>| Date | Hypothesis Tested | Method | Result | Decision |</span>
+<span id="cb37-63"><a href="#cb37-63" aria-hidden="true" tabindex="-1"></a>|---|---|---|---|---|</span>
+<span id="cb37-64"><a href="#cb37-64" aria-hidden="true" tabindex="-1"></a>| <span class="co">[</span><span class="ot">date</span><span class="co">]</span> | <span class="co">[</span><span class="ot">what we tested</span><span class="co">]</span> | <span class="co">[</span><span class="ot">how</span><span class="co">]</span> | <span class="co">[</span><span class="ot">what happened</span><span class="co">]</span> | <span class="co">[</span><span class="ot">what we did next</span><span class="co">]</span> |</span>
+<span id="cb37-65"><a href="#cb37-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-66"><a href="#cb37-66" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb37-67"><a href="#cb37-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-68"><a href="#cb37-68" aria-hidden="true" tabindex="-1"></a><span class="fu">## Current Metrics</span></span>
+<span id="cb37-69"><a href="#cb37-69" aria-hidden="true" tabindex="-1"></a>| Metric | Current | Target | Trend |</span>
+<span id="cb37-70"><a href="#cb37-70" aria-hidden="true" tabindex="-1"></a>|---|---|---|---|</span>
+<span id="cb37-71"><a href="#cb37-71" aria-hidden="true" tabindex="-1"></a>| Waitlist signups | | | |</span>
+<span id="cb37-72"><a href="#cb37-72" aria-hidden="true" tabindex="-1"></a>| Interview requests | | | |</span>
+<span id="cb37-73"><a href="#cb37-73" aria-hidden="true" tabindex="-1"></a>| Landing page CVR | | | |</span></code></pre></div>
+<h3 id="customer-interview-log">Customer Interview Log</h3>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## Interview Log</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>**Interview #:** <span class="co">[</span><span class="ot">number</span><span class="co">]</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>**Date:** <span class="co">[</span><span class="ot">date</span><span class="co">]</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>**Duration:** <span class="co">[</span><span class="ot">minutes</span><span class="co">]</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>**Interviewer:** <span class="co">[</span><span class="ot">name</span><span class="co">]</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>**Participant:**</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Role: <span class="co">[</span><span class="ot">job title</span><span class="co">]</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Company: <span class="co">[</span><span class="ot">type and size, not name — keep anonymous</span><span class="co">]</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>How we found them: <span class="co">[</span><span class="ot">LinkedIn / referral / community</span><span class="co">]</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a><span class="fu">### The Story They Told</span></span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Narrative summary of what they shared — their situation, the problem, how they handle it</span><span class="co">]</span></span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a><span class="fu">### Verbatim Quotes (Most Important — Copy Exactly)</span></span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; &quot;</span><span class="co">[</span><span class="ot">Exact words</span><span class="co">]</span><span class="at">&quot;</span></span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; &quot;</span><span class="co">[</span><span class="ot">Exact words</span><span class="co">]</span><span class="at">&quot;</span></span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a><span class="fu">### Current Solution</span></span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">What do they use today to handle this problem?</span><span class="co">]</span></span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a><span class="fu">### Pain Level: [1-10]</span></span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>**Why that score:**</span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Their reasoning in their words</span><span class="co">]</span></span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a><span class="fu">### Willingness to Pay Signals</span></span>
+<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">What they said about money, budgets, what they currently spend</span><span class="co">]</span></span>
+<span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-32"><a href="#cb38-32" aria-hidden="true" tabindex="-1"></a><span class="fu">### Surprises</span></span>
+<span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">What did I not expect? What challenged my assumptions?</span><span class="co">]</span></span>
+<span id="cb38-34"><a href="#cb38-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-35"><a href="#cb38-35" aria-hidden="true" tabindex="-1"></a><span class="fu">### Follow-up Actions</span></span>
+<span id="cb38-36"><a href="#cb38-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> <span class="co">[</span><span class="ot">Something I should research or test based on this</span><span class="co">]</span></span>
+<span id="cb38-37"><a href="#cb38-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> <span class="co">[</span><span class="ot">Someone they suggested I talk to</span><span class="co">]</span></span></code></pre></div>
+<h3 id="decision-log">Decision Log</h3>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## Decision Log — [Product Name]</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>| # | Date | Decision | Options Considered | Why This Choice | Outcome |</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>|---|---|---|---|---|---|</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>| 001 | <span class="co">[</span><span class="ot">date</span><span class="co">]</span> | <span class="co">[</span><span class="ot">what was decided</span><span class="co">]</span> | <span class="co">[</span><span class="ot">alternatives</span><span class="co">]</span> | <span class="co">[</span><span class="ot">reasoning</span><span class="co">]</span> | <span class="co">[</span><span class="ot">fill in later</span><span class="co">]</span> |</span></code></pre></div>
+<hr />
+<h2 id="templates-quick-reference">5.3 Templates Quick Reference</h2>
+<h3 id="weekly-summary-both-academic-and-startup">Weekly Summary (Both
+Academic and Startup)</h3>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## Weekly Summary — Week of [DATE]</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">### Main question I tried to answer this week</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The central thing you were investigating</span><span class="co">]</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="fu">### What I learned</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">3-5 bullet points of actual new knowledge</span><span class="co">]</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="fu">### What didn&#39;t work</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Be honest — failed experiments, dead ends, wrong assumptions</span><span class="co">]</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### Biggest surprise</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The thing that most challenged your existing beliefs</span><span class="co">]</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a><span class="fu">### What I&#39;m still uncertain about</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Open questions going into next week</span><span class="co">]</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a><span class="fu">### Next week&#39;s main question</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">The one thing you will try to answer</span><span class="co">]</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a><span class="fu">### Metric update (startup) / Progress update (academic)</span></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Numbers or milestone status</span><span class="co">]</span></span></code></pre></div>
+<hr />
+<hr />
+<h1 id="tools-master-list">6. TOOLS MASTER LIST</h1>
+<h2 id="academic-research-stack">Academic Research Stack</h2>
+<h3 id="discovery">Discovery</h3>
+<pre><code>Google Scholar          scholar.google.com
+Semantic Scholar        semanticscholar.org
+ArXiv                   arxiv.org
+Papers With Code        paperswithcode.com
+Connected Papers        connectedpapers.com
+DBLP                    dblp.org
+ACM Digital Library     dl.acm.org
+IEEE Xplore             ieeexplore.ieee.org</code></pre>
+<h3 id="ai-assisted-research-discovery">AI-Assisted Research
+Discovery</h3>
+<pre><code>Perplexity.ai           Research assistant that cites sources
+Consensus.app           AI search across academic papers
+Elicit.org              AI that extracts structured data from papers
+ResearchRabbit          Visual paper discovery and tracking
+Litmaps                 Citation mapping and tracking</code></pre>
+<h3 id="paper-management">Paper Management</h3>
+<pre><code>Zotero                  Free, open-source, best citation manager
+                        Install desktop app + browser extension
+                        Collections, tags, notes, PDF annotation
+                        Auto-import from browser
+                        Integrates with Word and Overleaf</code></pre>
+<h3 id="reading-and-annotation">Reading and Annotation</h3>
+<pre><code>Zotero PDF reader       Built into Zotero, highlights + notes sync
+Highlights (Mac)        Excellent PDF reader with export to Markdown
+Skim (Mac)              Lightweight PDF reader
+Adobe Acrobat Reader    Annotation basics</code></pre>
+<h3 id="note-taking-and-knowledge-management">Note-Taking and Knowledge
+Management</h3>
+<pre><code>Obsidian                Local markdown notes, bidirectional links
+                        Zettelkasten method
+                        Graph view, Dataview plugin
+                        100% offline, your data stays yours
+
+Notion                  More structured, better for teams
+Roam Research           Similar to Obsidian, web-based
+LogSeq                  Open-source Roam alternative</code></pre>
+<h3 id="writing">Writing</h3>
+<pre><code>Overleaf                Online LaTeX editor
+                        Real-time collaboration
+                        Free for individuals
+                        Integrates with Zotero
+                        All major conference templates available
+
+VS Code + LaTeX Workshop  Local LaTeX writing
+Google Docs             Early drafts, collaboration
+Hemingway App           Clarity and readability check
+Grammarly               Grammar and style</code></pre>
+<h3 id="experiment-tracking">Experiment Tracking</h3>
+<pre><code>Weights &amp; Biases        Best for ML — metrics, hyperparams, model artifacts
+MLflow                  Open-source alternative
+Sacred                  Lightweight Python experiment tracking
+DVC                     Data version control — like Git for datasets
+Jupyter Notebooks       Document-as-you-go research</code></pre>
+<h3 id="diagrams-and-figures">Diagrams and Figures</h3>
+<pre><code>draw.io                 Free, browser-based, all diagram types
+Excalidraw              Hand-drawn style, quick sketches
+TikZ (LaTeX)            Publication-quality figures in papers
+Matplotlib / Seaborn    Python data visualization
+Plotly                  Interactive visualizations
+Inkscape                Vector graphics editor (free Illustrator)</code></pre>
+<h3 id="version-control">Version Control</h3>
+<pre><code>Git + GitHub            Everything — code AND LaTeX papers
+GitHub Actions          Automate paper builds (compile LaTeX on push)
+DVC                     Large files and datasets</code></pre>
+<h3 id="collaboration-and-communication">Collaboration and
+Communication</h3>
+<pre><code>Overleaf                Co-author LaTeX papers in real-time
+Slack / Discord         Lab communication
+Zoom / Google Meet      Remote meetings
+Calendly                Schedule advisor meetings without email ping-pong</code></pre>
+<hr />
+<h2 id="startup-research-stack">Startup Research Stack</h2>
+<h3 id="problem-discovery-1">Problem Discovery</h3>
+<pre><code>Reddit                  reddit.com/r/[your industry]
+                        Search: &quot;[competitor] sucks&quot; or &quot;[category] alternative&quot;
+Twitter/X               Complaint mining, trend spotting
+Product Hunt            New products + comment sections
+Hacker News             news.ycombinator.com — search hn.algolia.com
+G2                      g2.com — B2B software reviews
+Capterra                capterra.com — SMB software reviews
+Trustpilot              Consumer product reviews</code></pre>
+<h3 id="market-research-1">Market Research</h3>
+<pre><code>Crunchbase              crunchbase.com — funding, competitors, investors
+SimilarWeb              similarweb.com — website traffic
+Google Trends           trends.google.com — search interest over time
+Google Keyword Planner  Search volume, competition
+SEMrush / Ahrefs        Keyword research, competitor SEO
+SparkToro               Where your audience lives online
+Statista                Industry statistics (some free)
+LinkedIn                Market sizing by job title / industry</code></pre>
+<h3 id="customer-interviews">Customer Interviews</h3>
+<pre><code>Calendly                Scheduling (free tier)
+Otter.ai                AI transcription of calls
+Fireflies.ai            Auto-transcribe and summarize meetings
+Zoom / Google Meet      Video calls
+Notion / Obsidian       Interview logging and synthesis</code></pre>
+<h3 id="validation-and-landing-pages">Validation and Landing Pages</h3>
+<pre><code>Carrd                   Simplest landing page (free)
+Framer                  Beautiful landing pages, no code
+Webflow                 Most flexible, no code
+Typedream               Fast, clean landing pages
+Stripe                  Pre-sell before you build — take real payments
+Typeform                Surveys and waitlist forms
+Tally.so                Free Typeform alternative</code></pre>
+<h3 id="analytics">Analytics</h3>
+<pre><code>PostHog                 Open-source, self-host, full analytics + heatmaps
+Mixpanel                Best-in-class product analytics
+Amplitude               Enterprise-grade product analytics
+Google Analytics        Free, for acquisition tracking
+Hotjar                  Heatmaps, session recordings, surveys
+FullStory               Session replay for debugging UX</code></pre>
+<h3 id="competitive-intelligence">Competitive Intelligence</h3>
+<pre><code>G2 / Capterra           Review mining for competitor weaknesses
+SimilarWeb              Traffic and engagement comparison
+BuiltWith               What tech stack competitors use
+Wappalyzer              Browser extension — see tech stack of any site
+Crunchbase              Funding history and team growth
+LinkedIn                Team size, hiring signals (what they hire = roadmap)</code></pre>
+<h3 id="startup-knowledge">Startup Knowledge</h3>
+<pre><code>Y Combinator Library    ycombinator.com/library — best startup resources
+Paul Graham Essays      paulgraham.com
+Lenny&#39;s Newsletter      lennynewsletter.com — product and growth
+First Round Review      review.firstround.com
+a16z blog               a16z.com/blog
+Stratechery             stratechery.com — tech strategy</code></pre>
+<hr />
+<hr />
+<h1 id="from-research-to-startup">7. FROM RESEARCH TO STARTUP</h1>
+<h2 id="the-path">The Path</h2>
+<p>The biggest arbitrage opportunity available to a CS student:</p>
+<pre><code>ACADEMIC INSIGHT          →          COMMERCIAL PRODUCT
+(5-10 years ahead)                   (funded, built, launched)</code></pre>
+<p>Most researchers don’t build. Most founders don’t have deep technical
+insight. You can have both.</p>
+<h3 id="the-pipeline">The Pipeline</h3>
+<pre><code>Step 1: ACADEMIC PROBLEM
+&quot;Existing RAG systems hallucinate on long documents&quot;
+
+Step 2: RESEARCH SOLUTION
+&quot;Novel chunking + re-ranking reduces hallucination by 40%&quot;
+
+Step 3: MARKET QUESTION
+&quot;Who is losing money today because of AI hallucination?&quot;
+
+Step 4: CUSTOMER DISCOVERY
+&quot;Legal teams, medical documentation, financial compliance&quot;
+
+Step 5: PRODUCT HYPOTHESIS
+&quot;AI document analysis for legal teams, 40% more accurate than [competitor]&quot;
+
+Step 6: VALIDATION
+Landing page + 10 interviews + 1 paying design partner
+
+Step 7: BUILD MVP
+Smallest version that demonstrates the 40% improvement for legal use case
+
+Step 8: COMPANY</code></pre>
+<h3 id="your-unfair-advantage-as-a-cs-student">Your Unfair Advantage as
+a CS Student</h3>
+<p>Most founders copy ideas from other companies. They compete on
+execution.</p>
+<p>You can compete on <strong>insight</strong> — something you know
+deeply that others don’t. That is a moat that cannot be copied fast.</p>
+<p>Examples: - Deep knowledge of a specific ML architecture -
+Understanding of a specific systems problem (database internals,
+networking, compilers) - Research background in a domain + ability to
+build</p>
+<h3 id="the-research-moat">The Research Moat</h3>
+<p>When your product is built on a genuine research insight: 1. It is
+hard to copy without understanding the underlying research 2. You
+understand it more deeply than any competitor who tries to copy 3. The
+insight usually generalizes — it can become a platform, not just a
+feature 4. It attracts other researchers as employees and collaborators
+5. It attracts academic credibility which becomes marketing</p>
+<hr />
+<hr />
+<h1 id="working-with-advisors-and-mentors">8. WORKING WITH ADVISORS AND
+MENTORS</h1>
+<h2 id="the-advisor-relationship">The Advisor Relationship</h2>
+<p>Your research advisor is not your boss and not your peer. They are a
+senior collaborator who has navigated the system you are entering.</p>
+<h3 id="what-to-expect-from-a-good-advisor">What to Expect From a Good
+Advisor</h3>
+<ul>
+<li>Regular meetings (weekly or biweekly)</li>
+<li>Feedback on written work within 2 weeks</li>
+<li>Introduction to relevant people in the field</li>
+<li>Honest assessment of your work’s quality</li>
+<li>Help positioning your work for publication</li>
+<li>Career guidance</li>
+</ul>
+<h3 id="what-they-expect-from-you">What They Expect From You</h3>
+<ul>
+<li>Consistent progress, even if slow</li>
+<li>Proactive communication — they hear about problems from you, not
+later</li>
+<li>Preparation for every meeting — arrive with concrete update and
+specific questions</li>
+<li>Ownership of your research — you drive it, not them</li>
+<li>Written documentation of your work — they cannot read your mind</li>
+</ul>
+<h3 id="the-meeting-preparation-template">The Meeting Preparation
+Template</h3>
+<p>Before every advisor meeting:</p>
+<pre><code>1. Written update: what I did since last meeting (1 paragraph)
+2. Results: any new data or findings (figures/tables)
+3. Blockers: what is preventing progress
+4. Decision needed: what do I need their input on specifically
+5. Plan: what I intend to do before next meeting</code></pre>
+<p>Send this by email 24 hours before the meeting. It makes the meeting
+3x more productive.</p>
+<h3 id="when-things-go-wrong">When Things Go Wrong</h3>
+<p>If advisor relationship is not working: - Communicate directly first
+— most issues come from misaligned expectations - Document everything —
+emails, meeting notes, decisions - Understand the formal process at your
+institution before escalating - Talk to other students in the lab — you
+are probably not alone - Changing advisors is possible and sometimes
+necessary — better early than late</p>
+<h2
+id="finding-mentors-outside-academy-and-outside-your-company">Finding
+Mentors (Outside Academy and Outside Your Company)</h2>
+<p>The best mentors are people 5-10 years ahead of where you want to be,
+who still remember what it was like to be where you are.</p>
+<h3 id="finding-them">Finding Them</h3>
+<pre><code>LinkedIn        → comment thoughtfully on posts, then reach out
+Twitter/X       → engage with content before DMing
+Conferences     → show up, be curious, don&#39;t pitch — just have conversations
+Alumni network  → your university&#39;s alumni want to help
+Office hours    → founders at YC, Andreessen etc. run public office hours
+Cold email      → it works more than you think, if it&#39;s genuine and specific</code></pre>
+<h3 id="the-cold-outreach-that-works">The Cold Outreach That Works</h3>
+<pre><code>Subject: Quick question from a CS student working on [topic]
+
+Hi [Name],
+
+I&#39;m a CS student at [university] working on [specific problem].
+I read your [paper / blog post / tweet] about [specific thing] 
+and it directly answered a question I&#39;d been stuck on for weeks.
+
+I have one specific question: [the actual question, one sentence]
+
+I know you&#39;re busy. A 10-word reply would genuinely help.
+
+Thanks,
+[Your name]</code></pre>
+<p>Short. Specific. One ask. Demonstrates you’ve done the work.</p>
+<hr />
+<hr />
+<h1 id="research-ethics">9. RESEARCH ETHICS</h1>
+<h2 id="why-this-matters-more-than-you-think">Why This Matters More Than
+You Think</h2>
+<p>Unethical research doesn’t just harm your career. It harms the field,
+harms people who build on your work, and harms the public who relies on
+published research to be true.</p>
+<h2 id="core-principles">Core Principles</h2>
+<h3 id="reproducibility">1. Reproducibility</h3>
+<p>Every result must be reproducible by an independent researcher
+following your paper. This means: - Publishing your code (GitHub with
+paper link) - Sharing your data (or explaining why you can’t) -
+Reporting exact hyperparameters and random seeds - Not hiding failed
+experiments that change the interpretation</p>
+<h3 id="honest-reporting">2. Honest Reporting</h3>
+<p>Report your results honestly, including: - Results that don’t support
+your hypothesis (negative results) - Conditions where your method fails
+- Limitations of your approach - Statistical uncertainty (confidence
+intervals, error bars)</p>
+<p><strong>Selective reporting</strong> — only sharing your best results
+while hiding others — is a form of scientific fraud.</p>
+<h3 id="attribution-and-citation">3. Attribution and Citation</h3>
+<ul>
+<li>Cite every source you build on</li>
+<li>If you use code from someone else, credit it</li>
+<li>Don’t present prior ideas as your own</li>
+<li>If you work with others, authorship should reflect contribution</li>
+</ul>
+<h3 id="data-ethics">4. Data Ethics</h3>
+<ul>
+<li>If you collect human data: IRB approval, informed consent,
+privacy</li>
+<li>Don’t train models on data you don’t have rights to use</li>
+<li>Be aware of biases in datasets and report them</li>
+<li>Consider the potential harms of your research output</li>
+</ul>
+<h3 id="ai-assisted-writing">5. AI-Assisted Writing</h3>
+<p>Using LLMs in research is still evolving in norms. Current principle:
+- You are responsible for every word in your paper - AI-generated text
+you didn’t verify is a risk to your credibility - Disclose AI tool use
+per your venue’s policy (check before submitting) - Using AI to improve
+clarity is generally fine; using it to generate results is not</p>
+<h3 id="conflict-of-interest">6. Conflict of Interest</h3>
+<p>Disclose funding sources. Disclose industry relationships. If a
+funder has interest in your results, say so. Readers need this
+information to interpret your work.</p>
+<hr />
+<hr />
+<h1 id="the-weekly-rhythm">10. THE WEEKLY RHYTHM</h1>
+<p>Sustainable research requires rhythm. Bursts don’t produce good work
+consistently.</p>
+<h2 id="weekly-research-rhythm-academic">Weekly Research Rhythm
+(Academic)</h2>
+<pre><code>MONDAY
+└── Weekly planning
+    Review weekly summary from last week
+    Set ONE main question to answer this week
+    Set 3 concrete tasks (no more)
+    Check deadlines: paper submissions, advisor meetings
+
+TUESDAY - THURSDAY
+└── Deep work blocks
+    2-3 hour focused blocks, phone away, notifications off
+    Alternate: one day experiments, one day writing/reading
+    Log progress in research journal every evening (10 min)
+
+FRIDAY
+└── Review and documentation
+    Update experiment logs
+    Write weekly summary
+    Respond to emails, admin tasks
+    Brief slack reading
+
+WEEKEND
+└── Light only
+    Read papers without note-taking pressure
+    Watch talks (YouTube: conference recordings)
+    Let the brain consolidate
+    No guilt for not working</code></pre>
+<h2 id="weekly-research-rhythm-startup">Weekly Research Rhythm
+(Startup)</h2>
+<pre><code>MONDAY
+└── Metrics review + planning
+    Review last week&#39;s numbers: did they move?
+    Set one growth hypothesis to test this week
+    Customer interview scheduled?
+
+TUESDAY
+└── Build or research day
+    Deep work on whatever needs building or testing
+
+WEDNESDAY
+└── Customer day
+    Interview or user test session
+    Respond to user feedback and support tickets
+    Review analytics
+
+THURSDAY
+└── Build day
+    Implement learnings from Wednesday
+
+FRIDAY
+└── Ship + document
+    Ship whatever is ready
+    Document what was learned
+    Update opportunity document
+    Team sync on week learnings</code></pre>
+<h2 id="the-daily-deep-work-protocol">The Daily Deep Work Protocol</h2>
+<p>For maximum research productivity:</p>
+<pre><code>Block 1 (9am-12pm):    Deep work — hardest task first, no meetings
+Block 2 (12-1pm):      Break, food, walk
+Block 3 (1pm-3pm):     Reading and lighter work
+Block 4 (3pm-5pm):     Correspondence, admin, planning
+Block 5 (5pm-6pm):     Journal entry, tomorrow&#39;s plan</code></pre>
+<p>The 9-12 block is non-negotiable. Protect it. Every research
+breakthrough happens in long, uninterrupted sessions.</p>
+<hr />
+<hr />
+<h1 id="common-mistakes-and-how-to-avoid-them">11. COMMON MISTAKES AND
+HOW TO AVOID THEM</h1>
+<h2 id="academic-research-mistakes">Academic Research Mistakes</h2>
+<h3 id="mistake-1-starting-without-a-clear-question">Mistake 1: Starting
+Without a Clear Question</h3>
+<p><strong>What happens:</strong> You read for months, get lost, produce
+nothing <strong>Fix:</strong> Write your research question on a card and
+tape it to your monitor. If you can’t state it in one sentence, it isn’t
+ready yet.</p>
+<h3 id="mistake-2-reading-instead-of-doing">Mistake 2: Reading Instead
+of Doing</h3>
+<p><strong>What happens:</strong> Endless literature review, no
+experiments <strong>Fix:</strong> After 2-3 weeks of reading, force
+yourself to run an experiment — even a bad one. Doing reveals what you
+need to read. Reading doesn’t tell you what to do.</p>
+<h3 id="mistake-3-not-version-controlling-your-work">Mistake 3: Not
+Version-Controlling Your Work</h3>
+<p><strong>What happens:</strong> Overwrite working code, lose a LaTeX
+version that was better, can’t reproduce an experiment from 2 months ago
+<strong>Fix:</strong> Git from day 1. Commit every time something
+works.</p>
+<h3 id="mistake-4-weak-baselines">Mistake 4: Weak Baselines</h3>
+<p><strong>What happens:</strong> Your method looks good but only
+because you compared it to something obviously worse
+<strong>Fix:</strong> Before running experiments, ask: “what would a
+skeptical reviewer say about my baseline?” Then make it stronger before
+they do.</p>
+<h3 id="mistake-5-not-writing-throughout">Mistake 5: Not Writing
+Throughout</h3>
+<p><strong>What happens:</strong> You have 6 months of work and no
+writing. Paper deadline approaches. Panic. <strong>Fix:</strong> Write
+something every week. Even 2 paragraphs. The methodology section should
+be nearly complete before experiments are done. Writing forces clarity
+on your thinking.</p>
+<h3 id="mistake-6-perfectionism">Mistake 6: Perfectionism</h3>
+<p><strong>What happens:</strong> Paper is never good enough, never
+submitted, never gets feedback <strong>Fix:</strong> A submitted
+imperfect paper that gets reviewed and rejected teaches you more than a
+perfect paper that never leaves your hard drive. Submit.</p>
+<h3 id="mistake-7-working-in-isolation">Mistake 7: Working in
+Isolation</h3>
+<p><strong>What happens:</strong> Wrong direction for 3 months, advisor
+meeting reveals it in week 12 <strong>Fix:</strong> Share work early and
+often. Partial results, rough drafts, half-baked ideas. Feedback when
+things are malleable is infinitely more valuable than feedback when
+they’re done.</p>
+<hr />
+<h2 id="startup-research-mistakes">Startup Research Mistakes</h2>
+<h3 id="mistake-1-building-before-validating">Mistake 1: Building Before
+Validating</h3>
+<p><strong>What happens:</strong> 6 months of engineering, 0 customers,
+pivot or die <strong>Fix:</strong> 20 customer interviews before any
+code. Non-negotiable.</p>
+<h3 id="mistake-2-the-problem-is-real-but-not-urgent">Mistake 2: The
+Problem Is Real But Not Urgent</h3>
+<p><strong>What happens:</strong> People say “yeah that’s a problem” but
+don’t pay <strong>Fix:</strong> Test urgency: “If I could give this to
+you today, would you use it?” If they don’t drop everything to say yes —
+it’s not urgent enough.</p>
+<h3 id="mistake-3-talking-to-friendly-people">Mistake 3: Talking to
+Friendly People</h3>
+<p><strong>What happens:</strong> Only interview people who know you and
+want to be supportive, get false positives <strong>Fix:</strong> Find
+strangers in your target market. They have no reason to lie.</p>
+<h3
+id="mistake-4-building-for-yourself-when-your-market-is-someone-else">Mistake
+4: Building for Yourself When Your Market Is Someone Else</h3>
+<p><strong>What happens:</strong> Great product for a CS student, no
+other CS students pay for B2B tools <strong>Fix:</strong> Be your own
+customer only if you are truly representative of the market. Otherwise,
+your intuition is actively misleading.</p>
+<h3 id="mistake-5-ignoring-churn">Mistake 5: Ignoring Churn</h3>
+<p><strong>What happens:</strong> Good acquisition, 80% of users leave
+after week 1, focus only on getting more users <strong>Fix:</strong>
+Retention is the #1 metric. Acquire 10 users, make them love it, then
+scale. Not the other way.</p>
+<h3 id="mistake-6-pricing-too-low">Mistake 6: Pricing Too Low</h3>
+<p><strong>What happens:</strong> Lots of users, no revenue,
+unsustainable <strong>Fix:</strong> Charge more than you think you
+should. The discomfort you feel is not evidence the price is wrong.</p>
+<h3 id="mistake-7-market-research-without-customer-discovery">Mistake 7:
+Market Research Without Customer Discovery</h3>
+<p><strong>What happens:</strong> Market “looks big” on paper, real
+customers have different problem than assumed <strong>Fix:</strong> Data
+tells you what. Conversations tell you why. You need both.</p>
+<hr />
+<hr />
+<h1 id="resources-library">12. RESOURCES LIBRARY</h1>
+<h2 id="essential-books">Essential Books</h2>
+<h3 id="academic-research">Academic Research</h3>
+<pre><code>&quot;How to Write and Publish a Scientific Paper&quot; — Robert Day
+└── The mechanics of academic writing. Read this first.
+
+&quot;The Craft of Research&quot; — Booth, Colomb, Williams
+└── How to think about and structure research arguments.
+
+&quot;Writing Science&quot; — Joshua Schimel
+└── Narrative structure in scientific writing. Underrated.
+
+&quot;A PhD Is Not Enough&quot; — Peter Feibelman
+└── Career strategy for researchers. Read before your PhD, not after.
+
+&quot;How to Read a Paper&quot; — S. Keshav
+└── The 3-pass method. Free PDF. 6 pages. Read it this week.</code></pre>
+<h3 id="startup-and-product-research">Startup and Product Research</h3>
+<pre><code>&quot;The Mom Test&quot; — Rob Fitzpatrick
+└── How to get honest information from customers. 2-hour read.
+   Most important book on customer discovery ever written.
+
+&quot;The Lean Startup&quot; — Eric Ries
+└── Build-measure-learn loop. The scientific method for startups.
+
+&quot;Continuous Discovery Habits&quot; — Teresa Torres
+└── How to do product research as an ongoing practice.
+
+&quot;Zero to One&quot; — Peter Thiel
+└── How to think about building something genuinely new.
+
+&quot;The Hard Thing About Hard Things&quot; — Ben Horowitz
+└── What building actually feels like (versus the theory).
+
+&quot;Obviously Awesome&quot; — April Dunford
+└── Product positioning. How to make what you built land correctly.</code></pre>
+<h3 id="mental-models-and-thinking">Mental Models and Thinking</h3>
+<pre><code>&quot;Thinking, Fast and Slow&quot; — Daniel Kahneman
+└── How your brain actually works. Essential for critical thinking.
+
+&quot;The Art of Problem Solving&quot; (series)
+└── Mathematical thinking. Foundational for CS research.
+
+&quot;Poor Charlie&#39;s Almanack&quot; — Charlie Munger
+└── Mental models across disciplines. Expensive book, worth it.</code></pre>
+<h2 id="essential-papers-and-articles-free">Essential Papers and
+Articles (Free)</h2>
+<pre><code>&quot;How to Read a Paper&quot; — S. Keshav (2007)
+→ scholar.google.com — 6 pages, mandatory
+
+&quot;You and Your Research&quot; — Richard Hamming (1986)
+→ YouTube talk or transcript — how great researchers think
+
+&quot;Reflections on Trusting Trust&quot; — Ken Thompson (1984)
+→ ACM — Turing Award lecture, systems security, thinking about foundations
+
+&quot;Attention Is All You Need&quot; — Vaswani et al. (2017)
+→ ArXiv:1706.03762 — the paper that changed everything in ML
+
+&quot;MapReduce&quot; — Dean &amp; Ghemawat (2004)
+→ OSDI 2004 — how to think about large-scale systems
+
+&quot;Do Things That Don&#39;t Scale&quot; — Paul Graham
+→ paulgraham.com — the most important essay for early startup founders</code></pre>
+<h2 id="courses-free">Courses (Free)</h2>
+<pre><code>CS Research Methods
+├── MIT OpenCourseWare — various CS courses
+└── Stanford CS courses on YouTube
+
+Machine Learning
+├── fast.ai — practical ML, project-first (free)
+├── Andrew Ng&#39;s courses (Coursera, can audit free)
+└── Andrej Karpathy&#39;s Neural Networks: Zero to Hero (YouTube)
+
+Startup
+├── Y Combinator Startup School — startupschool.org (free)
+├── Stanford CS183 (Peter Thiel) — notes available free
+└── Lenny&#39;s Podcast — best product thinking conversations</code></pre>
+<h2 id="communities">Communities</h2>
+<pre><code>Academic
+├── r/MachineLearning, r/compsci, r/AskComputerScience
+├── Papers With Code community
+├── HuggingFace forums
+└── Your university&#39;s research groups (join early)
+
+Startup
+├── Hacker News — news.ycombinator.com
+├── Indie Hackers — indiehackers.com (bootstrapped startups)
+├── r/startups, r/entrepreneur
+├── Y Combinator Alumni network (if you do YC)
+└── Twitter/X tech community</code></pre>
+<hr />
+<hr />
+<h1 id="the-master-mental-model">13. THE MASTER MENTAL MODEL</h1>
+<p>Everything in this document compresses into one loop:</p>
+<pre><code>OBSERVE
+└── Notice something broken, missing, or unexplained in the world
+    &quot;Why does X fail?&quot; / &quot;Why doesn&#39;t Y exist?&quot; / &quot;What if Z worked differently?&quot;
+
+        ↓
+
+QUESTION
+└── Form a precise, falsifiable question about it
+    Not a topic. A question. With a possible wrong answer.
+
+        ↓
+
+SURVEY
+└── Understand everything that already exists
+    What has been tried? What worked? What failed? What was assumed?
+
+        ↓
+
+HYPOTHESIZE
+└── Propose your answer BEFORE testing
+    &quot;If I do X, then Y will happen because Z&quot;
+    Commit to a prediction. This is what keeps you honest.
+
+        ↓
+
+EXPERIMENT
+└── Smallest possible test of your hypothesis
+    Academic: controlled experiment with baselines and metrics
+    Startup: interview, landing page, presell, concierge
+
+        ↓
+
+MEASURE
+└── Collect honest data
+    Numbers that could prove you wrong, not just right.
+
+        ↓
+
+ANALYZE
+└── Understand WHY, not just WHAT
+    Why did it work? Why did it fail in these cases?
+    What alternative explanations exist?
+
+        ↓
+
+COMMUNICATE
+└── Tell the world what you found
+    Academic: paper / talk / blog post
+    Startup: product / pitch / case study
+
+        ↓
+
+ITERATE
+└── The output of communicating is new observations
+    New data. New questions. New hypotheses.
+    The loop restarts, faster and with better questions.</code></pre>
+<hr />
+<h2 id="the-deeper-truth">The Deeper Truth</h2>
+<p>Academic research and startup product research are not two different
+disciplines wearing the same name.</p>
+<p>They are <strong>one discipline</strong> operating at different
+frequencies.</p>
+<p>The academic researcher iterates over months. The founder iterates
+over weeks. The great technologist does both simultaneously — publishing
+the insight and building the product.</p>
+<pre><code>Academic cycle:   Problem → Research → Paper → Field advances
+Startup cycle:    Problem → Research → Product → Market advances
+Combined:         Problem → Research → Paper + Product → World advances</code></pre>
+<p>You are a CS student. You have been handed the rare gift of time and
+structure to develop the research mindset before the market pressure
+sets in.</p>
+<p>Use this time to develop the habit of asking precise questions, of
+testing rather than assuming, of being honest about what you don’t
+know.</p>
+<p><strong>That habit — not the specific tools, not the frameworks, not
+the templates — is what makes a great researcher and a great
+founder.</strong></p>
+<p>The tools change. The templates get updated. The habit of rigorous
+curiosity compounds forever.</p>
+<hr />
+<p><em>Document Version: 1.0</em> <em>Last Updated: 2026</em> <em>Total
+Length: ~12,000 words</em> <em>Sections: 13 major sections, 50+
+subsections</em> <em>This is a living document — update it as you
+learn.</em></p>
+
+</div>
+
+<!-- ── SEARCH MODAL ── -->
+<div class="search-modal" id="searchModal" onclick="closeSearchOutside(event)">
+    <div class="search-box" onclick="event.stopPropagation()">
+        <div class="search-input-row">
+            <span class="search-icon">⌕</span>
+            <input
+                class="search-input" id="searchInput"
+                placeholder="search notes..."
+                oninput="doSearch()"
+                onkeydown="searchKeyNav(event)"
+                autocomplete="off" spellcheck="false"
+            >
+            <button class="search-close" onclick="closeSearch()">esc</button>
+        </div>
+        <div class="search-results" id="searchResults">
+            <div class="search-empty">type to search all notes</div>
+        </div>
+        <div class="search-footer">
+            <span class="sf-hint"><span class="sf-key">↑↓</span> navigate</span>
+            <span class="sf-hint"><span class="sf-key">enter</span> open</span>
+            <span class="sf-hint"><span class="sf-key">esc</span> close</span>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── SIDEBAR ──
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+
+// ── SEARCH ──
+let searchIndex = null;
+let focusIdx = -1;
+
+async function loadIndex() {
+    if (searchIndex) return;
+    try {
+        // figure out base path (works from any subfolder depth)
+        const base = document.location.pathname.includes('/output/')
+            ? document.location.pathname.replace(/\/output\/.*/, '/output/')
+            : './';
+        const r = await fetch(base + 'search-index.json');
+        searchIndex = await r.json();
+    } catch(e) {
+        searchIndex = [];
+        console.warn('search index not found');
+    }
+}
+
+function openSearch() {
+    loadIndex();
+    document.getElementById('searchModal').classList.add('open');
+    setTimeout(() => document.getElementById('searchInput').focus(), 50);
+}
+
+function closeSearch() {
+    document.getElementById('searchModal').classList.remove('open');
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').innerHTML = '<div class="search-empty">type to search all notes</div>';
+    focusIdx = -1;
+}
+
+function closeSearchOutside(e) {
+    if (e.target === document.getElementById('searchModal')) closeSearch();
+}
+
+// ctrl+k / cmd+k
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if (e.key === 'Escape') closeSearch();
+});
+
+function highlight(text, query) {
+    if (!query) return text;
+    const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return text.replace(re, '<em>$1</em>');
+}
+
+function doSearch() {
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    const res = document.getElementById('searchResults');
+    focusIdx = -1;
+
+    if (!q) {
+        res.innerHTML = '<div class="search-empty">type to search all notes</div>';
+        return;
+    }
+    if (!searchIndex || !searchIndex.length) {
+        res.innerHTML = '<div class="search-empty"><span>building index...</span></div>';
+        return;
+    }
+
+    // score each entry
+    const scored = [];
+    for (const entry of searchIndex) {
+        const titleMatch = entry.title.toLowerCase().includes(q);
+        const pageMatch  = entry.page.toLowerCase().includes(q);
+        const bodyMatch  = entry.body.toLowerCase().includes(q);
+        if (!titleMatch && !pageMatch && !bodyMatch) continue;
+
+        let score = 0;
+        if (titleMatch) score += 10;
+        if (pageMatch)  score += 5;
+        if (bodyMatch)  score += 1;
+
+        // find surrounding context for body match
+        let matchSnippet = '';
+        if (bodyMatch) {
+            const idx = entry.body.toLowerCase().indexOf(q);
+            const start = Math.max(0, idx - 30);
+            const end   = Math.min(entry.body.length, idx + q.length + 60);
+            matchSnippet = (start > 0 ? '…' : '') + entry.body.slice(start, end) + (end < entry.body.length ? '…' : '');
+        }
+
+        scored.push({ ...entry, score, matchSnippet });
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    const top = scored.slice(0, 12);
+
+    if (!top.length) {
+        res.innerHTML = `<div class="search-empty">no results for <span>"${q}"</span></div>`;
+        return;
+    }
+
+    res.innerHTML = top.map((r, i) => `
+        <a class="search-result" href="${r.href}" data-idx="${i}">
+            <span class="sr-left">#</span>
+            <div class="sr-body">
+                <div class="sr-title">${highlight(r.title, q)}</div>
+                <div class="sr-page">${r.page}</div>
+                ${r.matchSnippet ? `<div class="sr-match">${highlight(r.matchSnippet, q)}</div>` : ''}
+            </div>
+        </a>
+    `).join('');
+}
+
+function searchKeyNav(e) {
+    const items = document.querySelectorAll('.search-result');
+    if (e.key === 'ArrowDown') { e.preventDefault(); focusIdx = Math.min(focusIdx + 1, items.length - 1); }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); focusIdx = Math.max(focusIdx - 1, 0); }
+    if (e.key === 'Enter' && focusIdx >= 0) { items[focusIdx].click(); }
+    items.forEach((el, i) => el.classList.toggle('focused', i === focusIdx));
+    if (focusIdx >= 0) items[focusIdx].scrollIntoView({ block: 'nearest' });
+}
+</script>
+</body>
+</html>
