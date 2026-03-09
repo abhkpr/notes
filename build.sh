@@ -19,6 +19,7 @@ ORDER=(
     "git"
     "git-workflow"
     "gh"
+    "gh-cli-wf"
     "i3"
 
     # math and cs theory
