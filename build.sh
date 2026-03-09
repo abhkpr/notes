@@ -47,6 +47,7 @@ ORDER=(
     "network"
     "security"
     "cloudflare"
+    "deploy"
     "docker"
     "testing"
 
