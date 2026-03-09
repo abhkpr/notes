@@ -63,6 +63,7 @@ ORDER=(
 
     # personal
     "warbird"
+    "research"
 )
 
 # build nav links file
