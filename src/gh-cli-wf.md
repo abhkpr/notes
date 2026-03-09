@@ -1,4 +1,4 @@
-# GitHub Workflow
+# GitHub CLI  Workflow
 
 ## The Mental Model
 
