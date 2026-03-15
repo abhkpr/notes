@@ -17,12 +17,15 @@
     --sidebar: 260px;
 }
         body {
-            background: var(--bg);
-            color: var(--fg);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 14px;
-            line-height: 1.7;
-        }
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 15px;
+    line-height: 1.8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
         /* ── hamburger ── */
         .hamburger {
@@ -79,8 +82,8 @@
         .sidebar nav a.active { color: var(--green); border-left-color: var(--green); }
 
         /* ── main content ── */
-        .content { max-width: 750px; margin: 0 auto; padding: 60px 24px 80px; }
-
+        .content { max-width: 750px; margin: 0 auto; padding: 60px 24px 80px; flex: 1; width: 100%; }
+        
         /* ── typography ── */
         h1, h2, h3, h4 { color: var(--fg); margin: 28px 0 12px; letter-spacing: 1px; }
         h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--green); }
