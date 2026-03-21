@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next.js (App Router) | notes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+       :root {
+    --bg:      #0f0f0f;
+    --bg2:     #161616;
+    --fg:      #d4d4d4;
+    --green:   #4ec994;
+    --muted:   #6b6b6b;
+    --border:  #2a2a2a;
+    --sidebar: 260px;
+}
+        body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 15px;
+    line-height: 1.8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+        /* ── hamburger ── */
+        .hamburger {
+            position: fixed; top: 12px; left: 12px; z-index: 1000;
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--green); font-size: 1.2rem; padding: 4px 10px;
+            cursor: pointer; font-family: 'Share Tech Mono', monospace;
+        }
+        .hamburger:hover { border-color: var(--green); }
+
+        /* ── search button in header ── */
+        .search-btn {
+            position: fixed; top: 12px; right: 12px; z-index: 1000;
+            background: var(--bg2); border: 1px solid var(--border);
+            color: var(--muted); font-size: 0.75rem; padding: 4px 12px;
+            cursor: pointer; font-family: 'Share Tech Mono', monospace;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.15s;
+        }
+        .search-btn:hover { border-color: var(--green); color: var(--green); }
+        .search-btn .kbd {
+            background: var(--border); padding: 1px 5px;
+            font-size: 0.7rem; color: var(--muted);
+        }
+
+        /* ── overlay ── */
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99;
+        }
+        .overlay.open { display: block; }
+
+        /* ── sidebar ── */
+        .sidebar {
+            position: fixed; top: 0; left: 0;
+            width: var(--sidebar); height: 100vh;
+            background: var(--bg2); border-right: 1px solid var(--border);
+            overflow-y: auto; z-index: 100;
+            transform: translateX(-100%); transition: transform 0.2s ease;
+            padding: 60px 0 20px;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-title {
+            padding: 0 20px 16px; color: var(--green);
+            font-size: 0.8rem; letter-spacing: 3px;
+            border-bottom: 1px solid var(--border); margin-bottom: 10px;
+        }
+        .sidebar nav a {
+            display: block; padding: 8px 20px; color: var(--muted);
+            text-decoration: none; font-size: 0.85rem;
+            border-left: 2px solid transparent; transition: all 0.15s;
+        }
+        .sidebar nav a:hover { color: var(--fg); border-left-color: var(--green); background: rgba(0,204,0,0.05); }
+        .sidebar nav a.active { color: var(--green); border-left-color: var(--green); }
+
+        /* ── main content ── */
+        .content { max-width: 750px; margin: 0 auto; padding: 60px 24px 80px; flex: 1; width: 100%; }
+        
+        /* ── typography ── */
+        h1, h2, h3, h4 { color: var(--fg); margin: 28px 0 12px; letter-spacing: 1px; }
+        h1 { font-size: 1.6rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--green); }
+        h2 { font-size: 1.2rem; color: var(--green); }
+        h3 { font-size: 1rem; }
+        p { margin-bottom: 14px; color: var(--fg); }
+        a { color: var(--green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code { background: var(--bg2); color: var(--green); border: 1px solid var(--border); padding: 2px 6px; font-family: 'Share Tech Mono', monospace; }
+        pre { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--green); padding: 16px; overflow-x: auto; margin: 16px 0; white-space: pre; }
+        pre code { border: none; padding: 0; background: none; white-space: pre; font-family: 'Share Tech Mono', monospace; line-height: 1.4; }
+        blockquote { border-left: 3px solid var(--green); padding: 10px 16px; background: var(--bg2); color: var(--muted); margin: 16px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        td, th { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+        th { background: var(--bg2); color: var(--green); }
+        ul, ol { padding-left: 20px; margin-bottom: 14px; }
+        li { margin-bottom: 4px; }
+        hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+
+        /* ── SEARCH MODAL ── */
+        .search-modal {
+            position: fixed; inset: 0; z-index: 2000;
+            background: rgba(0,0,0,0.85);
+            display: flex; align-items: flex-start; justify-content: center;
+            padding-top: 80px;
+            opacity: 0; pointer-events: none; transition: opacity 0.15s;
+        }
+        .search-modal.open { opacity: 1; pointer-events: all; }
+
+        .search-box {
+            background: var(--bg2); border: 1px solid var(--green);
+            width: 100%; max-width: 580px;
+            box-shadow: 0 0 40px rgba(0,204,0,0.1);
+        }
+        .search-input-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px; border-bottom: 1px solid var(--border);
+        }
+        .search-icon { color: var(--green); font-size: 14px; flex-shrink: 0; }
+        .search-input {
+            background: none; border: none; outline: none;
+            color: var(--fg); font-family: 'Share Tech Mono', monospace;
+            font-size: 14px; flex: 1;
+        }
+        .search-input::placeholder { color: var(--muted); }
+        .search-close {
+            color: var(--muted); font-size: 11px; cursor: pointer;
+            flex-shrink: 0; padding: 2px 6px; border: 1px solid var(--border);
+            background: none; font-family: 'Share Tech Mono', monospace;
+            transition: all 0.15s;
+        }
+        .search-close:hover { color: var(--green); border-color: var(--green); }
+
+        .search-results { max-height: 420px; overflow-y: auto; }
+
+        .search-result {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 12px 18px; cursor: pointer; text-decoration: none;
+            border-bottom: 1px solid var(--border); transition: background 0.1s;
+        }
+        .search-result:last-child { border-bottom: none; }
+        .search-result:hover, .search-result.focused { background: rgba(0,204,0,0.05); }
+        .search-result:hover .sr-title, .search-result.focused .sr-title { color: var(--green); }
+
+        .sr-left { flex-shrink: 0; color: var(--green); font-size: 11px; opacity: 0.5; width: 16px; text-align: center; }
+        .sr-body { flex: 1; min-width: 0; }
+        .sr-title { color: var(--fg); font-size: 13px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sr-page { color: var(--muted); font-size: 11px; }
+        .sr-match { color: var(--muted); font-size: 11px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sr-match em { color: var(--green); font-style: normal; }
+
+        .search-footer {
+            padding: 8px 18px; border-top: 1px solid var(--border);
+            display: flex; gap: 16px; align-items: center;
+        }
+        .sf-hint { font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+        .sf-key { background: var(--border); padding: 1px 5px; font-size: 10px; }
+
+        .search-empty {
+            padding: 40px 18px; text-align: center;
+            color: var(--muted); font-size: 12px;
+        }
+        .search-empty span { color: var(--green); }
+
+        /* highlight matched text */
+        mark { background: rgba(0,204,0,0.15); color: var(--green); padding: 0 2px; }
+    </style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+<!-- search trigger button -->
+<button class="search-btn" onclick="openSearch()">
+    ⌕ search <span class="kbd">ctrl k</span>
+</button>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">// notes</div>
+    <nav>
+        <a href="README.html">=^..^=</a><a href="linux.html">Linux</a><a href="alacritty.html">Alacritty</a><a href="bash.html">Bash and Shell Scripting</a><a href="vim.html">Vim Cheatsheet — Most Used Commands</a><a href="mds.html">Markdown Cheatsheet</a><a href="git.html">Git & GitHub Cheatsheet</a><a href="git-workflow.html">Git and GitHub Workflow</a><a href="gh.html">GitHub CLI</a><a href="gh-cli-wf.html">GitHub CLI  Workflow</a><a href="i3.html">i3 Complete Shortcuts & Config Notes</a><a href="arithmetic.html">Mathematics for Competitive Programming</a><a href="dsa.html">Data Structures and Algorithms</a><a href="cs.html">Computer Science Fundamentals</a><a href="system-design.html">System Design</a><a href="design-pattern.html">Design Patterns</a><a href="Cpp.html">C++ for Competitive Programming — Complete Notes</a><a href="html.html">HTML</a><a href="css.html">CSS</a><a href="js.html">JavaScript and TypeScript</a><a href="ts.html">TypeScript with React</a><a href="tailwind.html">Tailwind CSS</a><a href="react.html">React</a><a href="nextjs.html" class="active">Next.js (App Router)</a><a href="py.html">Python</a><a href="api.html">API Design and REST</a><a href="sql.html">SQL and PostgreSQL</a><a href="database.html">Database, SQL & PostgreSQL</a><a href="network.html">Networking</a><a href="cloudflare.html">Cloudflare</a><a href="deploy.html">GitHub + Cloudflare — Full Developer Workflow</a><a href="docker.html">Docker</a><a href="testing.html">Testing</a><a href="kt.html">Kotlin</a><a href="fullstack.html">Full Stack — Frontend and Backend Together</a><a href="how-to-build.html">How to Build a Project</a><a href="design.html">Designing UI, Database and System Architecture</a><a href="web.html">Building Websites and Web Applications</a><a href="vocab.html">Dev Vocabulary</a><a href="warbird.html">warbird site — documentation</a><a href="research.html">The Complete Research Handbook</a>
+    </nav>
+</div>
+
+<div class="content">
+    <h1 id="next.js-app-router">Next.js (App Router)</h1>
+<h2 id="what-is-next.js">What is Next.js?</h2>
+<p>Next.js is a React framework that gives you everything you need to
+build production-ready web applications. React alone is just a UI
+library — it renders components. Next.js adds routing, server-side
+rendering, API routes, optimized images, fonts, and more on top of
+React.</p>
+<p><strong>Real-world analogy:</strong> React is like having a powerful
+engine. Next.js is the complete car — engine already installed, plus
+steering wheel, brakes, GPS, and fuel system all pre-configured and
+optimized to work together. You could assemble all of this yourself, but
+why would you?</p>
+<p><strong>Why App Router (not Pages Router)?</strong> Next.js has two
+routing systems. The older Pages Router (<code>/pages</code> directory)
+is still supported. The newer App Router (<code>/app</code> directory),
+introduced in Next.js 13, is the future — it uses React Server
+Components, streaming, and layouts built into the framework. This note
+covers the App Router exclusively.</p>
+<hr />
+<h2 id="part-1-installation-and-project-structure">Part 1 — Installation
+and Project Structure</h2>
+<h3 id="creating-a-project">Creating a Project</h3>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">npx</span> create-next-app@latest my-app</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># or</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pnpm</span> create next-app my-app</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Prompts you&#39;ll see:</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># ✓ TypeScript? Yes</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ✓ ESLint? Yes</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ✓ Tailwind CSS? Yes</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ✓ src/ directory? No (personal preference)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ✓ App Router? Yes       ← this is what we want</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ✓ Import alias? Yes (@/*)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> my-app</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run dev   <span class="co"># starts on http://localhost:3000</span></span></code></pre></div>
+<h3 id="project-structure">Project Structure</h3>
+<pre><code>my-app/
+├── app/                    ← App Router lives here
+│   ├── layout.tsx          ← Root layout (wraps every page)
+│   ├── page.tsx            ← Home page  (route: /)
+│   ├── globals.css         ← Global styles
+│   ├── about/
+│   │   └── page.tsx        ← About page (route: /about)
+│   ├── blog/
+│   │   ├── page.tsx        ← Blog list  (route: /blog)
+│   │   └── [slug]/
+│   │       └── page.tsx    ← Blog post  (route: /blog/:slug)
+│   └── api/
+│       └── hello/
+│           └── route.ts    ← API endpoint (route: /api/hello)
+├── components/             ← Reusable components
+├── lib/                    ← Utilities, helpers
+├── public/                 ← Static files (images, fonts)
+├── next.config.js
+├── tailwind.config.ts
+└── tsconfig.json</code></pre>
+<p><strong>Key rule:</strong> Every folder in <code>app/</code> that has
+a <code>page.tsx</code> file becomes a route. That’s it.</p>
+<hr />
+<h2 id="part-2-routing">Part 2 — Routing</h2>
+<h3 id="file-based-routing">File-Based Routing</h3>
+<p><strong>Real-world analogy:</strong> Think of the <code>app/</code>
+folder as a filing cabinet. Each drawer (folder) is a URL segment. To
+add a new page, you add a new drawer with a <code>page.tsx</code> file
+inside it. No configuration needed.</p>
+<pre><code>app/page.tsx                → /
+app/about/page.tsx          → /about
+app/blog/page.tsx           → /blog
+app/blog/nextjs/page.tsx    → /blog/nextjs
+app/dashboard/settings/page.tsx → /dashboard/settings</code></pre>
+<pre class="tsx"><code>// app/about/page.tsx
+export default function AboutPage() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;About Us&lt;/h1&gt;
+      &lt;p&gt;We build great things.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+<h3 id="dynamic-routes">Dynamic Routes</h3>
+<p>Use square brackets for URL parameters.</p>
+<pre><code>app/blog/[slug]/page.tsx    → /blog/anything
+app/shop/[category]/[id]/page.tsx → /shop/electronics/42
+app/[...slug]/page.tsx      → /a/b/c/d (catch-all)
+app/[[...slug]]/page.tsx    → / AND /a/b/c (optional catch-all)</code></pre>
+<pre class="tsx"><code>// app/blog/[slug]/page.tsx
+interface PageProps {
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default function BlogPost({ params, searchParams }: PageProps) {
+  return (
+    &lt;article&gt;
+      &lt;h1&gt;Post: {params.slug}&lt;/h1&gt;
+      {/* URL: /blog/nextjs-guide → params.slug = &quot;nextjs-guide&quot; */}
+    &lt;/article&gt;
+  );
+}</code></pre>
+<h3 id="route-groups">Route Groups</h3>
+<p>Group routes without affecting the URL. Use parentheses — they’re
+invisible in the URL.</p>
+<pre><code>app/
+├── (marketing)/            ← route group — URL not affected
+│   ├── about/page.tsx      → /about
+│   └── blog/page.tsx       → /blog
+├── (dashboard)/            ← different layout for dashboard
+│   ├── layout.tsx          ← dashboard-specific layout
+│   └── settings/page.tsx   → /settings</code></pre>
+<p><strong>Use case:</strong> Apply a different layout to a subset of
+pages (dashboard vs marketing pages) without the group name appearing in
+the URL.</p>
+<h3 id="parallel-routes">Parallel Routes</h3>
+<p>Render multiple pages simultaneously in the same layout.</p>
+<pre><code>app/
+├── layout.tsx
+├── page.tsx
+├── @team/               ← slot named &quot;team&quot;
+│   └── page.tsx
+└── @analytics/          ← slot named &quot;analytics&quot;
+    └── page.tsx</code></pre>
+<pre class="tsx"><code>// app/layout.tsx
+export default function Layout({
+  children,
+  team,
+  analytics,
+}: {
+  children: React.ReactNode;
+  team: React.ReactNode;
+  analytics: React.ReactNode;
+}) {
+  return (
+    &lt;div&gt;
+      {children}
+      &lt;div className=&quot;grid grid-cols-2&quot;&gt;
+        {team}
+        {analytics}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<hr />
+<h2 id="part-3-layouts">Part 3 — Layouts</h2>
+<p>Layouts wrap pages and persist across navigation — they don’t
+re-render when navigating between pages that share the same layout.</p>
+<p><strong>Real-world analogy:</strong> A website’s navbar and footer.
+When you click “About” from “Home”, the navbar doesn’t flicker or
+reload. It stays exactly as it is while only the page content changes.
+That’s a persistent layout.</p>
+<h3 id="root-layout-required">Root Layout (Required)</h3>
+<pre class="tsx"><code>// app/layout.tsx
+import type { Metadata } from &#39;next&#39;;
+import { Inter } from &#39;next/font/google&#39;;
+import &#39;./globals.css&#39;;
+
+const inter = Inter({ subsets: [&#39;latin&#39;] });
+
+// Metadata API — generates &lt;head&gt; tags
+export const metadata: Metadata = {
+  title: {
+    default: &#39;My App&#39;,
+    template: &#39;%s | My App&#39;,   // &quot;About | My App&quot;
+  },
+  description: &#39;A great Next.js application&#39;,
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    &lt;html lang=&quot;en&quot;&gt;
+      &lt;body className={inter.className}&gt;
+        &lt;header&gt;
+          &lt;nav&gt;My App&lt;/nav&gt;
+        &lt;/header&gt;
+        &lt;main&gt;{children}&lt;/main&gt;
+        &lt;footer&gt;© 2025&lt;/footer&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+<h3 id="nested-layouts">Nested Layouts</h3>
+<pre class="tsx"><code>// app/dashboard/layout.tsx
+// This layout wraps ALL pages inside /dashboard/**
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    &lt;div className=&quot;flex&quot;&gt;
+      &lt;aside&gt;
+        &lt;nav&gt;
+          &lt;a href=&quot;/dashboard&quot;&gt;Overview&lt;/a&gt;
+          &lt;a href=&quot;/dashboard/settings&quot;&gt;Settings&lt;/a&gt;
+          &lt;a href=&quot;/dashboard/analytics&quot;&gt;Analytics&lt;/a&gt;
+        &lt;/nav&gt;
+      &lt;/aside&gt;
+      &lt;section className=&quot;flex-1&quot;&gt;{children}&lt;/section&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p>Layout hierarchy:</p>
+<pre><code>RootLayout (app/layout.tsx)
+  └─ DashboardLayout (app/dashboard/layout.tsx)
+       └─ Page (app/dashboard/settings/page.tsx)</code></pre>
+<hr />
+<h2 id="part-4-server-vs-client-components">Part 4 — Server vs Client
+Components</h2>
+<p>This is the most important concept in the App Router.</p>
+<p><strong>Real-world analogy:</strong> A restaurant menu vs a
+touchscreen kiosk. - The printed menu (Server Component) is prepared in
+the kitchen, printed once, and handed to you. It’s static and efficient.
+- The touchscreen kiosk (Client Component) is interactive — you tap it,
+it responds, it tracks your order.</p>
+<p>Most of your app can be menus (Server Components). Only interactive
+parts need to be kiosks (Client Components).</p>
+<h3 id="server-components-default">Server Components (Default)</h3>
+<p>All components in the App Router are Server Components by
+default.</p>
+<pre class="tsx"><code>// app/page.tsx
+// NO &quot;use client&quot; directive = Server Component
+
+// Can use: async/await, database calls, file system, env vars
+// Cannot use: useState, useEffect, onClick, browser APIs
+
+async function getPosts() {
+  // This runs on the SERVER — no API call from browser!
+  const res = await fetch(&#39;https://api.example.com/posts&#39;, {
+    next: { revalidate: 3600 }, // cache for 1 hour
+  });
+  return res.json();
+}
+
+export default async function BlogPage() {
+  const posts = await getPosts(); // await directly in component!
+
+  return (
+    &lt;div&gt;
+      {posts.map((post: { id: number; title: string }) =&gt; (
+        &lt;article key={post.id}&gt;
+          &lt;h2&gt;{post.title}&lt;/h2&gt;
+        &lt;/article&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p><strong>Benefits of Server Components:</strong> - Zero JavaScript
+sent to browser (just HTML) - Can access backend resources directly (no
+API route needed) - Secrets (API keys, DB passwords) stay on server -
+Faster initial page load</p>
+<h3 id="client-components">Client Components</h3>
+<p>Add <code>'use client'</code> at the top of the file.</p>
+<pre class="tsx"><code>// components/Counter.tsx
+&#39;use client&#39;; // This directive makes it a Client Component
+
+import { useState } from &#39;react&#39;;
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Count: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        Increment
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<h3 id="mixing-server-and-client-components">Mixing Server and Client
+Components</h3>
+<pre class="tsx"><code>// app/page.tsx — Server Component
+import Counter from &#39;@/components/Counter&#39;; // Client Component
+import { db } from &#39;@/lib/db&#39;;
+
+export default async function Page() {
+  const user = await db.user.findFirst(); // server-side DB query
+
+  return (
+    &lt;div&gt;
+      {/* Server-rendered content */}
+      &lt;h1&gt;Welcome, {user.name}&lt;/h1&gt;
+
+      {/* Client Component embedded in server component */}
+      &lt;Counter /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p><strong>Rules:</strong> - Server Components can import Client
+Components ✓ - Client Components cannot import Server Components ✗ - You
+can pass Server Component output as props/children to Client Components
+✓</p>
+<pre class="tsx"><code>// Pattern: pass server data as props to client component
+// app/page.tsx (Server)
+import InteractiveList from &#39;@/components/InteractiveList&#39;;
+import { getItems } from &#39;@/lib/data&#39;;
+
+export default async function Page() {
+  const items = await getItems(); // server-side fetch
+  return &lt;InteractiveList items={items} /&gt;; // pass to client
+}
+
+// components/InteractiveList.tsx (Client)
+&#39;use client&#39;;
+import { useState } from &#39;react&#39;;
+
+export default function InteractiveList({
+  items,
+}: {
+  items: { id: number; name: string }[];
+}) {
+  const [selected, setSelected] = useState&lt;number | null&gt;(null);
+  return (
+    &lt;ul&gt;
+      {items.map((item) =&gt; (
+        &lt;li
+          key={item.id}
+          onClick={() =&gt; setSelected(item.id)}
+          className={selected === item.id ? &#39;bg-blue-100&#39; : &#39;&#39;}
+        &gt;
+          {item.name}
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+<hr />
+<h2 id="part-5-data-fetching">Part 5 — Data Fetching</h2>
+<h3 id="fetch-in-server-components">fetch() in Server Components</h3>
+<p>Next.js extends the native <code>fetch</code> API with caching
+options.</p>
+<pre class="tsx"><code>// Default: cached (like SSG — generated once)
+const data = await fetch(&#39;https://api.example.com/data&#39;);
+
+// Revalidate every 60 seconds (like ISR)
+const data = await fetch(&#39;https://api.example.com/data&#39;, {
+  next: { revalidate: 60 },
+});
+
+// Never cache (like SSR — fresh on every request)
+const data = await fetch(&#39;https://api.example.com/data&#39;, {
+  cache: &#39;no-store&#39;,
+});
+
+// Tag-based revalidation (revalidate on demand)
+const data = await fetch(&#39;https://api.example.com/posts&#39;, {
+  next: { tags: [&#39;posts&#39;] },
+});</code></pre>
+<h3 id="parallel-data-fetching">Parallel Data Fetching</h3>
+<pre class="tsx"><code>// BAD: sequential (each waits for previous)
+const user = await fetchUser(id);           // 100ms
+const posts = await fetchPosts(user.id);    // 100ms
+const comments = await fetchComments();     // 100ms
+// Total: 300ms
+
+// GOOD: parallel
+const [user, posts, comments] = await Promise.all([
+  fetchUser(id),
+  fetchPosts(),
+  fetchComments(),
+]);
+// Total: ~100ms (all run at same time)</code></pre>
+<h3 id="loading-states-with-suspense">Loading States with Suspense</h3>
+<pre class="tsx"><code>// app/dashboard/page.tsx
+import { Suspense } from &#39;react&#39;;
+import UserProfile from &#39;./UserProfile&#39;;
+import RecentPosts from &#39;./RecentPosts&#39;;
+
+export default function DashboardPage() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Dashboard&lt;/h1&gt;
+
+      {/* Each Suspense boundary shows its own loading state */}
+      &lt;Suspense fallback={&lt;div&gt;Loading profile...&lt;/div&gt;}&gt;
+        &lt;UserProfile /&gt;  {/* Async Server Component */}
+      &lt;/Suspense&gt;
+
+      &lt;Suspense fallback={&lt;div&gt;Loading posts...&lt;/div&gt;}&gt;
+        &lt;RecentPosts /&gt;  {/* Async Server Component */}
+      &lt;/Suspense&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<pre class="tsx"><code>// app/dashboard/UserProfile.tsx
+async function UserProfile() {
+  const user = await fetchUser(); // This component streams independently
+  return &lt;div&gt;{user.name}&lt;/div&gt;;
+}</code></pre>
+<h3 id="loading-file-automatic-suspense">Loading File (Automatic
+Suspense)</h3>
+<p>Create <code>loading.tsx</code> in any folder — it automatically
+wraps the page in Suspense.</p>
+<pre class="tsx"><code>// app/dashboard/loading.tsx
+export default function Loading() {
+  return (
+    &lt;div className=&quot;animate-pulse&quot;&gt;
+      &lt;div className=&quot;h-8 bg-gray-200 rounded w-1/4 mb-4&quot; /&gt;
+      &lt;div className=&quot;h-4 bg-gray-200 rounded w-full mb-2&quot; /&gt;
+      &lt;div className=&quot;h-4 bg-gray-200 rounded w-3/4&quot; /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<h3 id="error-handling">Error Handling</h3>
+<pre class="tsx"><code>// app/dashboard/error.tsx
+&#39;use client&#39;; // Error boundaries must be Client Components
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error &amp; { digest?: string };
+  reset: () =&gt; void;
+}) {
+  return (
+    &lt;div className=&quot;text-center p-8&quot;&gt;
+      &lt;h2&gt;Something went wrong!&lt;/h2&gt;
+      &lt;p className=&quot;text-gray-600&quot;&gt;{error.message}&lt;/p&gt;
+      &lt;button
+        onClick={reset}
+        className=&quot;mt-4 px-4 py-2 bg-blue-500 text-white rounded&quot;
+      &gt;
+        Try again
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<hr />
+<h2 id="part-6-server-actions">Part 6 — Server Actions</h2>
+<p>Server Actions let you run server-side code directly from form
+submissions or button clicks — no API route needed.</p>
+<p><strong>Real-world analogy:</strong> Instead of writing a letter (API
+route), mailing it (HTTP request), and waiting for a reply letter, it’s
+like having a direct phone line to the server. Click a button on your
+screen, server code runs immediately.</p>
+<pre class="tsx"><code>// app/contact/page.tsx
+async function sendEmail(formData: FormData) {
+  &#39;use server&#39;; // This function runs on the SERVER
+
+  const name = formData.get(&#39;name&#39;) as string;
+  const email = formData.get(&#39;email&#39;) as string;
+  const message = formData.get(&#39;message&#39;) as string;
+
+  // Direct DB call, email service, etc.
+  await emailService.send({
+    to: &#39;admin@mysite.com&#39;,
+    subject: `Message from ${name}`,
+    body: message,
+  });
+
+  // revalidate cached data if needed
+  // revalidatePath(&#39;/contact&#39;);
+}
+
+export default function ContactPage() {
+  return (
+    &lt;form action={sendEmail}&gt;
+      &lt;input name=&quot;name&quot; placeholder=&quot;Your name&quot; required /&gt;
+      &lt;input name=&quot;email&quot; type=&quot;email&quot; required /&gt;
+      &lt;textarea name=&quot;message&quot; required /&gt;
+      &lt;button type=&quot;submit&quot;&gt;Send&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+<p><strong>Server Actions with feedback:</strong></p>
+<pre class="tsx"><code>// app/todos/page.tsx
+&#39;use client&#39;;
+
+import { useFormState, useFormStatus } from &#39;react-dom&#39;;
+import { addTodo } from &#39;./actions&#39;;
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    &lt;button type=&quot;submit&quot; disabled={pending}&gt;
+      {pending ? &#39;Adding...&#39; : &#39;Add Todo&#39;}
+    &lt;/button&gt;
+  );
+}
+
+export default function TodoPage() {
+  const [state, action] = useFormState(addTodo, { message: &#39;&#39; });
+
+  return (
+    &lt;form action={action}&gt;
+      &lt;input name=&quot;title&quot; placeholder=&quot;New todo...&quot; /&gt;
+      &lt;SubmitButton /&gt;
+      {state.message &amp;&amp; &lt;p&gt;{state.message}&lt;/p&gt;}
+    &lt;/form&gt;
+  );
+}</code></pre>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">// app/todos/actions.ts</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="st">&#39;use server&#39;</span><span class="op">;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { revalidatePath } <span class="im">from</span> <span class="st">&#39;next/cache&#39;</span><span class="op">;</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">addTodo</span>(</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  prevState<span class="op">:</span> { message<span class="op">:</span> <span class="dt">string</span> }<span class="op">,</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  formData<span class="op">:</span> <span class="bu">FormData</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>) {</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> title <span class="op">=</span> formData<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;title&#39;</span>) <span class="im">as</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>title<span class="op">.</span><span class="fu">trim</span>()) {</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> { message<span class="op">:</span> <span class="st">&#39;Title is required&#39;</span> }<span class="op">;</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> db<span class="op">.</span><span class="at">todo</span><span class="op">.</span><span class="fu">create</span>({ data<span class="op">:</span> { title } })<span class="op">;</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">revalidatePath</span>(<span class="st">&#39;/todos&#39;</span>)<span class="op">;</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> { message<span class="op">:</span> <span class="st">&#39;Todo added!&#39;</span> }<span class="op">;</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+<h2 id="part-7-api-routes">Part 7 — API Routes</h2>
+<p>For REST APIs or webhooks, use Route Handlers.</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">// app/api/posts/route.ts</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { NextRequest<span class="op">,</span> NextResponse } <span class="im">from</span> <span class="st">&#39;next/server&#39;</span><span class="op">;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co">// GET /api/posts</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">GET</span>(request<span class="op">:</span> NextRequest) {</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> searchParams <span class="op">=</span> request<span class="op">.</span><span class="at">nextUrl</span><span class="op">.</span><span class="at">searchParams</span><span class="op">;</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> page <span class="op">=</span> searchParams<span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;page&#39;</span>) <span class="op">??</span> <span class="st">&#39;1&#39;</span><span class="op">;</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> posts <span class="op">=</span> <span class="cf">await</span> db<span class="op">.</span><span class="at">post</span><span class="op">.</span><span class="fu">findMany</span>({</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    skip<span class="op">:</span> (<span class="pp">parseInt</span>(page) <span class="op">-</span> <span class="dv">1</span>) <span class="op">*</span> <span class="dv">10</span><span class="op">,</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    take<span class="op">:</span> <span class="dv">10</span><span class="op">,</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> NextResponse<span class="op">.</span><span class="fu">json</span>(posts)<span class="op">;</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="co">// POST /api/posts</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">POST</span>(request<span class="op">:</span> NextRequest) {</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> body <span class="op">=</span> <span class="cf">await</span> request<span class="op">.</span><span class="fu">json</span>()<span class="op">;</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> post <span class="op">=</span> <span class="cf">await</span> db<span class="op">.</span><span class="at">post</span><span class="op">.</span><span class="fu">create</span>({</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    data<span class="op">:</span> {</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>      title<span class="op">:</span> body<span class="op">.</span><span class="at">title</span><span class="op">,</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>      content<span class="op">:</span> body<span class="op">.</span><span class="at">content</span><span class="op">,</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    }<span class="op">,</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> NextResponse<span class="op">.</span><span class="fu">json</span>(post<span class="op">,</span> { status<span class="op">:</span> <span class="dv">201</span> })<span class="op">;</span></span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>Dynamic API routes:</strong></p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">// app/api/posts/[id]/route.ts</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">GET</span>(</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  request<span class="op">:</span> NextRequest<span class="op">,</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  { params }<span class="op">:</span> { params<span class="op">:</span> { id<span class="op">:</span> <span class="dt">string</span> } }</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>) {</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> post <span class="op">=</span> <span class="cf">await</span> db<span class="op">.</span><span class="at">post</span><span class="op">.</span><span class="fu">findUnique</span>({</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    where<span class="op">:</span> { id<span class="op">:</span> <span class="pp">parseInt</span>(params<span class="op">.</span><span class="at">id</span>) }<span class="op">,</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="op">!</span>post) {</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> NextResponse<span class="op">.</span><span class="fu">json</span>({ error<span class="op">:</span> <span class="st">&#39;Not found&#39;</span> }<span class="op">,</span> { status<span class="op">:</span> <span class="dv">404</span> })<span class="op">;</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> NextResponse<span class="op">.</span><span class="fu">json</span>(post)<span class="op">;</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">async</span> <span class="kw">function</span> <span class="fu">DELETE</span>(</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  request<span class="op">:</span> NextRequest<span class="op">,</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  { params }<span class="op">:</span> { params<span class="op">:</span> { id<span class="op">:</span> <span class="dt">string</span> } }</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>) {</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">await</span> db<span class="op">.</span><span class="at">post</span><span class="op">.</span><span class="fu">delete</span>({ where<span class="op">:</span> { id<span class="op">:</span> <span class="pp">parseInt</span>(params<span class="op">.</span><span class="at">id</span>) } })<span class="op">;</span></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">new</span> <span class="fu">NextResponse</span>(<span class="kw">null</span><span class="op">,</span> { status<span class="op">:</span> <span class="dv">204</span> })<span class="op">;</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+<h2 id="part-8-navigation">Part 8 — Navigation</h2>
+<h3 id="link-component">Link Component</h3>
+<pre class="tsx"><code>import Link from &#39;next/link&#39;;
+
+// Basic link
+&lt;Link href=&quot;/about&quot;&gt;About&lt;/Link&gt;
+
+// Dynamic link
+&lt;Link href={`/blog/${post.slug}`}&gt;{post.title}&lt;/Link&gt;
+
+// With query params
+&lt;Link href={{ pathname: &#39;/search&#39;, query: { q: &#39;nextjs&#39; } }}&gt;
+  Search
+&lt;/Link&gt;
+
+// Prefetch disabled (default is to prefetch in viewport)
+&lt;Link href=&quot;/heavy-page&quot; prefetch={false}&gt;
+  Heavy Page
+&lt;/Link&gt;
+
+// Replace (go back won&#39;t return to current page)
+&lt;Link href=&quot;/login&quot; replace&gt;Login&lt;/Link&gt;</code></pre>
+<h3 id="userouter-programmatic-navigation">useRouter (Programmatic
+Navigation)</h3>
+<pre class="tsx"><code>&#39;use client&#39;;
+
+import { useRouter, usePathname, useSearchParams } from &#39;next/navigation&#39;;
+
+export default function Navigation() {
+  const router = useRouter();
+  const pathname = usePathname();   // current path: &quot;/dashboard&quot;
+  const searchParams = useSearchParams(); // URLSearchParams object
+
+  const handleLogin = async () =&gt; {
+    await login();
+    router.push(&#39;/dashboard&#39;);        // navigate programmatically
+    // router.replace(&#39;/dashboard&#39;); // replace history entry
+    // router.back();                // go back
+    // router.refresh();             // refresh server components
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Current path: {pathname}&lt;/p&gt;
+      &lt;button onClick={handleLogin}&gt;Login&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<hr />
+<h2 id="part-9-metadata-and-seo">Part 9 — Metadata and SEO</h2>
+<pre class="tsx"><code>// Static metadata
+export const metadata = {
+  title: &#39;About Us&#39;,
+  description: &#39;Learn more about our team&#39;,
+  openGraph: {
+    title: &#39;About Us&#39;,
+    description: &#39;Learn more about our team&#39;,
+    images: [&#39;/og-image.jpg&#39;],
+  },
+  twitter: {
+    card: &#39;summary_large_image&#39;,
+  },
+};
+
+// Dynamic metadata (for dynamic routes)
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const post = await getPost(params.slug);
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      images: [post.coverImage],
+    },
+  };
+}</code></pre>
+<hr />
+<h2 id="part-10-image-optimization">Part 10 — Image Optimization</h2>
+<pre class="tsx"><code>import Image from &#39;next/image&#39;;
+
+// Automatic optimization: WebP conversion, lazy loading, blur placeholder
+&lt;Image
+  src=&quot;/hero.jpg&quot;
+  alt=&quot;Hero image&quot;
+  width={1200}
+  height={630}
+  priority        // load immediately (above the fold)
+/&gt;
+
+// Fill container (responsive)
+&lt;div className=&quot;relative h-64&quot;&gt;
+  &lt;Image
+    src=&quot;/banner.jpg&quot;
+    alt=&quot;Banner&quot;
+    fill
+    className=&quot;object-cover&quot;
+  /&gt;
+&lt;/div&gt;
+
+// Remote images (must configure next.config.js)
+&lt;Image
+  src=&quot;https://images.unsplash.com/photo-...&quot;
+  alt=&quot;Remote image&quot;
+  width={400}
+  height={300}
+/&gt;</code></pre>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode js"><code class="sourceCode javascript"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">// next.config.js</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>module<span class="op">.</span><span class="at">exports</span> <span class="op">=</span> {</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">images</span><span class="op">:</span> {</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">remotePatterns</span><span class="op">:</span> [</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">protocol</span><span class="op">:</span> <span class="st">&#39;https&#39;</span><span class="op">,</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">hostname</span><span class="op">:</span> <span class="st">&#39;images.unsplash.com&#39;</span><span class="op">,</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>      }<span class="op">,</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    ]<span class="op">,</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+<hr />
+<h2 id="part-11-middleware">Part 11 — Middleware</h2>
+<p>Runs before a request is completed. Use for auth, redirects, A/B
+testing.</p>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">// middleware.ts (at project root, not inside app/)</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { NextResponse } <span class="im">from</span> <span class="st">&#39;next/server&#39;</span><span class="op">;</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="im">type</span> { NextRequest } <span class="im">from</span> <span class="st">&#39;next/server&#39;</span><span class="op">;</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">function</span> <span class="fu">middleware</span>(request<span class="op">:</span> NextRequest) {</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> { pathname } <span class="op">=</span> request<span class="op">.</span><span class="at">nextUrl</span><span class="op">;</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Check authentication for dashboard routes</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (pathname<span class="op">.</span><span class="fu">startsWith</span>(<span class="st">&#39;/dashboard&#39;</span>)) {</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> token <span class="op">=</span> request<span class="op">.</span><span class="at">cookies</span><span class="op">.</span><span class="fu">get</span>(<span class="st">&#39;auth-token&#39;</span>)<span class="op">;</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>token) {</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> NextResponse<span class="op">.</span><span class="fu">redirect</span>(<span class="kw">new</span> <span class="fu">URL</span>(<span class="st">&#39;/login&#39;</span><span class="op">,</span> request<span class="op">.</span><span class="at">url</span>))<span class="op">;</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Add custom headers to every response</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> response <span class="op">=</span> NextResponse<span class="op">.</span><span class="fu">next</span>()<span class="op">;</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  response<span class="op">.</span><span class="at">headers</span><span class="op">.</span><span class="fu">set</span>(<span class="st">&#39;X-Frame-Options&#39;</span><span class="op">,</span> <span class="st">&#39;DENY&#39;</span>)<span class="op">;</span></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> response<span class="op">;</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a><span class="co">// Only run on these paths (not static files)</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> config <span class="op">=</span> {</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>  matcher<span class="op">:</span> [<span class="st">&#39;/((?!_next/static|_next/image|favicon.ico).*)&#39;</span>]<span class="op">,</span></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+<hr />
+<h2 id="part-12-environment-variables">Part 12 — Environment
+Variables</h2>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .env.local (never commit this)</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="va">DATABASE_URL</span><span class="op">=</span>postgres://...</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="va">STRIPE_SECRET_KEY</span><span class="op">=</span>sk_live_...</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="co"># .env (commit this — non-secrets only)</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="va">NEXT_PUBLIC_API_URL</span><span class="op">=</span>https://api.myapp.com</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="va">NEXT_PUBLIC_SITE_NAME</span><span class="op">=</span>My <span class="ex">App</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode ts"><code class="sourceCode typescript"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Server-only (no NEXT_PUBLIC_ prefix)</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> dbUrl <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="at">DATABASE_URL</span><span class="op">;</span>  <span class="co">// only works in server code</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Client-accessible (must have NEXT_PUBLIC_ prefix)</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> apiUrl <span class="op">=</span> <span class="bu">process</span><span class="op">.</span><span class="at">env</span><span class="op">.</span><span class="at">NEXT_PUBLIC_API_URL</span><span class="op">;</span>  <span class="co">// works everywhere</span></span></code></pre></div>
+<hr />
+<h2 id="complete-example-blog-application">Complete Example — Blog
+Application</h2>
+<pre><code>app/
+├── layout.tsx
+├── page.tsx                   ← Home page with recent posts
+├── blog/
+│   ├── page.tsx               ← All posts
+│   └── [slug]/
+│       └── page.tsx           ← Individual post
+└── api/
+    └── posts/
+        └── route.ts           ← REST API</code></pre>
+<pre class="tsx"><code>// app/blog/page.tsx
+import Link from &#39;next/link&#39;;
+
+interface Post {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+}
+
+async function getPosts(): Promise&lt;Post[]&gt; {
+  const res = await fetch(&#39;https://api.example.com/posts&#39;, {
+    next: { revalidate: 3600 },
+  });
+  return res.json();
+}
+
+export const metadata = {
+  title: &#39;Blog&#39;,
+  description: &#39;Read our latest articles&#39;,
+};
+
+export default async function BlogPage() {
+  const posts = await getPosts();
+
+  return (
+    &lt;div className=&quot;max-w-4xl mx-auto px-4 py-12&quot;&gt;
+      &lt;h1 className=&quot;text-4xl font-bold mb-8&quot;&gt;Blog&lt;/h1&gt;
+      &lt;div className=&quot;grid gap-8&quot;&gt;
+        {posts.map((post) =&gt; (
+          &lt;article key={post.id} className=&quot;border rounded-lg p-6&quot;&gt;
+            &lt;time className=&quot;text-sm text-gray-500&quot;&gt;{post.date}&lt;/time&gt;
+            &lt;h2 className=&quot;text-2xl font-semibold mt-1 mb-2&quot;&gt;
+              &lt;Link
+                href={`/blog/${post.slug}`}
+                className=&quot;hover:text-blue-600&quot;
+              &gt;
+                {post.title}
+              &lt;/Link&gt;
+            &lt;/h2&gt;
+            &lt;p className=&quot;text-gray-600&quot;&gt;{post.excerpt}&lt;/p&gt;
+            &lt;Link
+              href={`/blog/${post.slug}`}
+              className=&quot;inline-block mt-4 text-blue-600 font-medium&quot;
+            &gt;
+              Read more →
+            &lt;/Link&gt;
+          &lt;/article&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<hr />
+<h2 id="key-concepts-summary">Key Concepts Summary</h2>
+<pre><code>File                Purpose
+─────────────────────────────────────────────────────
+page.tsx            Route page
+layout.tsx          Persistent layout wrapper
+loading.tsx         Automatic Suspense fallback
+error.tsx           Error boundary (must be &#39;use client&#39;)
+not-found.tsx       404 page
+route.ts            API endpoint (GET, POST, PUT, DELETE)
+middleware.ts       Runs before every request
+
+Directive           Meaning
+─────────────────────────────────────────────────────
+(none)              Server Component (default)
+&#39;use client&#39;        Client Component (useState, events)
+&#39;use server&#39;        Server Action (form actions, mutations)
+
+fetch options       Behavior
+─────────────────────────────────────────────────────
+(default)           Cache forever (SSG)
+revalidate: N       Cache for N seconds (ISR)
+cache: &#39;no-store&#39;   No cache (SSR, always fresh)
+tags: [&#39;x&#39;]         Tag for on-demand revalidation</code></pre>
+<hr />
+<h2 id="references">References</h2>
+<ul>
+<li>Next.js Docs — <a
+href="https://nextjs.org/docs">nextjs.org/docs</a></li>
+<li>App Router Tutorial — <a
+href="https://nextjs.org/learn">nextjs.org/learn</a></li>
+<li>React Server Components — <a
+href="https://react.dev/blog/2023/03/22/react-labs-what-we-have-been-working-on-march-2023">react.dev/blog</a></li>
+<li>Vercel Blog — <a
+href="https://vercel.com/blog">vercel.com/blog</a></li>
+</ul>
+
+</div>
+
+<!-- ── SEARCH MODAL ── -->
+<div class="search-modal" id="searchModal" onclick="closeSearchOutside(event)">
+    <div class="search-box" onclick="event.stopPropagation()">
+        <div class="search-input-row">
+            <span class="search-icon">⌕</span>
+            <input
+                class="search-input" id="searchInput"
+                placeholder="search notes..."
+                oninput="doSearch()"
+                onkeydown="searchKeyNav(event)"
+                autocomplete="off" spellcheck="false"
+            >
+            <button class="search-close" onclick="closeSearch()">esc</button>
+        </div>
+        <div class="search-results" id="searchResults">
+            <div class="search-empty">type to search all notes</div>
+        </div>
+        <div class="search-footer">
+            <span class="sf-hint"><span class="sf-key">↑↓</span> navigate</span>
+            <span class="sf-hint"><span class="sf-key">enter</span> open</span>
+            <span class="sf-hint"><span class="sf-key">esc</span> close</span>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── SIDEBAR ──
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+}
+
+// ── SEARCH ──
+let searchIndex = null;
+let focusIdx = -1;
+
+async function loadIndex() {
+    if (searchIndex) return;
+    try {
+        // figure out base path (works from any subfolder depth)
+        const base = document.location.pathname.includes('/output/')
+            ? document.location.pathname.replace(/\/output\/.*/, '/output/')
+            : './';
+        const r = await fetch(base + 'search-index.json');
+        searchIndex = await r.json();
+    } catch(e) {
+        searchIndex = [];
+        console.warn('search index not found');
+    }
+}
+
+function openSearch() {
+    loadIndex();
+    document.getElementById('searchModal').classList.add('open');
+    setTimeout(() => document.getElementById('searchInput').focus(), 50);
+}
+
+function closeSearch() {
+    document.getElementById('searchModal').classList.remove('open');
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').innerHTML = '<div class="search-empty">type to search all notes</div>';
+    focusIdx = -1;
+}
+
+function closeSearchOutside(e) {
+    if (e.target === document.getElementById('searchModal')) closeSearch();
+}
+
+// ctrl+k / cmd+k
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if (e.key === 'Escape') closeSearch();
+});
+
+function highlight(text, query) {
+    if (!query) return text;
+    const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    return text.replace(re, '<em>$1</em>');
+}
+
+function doSearch() {
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    const res = document.getElementById('searchResults');
+    focusIdx = -1;
+
+    if (!q) {
+        res.innerHTML = '<div class="search-empty">type to search all notes</div>';
+        return;
+    }
+    if (!searchIndex || !searchIndex.length) {
+        res.innerHTML = '<div class="search-empty"><span>building index...</span></div>';
+        return;
+    }
+
+    // score each entry
+    const scored = [];
+    for (const entry of searchIndex) {
+        const titleMatch = entry.title.toLowerCase().includes(q);
+        const pageMatch  = entry.page.toLowerCase().includes(q);
+        const bodyMatch  = entry.body.toLowerCase().includes(q);
+        if (!titleMatch && !pageMatch && !bodyMatch) continue;
+
+        let score = 0;
+        if (titleMatch) score += 10;
+        if (pageMatch)  score += 5;
+        if (bodyMatch)  score += 1;
+
+        // find surrounding context for body match
+        let matchSnippet = '';
+        if (bodyMatch) {
+            const idx = entry.body.toLowerCase().indexOf(q);
+            const start = Math.max(0, idx - 30);
+            const end   = Math.min(entry.body.length, idx + q.length + 60);
+            matchSnippet = (start > 0 ? '…' : '') + entry.body.slice(start, end) + (end < entry.body.length ? '…' : '');
+        }
+
+        scored.push({ ...entry, score, matchSnippet });
+    }
+
+    scored.sort((a, b) => b.score - a.score);
+    const top = scored.slice(0, 12);
+
+    if (!top.length) {
+        res.innerHTML = `<div class="search-empty">no results for <span>"${q}"</span></div>`;
+        return;
+    }
+
+    res.innerHTML = top.map((r, i) => `
+        <a class="search-result" href="${r.href}" data-idx="${i}">
+            <span class="sr-left">#</span>
+            <div class="sr-body">
+                <div class="sr-title">${highlight(r.title, q)}</div>
+                <div class="sr-page">${r.page}</div>
+                ${r.matchSnippet ? `<div class="sr-match">${highlight(r.matchSnippet, q)}</div>` : ''}
+            </div>
+        </a>
+    `).join('');
+}
+
+function searchKeyNav(e) {
+    const items = document.querySelectorAll('.search-result');
+    if (e.key === 'ArrowDown') { e.preventDefault(); focusIdx = Math.min(focusIdx + 1, items.length - 1); }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); focusIdx = Math.max(focusIdx - 1, 0); }
+    if (e.key === 'Enter' && focusIdx >= 0) { items[focusIdx].click(); }
+    items.forEach((el, i) => el.classList.toggle('focused', i === focusIdx));
+    if (focusIdx >= 0) items[focusIdx].scrollIntoView({ block: 'nearest' });
+}
+</script>
+</body>
+</html>
