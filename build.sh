@@ -37,7 +37,9 @@ ORDER=(
     "css"
     "js"
     "ts"
+    "tailwind"
     "react"
+    "nextjs"
 
     # backend and data
     "py"
